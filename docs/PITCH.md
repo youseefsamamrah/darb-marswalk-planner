@@ -71,8 +71,10 @@ They are one line in `js/config.js`, so mission planners could change them.
 
 **3. What if Ask Darb is wrong?**
 The safety score is computed by our algorithm, not by the AI. The AI only explains. We give it only the app's facts,
-use a low temperature and tell it to say "I don't know". We tested a question with no data (gravity) and it said
-"I don't know". It can still make mistakes, so it is an assistant, not the decision-maker.
+use a low temperature and tell it to say "I don't know". And we **measured** it: an 18-question test set checks
+facts against the real data and asks 6 questions the data can't answer. It scored 54 out of 54 over 3 runs.
+Reading the answers ourselves, we caught 3 small invented details in an earlier version and fixed them — that's
+why we test. It can still make mistakes, so it is an assistant, not the decision-maker.
 
 **4. Why run the AI locally instead of using a big cloud model?**
 Light delay of 4–24 minutes each way, and blackouts during solar conjunction. A local model always answers,
