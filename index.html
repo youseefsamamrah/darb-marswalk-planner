@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Darb — Marswalk Planner</title>
+  <!-- Leaflet is stored locally in vendor/ so the app works without internet -->
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">د</span>
+      <div>
+        <h1 data-i18n="title">Darb</h1>
+        <p data-i18n="subtitle">Marswalk Planner · Mount Sharp, Gale Crater</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="delay" data-i18n="lightDelay"></span>
+      <button id="hudBtn" class="btn ghost" data-i18n="hudBtn">HUD mode</button>
+      <button id="langBtn" class="btn ghost" data-i18n="langBtn">عربي</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- ===== Side panel ===== -->
+    <aside class="panel" id="panel">
+      <!-- Data layers -->
+      <section class="card">
+        <h2 data-i18n="layersTitle">Data layers</h2>
+        <label class="toggle"><input type="checkbox" id="lySlope" checked> <span data-i18n="layerSlope"></span></label>
+        <p class="legend slope-legend" data-i18n="legendSlope"></p>
+        <label class="toggle"><input type="checkbox" id="lyThermal"> <span data-i18n="layerThermal"></span></label>
+        <p class="legend" data-i18n="legendThermal"></p>
+        <label class="toggle"><input type="checkbox" id="lyMinerals"> <span data-i18n="layerMinerals"></span></label>
+        <select id="crismSelect" class="select"></select>
+        <p class="legend" id="crismLegend"></p>
+        <label class="toggle"><input type="checkbox" id="lyMola"> <span data-i18n="layerMola"></span></label>
+        <label class="toggle"><input type="checkbox" id="lyRover" checked> <span data-i18n="layerRover"></span></label>
+        <label class="opacity">Opacity <input type="range" id="opacity" min="0.1" max="1" step="0.05" value="0.55"></label>
+      </section>
+
+      <!-- Route planner -->
+      <section class="card">
+        <h2 data-i18n="routeTitle">Route planner</h2>
+        <p class="help" data-i18n="routeHelp"></p>
+        <div class="row">
+          <button id="demoBtn" class="btn primary" data-i18n="demoBtn">Demo</button>
+          <button id="clearBtn" class="btn ghost" data-i18n="clearBtn">Clear</button>
+        </div>
+        <label class="buddy"><input type="checkbox" id="buddyOn"> <span data-i18n="buddyLabel"></span>
+          <input type="number" id="buddyM" value="100" min="20" max="1000" step="10"></label>
+        <div id="routeMsg" class="msg" role="status"></div>
+        <div id="routeCard" class="route-card hidden">
+          <div id="safety" class="safety"></div>
+          <div id="reasons" class="reasons"></div>
+          <dl class="stats">
+            <dt data-i18n="distance"></dt><dd id="stDist"></dd>
+            <dt data-i18n="timeOut"></dt><dd id="stTime"></dd>
+            <dt data-i18n="roundTrip"></dt><dd id="stRound"></dd>
+            <dt data-i18n="o2"></dt><dd id="stO2"></dd>
+            <dt data-i18n="gain"></dt><dd id="stGain"></dd>
+            <dt data-i18n="maxSlope"></dt><dd id="stSlope"></dd>
+            <dt data-i18n="sand"></dt><dd id="stSand"></dd>
+            <dt data-i18n="dose"></dt><dd id="stDose"></dd>
+          </dl>
+          <button id="simBtn" class="btn primary" data-i18n="simulateBtn">Simulate walk</button>
+        </div>
+      </section>
+
+      <!-- Weather and radiation -->
+      <section class="card">
+        <h2 data-i18n="envTitle">Weather & radiation</h2>
+        <dl class="stats" id="envStats"></dl>
+        <p class="source" id="envSource"></p>
+      </section>
+
+      <!-- Ask Darb -->
+      <section class="card ask">
+        <h2 data-i18n="askTitle">Ask Darb</h2>
+        <div class="ask-status"><span id="aiDot" class="dot off"></span><span id="aiStatus" data-i18n="askOffline"></span></div>
+        <select id="aiModel" class="select hidden"></select>
+        <div class="chips">
+          <button class="chip" data-q="q1" data-i18n="q1"></button>
+          <button class="chip" data-q="q2" data-i18n="q2"></button>
+          <button class="chip" data-q="q3" data-i18n="q3"></button>
+        </div>
+        <div id="chat" class="chat" aria-live="polite"></div>
+        <form id="askForm" class="ask-form">
+          <input id="askInput" type="text" data-i18n-placeholder="askPlaceholder" autocomplete="off">
+          <button class="btn primary" data-i18n="askSend">Ask</button>
+        </form>
+      </section>
+
+      <p class="source" data-i18n="sampleNote"></p>
+      <p class="source">Sources: <a href="SOURCES.md" target="_blank">SOURCES.md</a> · Map tiles: NASA Mars Trek</p>
+    </aside>
+
+    <!-- ===== Map ===== -->
+    <section class="map-wrap">
+      <div id="map"></div>
+      <div id="hover" class="hover" data-i18n="hover"></div>
+      <!-- HUD (helmet visor) overlay, shown only in HUD mode -->
+      <div id="hud" class="hud hidden" aria-hidden="true">
+        <div class="visor"></div>
+        <div class="hud-top">
+          <div class="compass"><div id="compassNeedle" class="needle"></div><span>N</span></div>
+          <div class="hud-box"><small>GOAL</small><b id="hudDist">—</b></div>
+          <div class="hud-box"><small>O₂</small><b id="hudO2">—</b></div>
+          <div class="hud-box"><small>SLOPE</small><b id="hudSlope">—</b></div>
+          <div class="hud-box"><small>EARTH DELAY</small><b id="hudDelay">—</b></div>
+        </div>
+        <div id="hudWarn" class="hud-warn"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/route.js"></script>
+  <script src="js/askdarb.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

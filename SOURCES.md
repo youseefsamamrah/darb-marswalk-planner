@@ -1,0 +1,51 @@
+# SOURCES.md — every data source used by Darb
+
+All data is public and free. Every link below was tested (HTTP 200) on 2026-11-12.
+**No SAMPLE DATA is shown in the app**: every layer and number comes from these sources.
+Things that are *our own assumptions* (not data) are listed at the bottom.
+
+## Map tiles (shown live, need internet)
+| Layer in app | Source | Link |
+|---|---|---|
+| Base map (global) | Viking MDIM 2.1 colour mosaic, NASA/USGS, via **NASA Mars Trek** WMTS | https://trek.nasa.gov/tiles/Mars/EQ/Mars_Viking_MDIM21_ClrMosaic_global_232m/1.0.0/WMTSCapabilities.xml |
+| Base map (Gale Crater, sharp) | MRO **CTX** Gale Crater mosaic (NASA/JPL/MSSS) via Mars Trek | https://trek.nasa.gov/tiles/Mars/EQ/Gale_CTX_BlockAdj_dd/1.0.0/WMTSCapabilities.xml |
+| Elevation hillshade | MGS **MOLA** colour hillshade (NASA/GSFC) via Mars Trek | https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/WMTSCapabilities.xml |
+| Thermal inertia proxy | Mars Odyssey **THEMIS** night-time IR global mosaic v2 (NASA/JPL/ASU) via Mars Trek | https://trek.nasa.gov/tiles/Mars/EQ/THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018/1.0.0/WMTSCapabilities.xml |
+
+Tile URL pattern: `https://trek.nasa.gov/tiles/Mars/EQ/{layer}/1.0.0/default/default028mm/{z}/{y}/{x}.{png|jpg}`
+(geographic tiling, 2×1 tiles at zoom 0 = Leaflet `L.CRS.EPSG4326`). Mars Trek home: https://trek.nasa.gov/mars/
+
+## Data files in `data/` (built by `tools/build_data.py`, work offline)
+| File | What | Source |
+|---|---|---|
+| `grid.json` → elevation | MGS **MOLA MEGDR** 128 pixels/degree (~463 m), file MEGT00N090HB.IMG, read with an HTTP range request | NASA PDS Geosciences Node: https://pds-geosciences.wustl.edu/mgs/mgs-m-mola-5-megdr-l3-v1/mgsl_300x/meg128/megt00n090hb.img (label: same path `.lbl`) |
+| `grid.json` → slope | Computed by us from the MOLA elevation (central differences) | — |
+| `grid.json` → thermal | THEMIS night IR tiles (zoom 9, ~81 m/pixel), averaged per cell, stretched 0–1 inside our box (relative) | Mars Trek tiles above |
+| `crism/*.png`, `crism/products.json` | MRO **CRISM** MTRDR browse products (PHY, HYD, MAF, FEM, TRU) of observation **FRT0000B6F1** (2008-07-09), map-projected | PDS Geosciences Node: https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/browse/2008/2008_191/frt0000b6f1/ · product search via PDS ODE REST: https://oderest.rsl.wustl.edu/ |
+| `environment.json` → REMS | Curiosity **REMS** daily weather (last 30 sols), provided by Centro de Astrobiología (CSIC-INTA, Spain) for outreach | https://mars.nasa.gov/rss/api/?feed=weather&category=msl&feedtype=json (science data: PDS Atmospheres Node) |
+| `environment.json` → RAD | Curiosity **RAD**: 0.21 ± 0.04 mGy/day, 0.64 ± 0.12 mSv/day on the surface of Gale Crater | Hassler, D. M. et al. (2014), *Mars' Surface Radiation Environment Measured with the Mars Science Laboratory's Curiosity Rover*, Science 343, doi:10.1126/science.1244797 |
+| `waypoints.json` → traverse + stops | Curiosity rover positions (site/drive, lat/lon, elevation, sol) | MSL MMGIS waypoints: https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints.json |
+| `images/wp*.jpg` + image links | Curiosity raw **Navcam** (and Mastcam links) from the same sols. Credit: NASA/JPL-Caltech (Mastcam: NASA/JPL-Caltech/MSSS) | https://mars.nasa.gov/msl/multimedia/raw-images/ (API: https://mars.nasa.gov/api/v1/raw_image_items/) |
+
+## Facts used in text
+| Fact | Source |
+|---|---|
+| Boxwork = ridges ~1–2 m tall with sandy hollows; groundwater minerals in fractures; Curiosity images Aug–Sept 2025; ~6 months in the region by Feb 2026 | NASA/JPL, "NASA's Curiosity Rover Sees Martian 'Spiderwebs' Up Close" (Feb 23, 2026): https://www.nasa.gov/missions/mars-science-laboratory/curiosity-rover/nasas-curiosity-rover-sees-martian-spiderwebs-up-close/ |
+| Challenge text (boxwork, Mount Sharp, HUD, pairs of astronauts) | https://www.spaceappschallenge.org/2026/challenges/interplanetary-survival-guide-martian-map/ |
+| Curiosity latest position (sol 5070): 4.8257°S, 137.3892°E | MSL MMGIS current waypoint: https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints_current.json |
+| Earth–Mars light time 4–24 min | Standard value; the HUD estimates today's value from circular orbits (approximate) |
+
+## Software
+- Leaflet 1.9.4 (BSD-2), copied into `vendor/leaflet/` from https://unpkg.com/leaflet@1.9.4/dist/
+- Ollama (MIT) + open-weight models (see AI-USAGE.md): https://ollama.com
+
+## Our own assumptions (NOT NASA data — explained in TEAM-GUIDE.md)
+- Slope limits: < 10° easy, 10–15° caution, 15–20° danger, > 20° blocked.
+- Walking speed 2 km/h on flat ground in a suit, slower on slopes (Tobler-style hiking formula).
+- EVA life-support budget 8 h for the whole trip (out and back).
+- THEMIS value < 0.25 (relative) = "probably loose sand".
+- Safety score rules (route.js `routeStats`).
+
+## Validation we did
+- MOLA elevation at Curiosity's 2025 stops vs the rover's own recorded elevation: differences 2–44 m (`tests/route.test.js` and build check).
+- CRISM browse PNG bounds come from the PDS label (`MINIMUM_LATITUDE` … `EASTERNMOST_LONGITUDE`).

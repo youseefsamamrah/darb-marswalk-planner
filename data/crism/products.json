@@ -1,0 +1,95 @@
+{
+ "observation": "FRT0000B6F1 (2008-07-09)",
+ "products": [
+  {
+   "code": "phy",
+   "name": "Hydroxylated minerals (clays / phyllosilicates)",
+   "file": "data/crism/phy.png",
+   "bounds": {
+    "north": -4.6934859,
+    "south": -4.9100033,
+    "west": 137.30121,
+    "east": 137.53625
+   },
+   "bandsRGB": [
+    "D2300",
+    "D2200",
+    "BD1900R2"
+   ],
+   "pdsDescription": "Shows information related to hydroxylated minerals including phyllosilicate. Mg/Fe-OH bearing minerals may appear red, or magenta when hydrated. Al/Si-OH bearing minerals may appear green, or cyan when hydrated. Blue colors may indicate other hydrated minerals. See Viviano-Beck et al. [2014] for details. Analysis of CRISM spectra must be used to match absorption band positions and relative strength for positive mineral identification.",
+   "source": "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/browse/2008/2008_191/frt0000b6f1/frt0000b6f1_07_brphyj_mtr3.png"
+  },
+  {
+   "code": "hyd",
+   "name": "Bound water (hydrated sulfates)",
+   "file": "data/crism/hyd.png",
+   "bounds": {
+    "north": -4.6934859,
+    "south": -4.9100033,
+    "west": 137.30121,
+    "east": 137.53625
+   },
+   "bandsRGB": [
+    "SINDEX2",
+    "BD2100_2",
+    "BD1900_2"
+   ],
+   "pdsDescription": "Shows information related to bound water in minerals. Polyhydrated sulfates have strong 1900 nm and 2400 nm absorption bands, and may appear magenta in the HYD browse product. Monohydrated sulfates have a strong 2100 nm absorption and a weak 2400 nm absorption band, and may appear yellow/green in the HYD browse product. Blue colors likely indicate other hydrated minerals. See Viviano-Beck et al. [2014] for details. Analysis of CRISM spectra must be used to match absorption band positions and relative strength for positive mineral identification.",
+   "source": "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/browse/2008/2008_191/frt0000b6f1/frt0000b6f1_07_brhydj_mtr3.png"
+  },
+  {
+   "code": "maf",
+   "name": "Mafic minerals (olivine / pyroxene)",
+   "file": "data/crism/maf.png",
+   "bounds": {
+    "north": -4.6934859,
+    "south": -4.9100033,
+    "west": 137.30121,
+    "east": 137.53625
+   },
+   "bandsRGB": [
+    "OLINDEX3",
+    "LCPINDEX2",
+    "HCPINDEX2"
+   ],
+   "pdsDescription": "Shows information related to mafic mineralogy. Olivine and Fe- phyllosilicate share a 1000-1700 nm bowl-shaped absorption and may appear red in the MAF browse product. Low- and high-Ca pyroxene display an additional ~2000 nm absorption and may appear green/cyan and blue/magenta, respectively. See Viviano-Beck et al. [2014] for details. Analysis of CRISM spectra must be used to match absorption band positions and relative strength for positive mineral identification.",
+   "source": "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/browse/2008/2008_191/frt0000b6f1/frt0000b6f1_07_brmafj_mtr3.png"
+  },
+  {
+   "code": "fem",
+   "name": "Iron minerals (ferric / ferrous, e.g. hematite)",
+   "file": "data/crism/fem.png",
+   "bounds": {
+    "north": -4.6934859,
+    "south": -4.9100033,
+    "west": 137.30121,
+    "east": 137.53625
+   },
+   "bandsRGB": [
+    "BD530_2",
+    "SH600_2",
+    "BDI1000VIS"
+   ],
+   "pdsDescription": "Shows information related to Fe minerals and encodes visible and near- infrared spectral structure related to electronic absorption. FEM is particularly sensitive to ferric and ferrous mineral absorptions, as well as negative slopes due to dust coatings or compacted dust texture. Red colors may indicate nanophase or crystalline ferric oxides, whereas blue colors are often dust-free or more mafic surfaces. See Viviano-Beck et al. [2014] for details. Analysis of CRISM spectra must be used to match absorption band positions and relative strength for positive mineral identification.",
+   "source": "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/browse/2008/2008_191/frt0000b6f1/frt0000b6f1_07_brfemj_mtr3.png"
+  },
+  {
+   "code": "tru",
+   "name": "Enhanced true colour",
+   "file": "data/crism/tru.png",
+   "bounds": {
+    "north": -4.6934859,
+    "south": -4.9100033,
+    "west": 137.30121,
+    "east": 137.53625
+   },
+   "bandsRGB": [
+    "R600",
+    "R530",
+    "R440"
+   ],
+   "pdsDescription": "An enhanced natural color representation of the scene with wavelengths selected across the visible spectrum.",
+   "source": "https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/browse/2008/2008_191/frt0000b6f1/frt0000b6f1_07_brtruj_mtr3.png"
+  }
+ ]
+}

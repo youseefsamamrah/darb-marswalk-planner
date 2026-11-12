@@ -1,0 +1,261 @@
+/*
+ * route.js — Darb route planner (Algorithm agent)
+ * ------------------------------------------------
+ * 1. Turn the data grid (slope + thermal) into a COST for every cell.
+ * 2. Use A* ("A-star") to find the cheapest path from START to GOAL.
+ * 3. Measure the route: distance, walking time, oxygen budget, safety score.
+ *
+ * Works in the browser (window.DarbRoute) and in Node.js (require) so we can unit-test it.
+ *
+ * Data sources for the grid: MOLA elevation + THEMIS night IR (see SOURCES.md).
+ * The thresholds below are OUR design assumptions for a suited astronaut,
+ * not official NASA limits — they are written in the docs as assumptions.
+ */
+(function (root) {
+  "use strict";
+
+  // ---------- Settings you can tune ----------
+  var DEFAULTS = {
+    safeSlope: 10,        // degrees: below this walking is easy
+    cautionSlope: 15,     // degrees: below this it is hard but OK
+    maxSlope: 20,         // degrees: above this the cell is BLOCKED (too steep to walk)
+    sandThreshold: 0.25,  // thermal value below this = probably loose sand / dust
+    flatSpeedKmh: 2.0,    // a suited astronaut walks ~2 km/h on flat ground
+    minSpeedKmh: 0.3,     // never assume slower than this
+    evaBudgetHours: 8.0,  // oxygen / life-support time for one EVA (walk out AND back)
+    buddyMeters: 0     // buddy mode: two astronauts side by side need this much safe width (0 = off)
+  };
+
+  function withDefaults(opts) {
+    var o = {};
+    for (var k in DEFAULTS) o[k] = DEFAULTS[k];
+    if (opts) for (var j in opts) if (opts[j] !== undefined) o[j] = opts[j];
+    return o;
+  }
+
+  // ---------- 1. Cost of a single cell ----------
+  // Returns Infinity for a blocked cell, otherwise a number >= 1.
+  // 1 = perfect flat hard ground. Bigger = more tiring or more risky.
+  function cellCost(slope, thermal, o) {
+    if (slope === null || slope === undefined || isNaN(slope)) return Infinity;
+    if (slope > o.maxSlope) return Infinity;
+    var cost = 1;
+    // Steeper = more expensive (grows quickly, like a square)
+    cost += 1.5 * Math.pow(slope / o.safeSlope, 2);
+    // Loose sand (cold at night in THEMIS) = risk of sinking / slipping
+    if (thermal !== null && thermal !== undefined && thermal < o.sandThreshold) {
+      cost += 2 * (o.sandThreshold - thermal) / o.sandThreshold;
+    }
+    return cost;
+  }
+
+  // Build the cost array for the whole grid (one number per cell).
+  function buildCostGrid(grid, opts) {
+    var o = withDefaults(opts);
+    var n = grid.rows * grid.cols;
+    var cost = new Float64Array(n);
+    for (var i = 0; i < n; i++) {
+      cost[i] = cellCost(grid.slope[i], grid.thermal ? grid.thermal[i] : null, o);
+    }
+    // Buddy mode: two astronauts walk side by side, up to buddyMeters apart.
+    // A cell is only usable if every cell within buddyMeters/2 is also walkable.
+    if (o.buddyMeters > 0) {
+      var rad = Math.ceil((o.buddyMeters / 2) / Math.min(grid.cellWidthM, grid.cellHeightM));
+      var widened = new Float64Array(n);
+      for (var r = 0; r < grid.rows; r++) {
+        for (var c = 0; c < grid.cols; c++) {
+          var worst = cost[r * grid.cols + c];
+          for (var dr = -rad; dr <= rad && worst !== Infinity; dr++) {
+            for (var dc = -rad; dc <= rad; dc++) {
+              var rr = r + dr, cc = c + dc;
+              if (rr < 0 || cc < 0 || rr >= grid.rows || cc >= grid.cols) continue;
+              if (cost[rr * grid.cols + cc] === Infinity) { worst = Infinity; break; }
+            }
+          }
+          widened[r * grid.cols + c] = worst;
+        }
+      }
+      cost = widened;
+    }
+    return cost;
+  }
+
+  // ---------- 2. A* search ----------
+  // A tiny "binary heap" priority queue: always gives back the cell with the lowest score.
+  function MinHeap() { this.items = []; }
+  MinHeap.prototype.push = function (node, score) {
+    var a = this.items; a.push([score, node]);
+    var i = a.length - 1;
+    while (i > 0) {
+      var p = (i - 1) >> 1;
+      if (a[p][0] <= a[i][0]) break;
+      var t = a[p]; a[p] = a[i]; a[i] = t; i = p;
+    }
+  };
+  MinHeap.prototype.pop = function () {
+    var a = this.items, top = a[0], last = a.pop();
+    if (a.length > 0) {
+      a[0] = last;
+      var i = 0;
+      for (;;) {
+        var l = 2 * i + 1, r = l + 1, m = i;
+        if (l < a.length && a[l][0] < a[m][0]) m = l;
+        if (r < a.length && a[r][0] < a[m][0]) m = r;
+        if (m === i) break;
+        var t = a[m]; a[m] = a[i]; a[i] = t; i = m;
+      }
+    }
+    return top[1];
+  };
+  MinHeap.prototype.size = function () { return this.items.length; };
+
+  /**
+   * Find the lowest-cost path.
+   * start / goal: {r: row, c: col}
+   * Returns {ok:true, path:[{r,c},...], cost} or {ok:false, error:"..."}.
+   * Errors: "outside", "same-cell", "start-blocked", "goal-blocked", "no-path".
+   */
+  function findPath(grid, start, goal, opts) {
+    var R = grid.rows, C = grid.cols;
+    function inside(p) { return p && p.r >= 0 && p.c >= 0 && p.r < R && p.c < C; }
+    if (!inside(start) || !inside(goal)) return { ok: false, error: "outside" };
+    if (start.r === goal.r && start.c === goal.c) return { ok: false, error: "same-cell" };
+
+    var cost = (opts && opts.costGrid) || buildCostGrid(grid, opts);
+    var s = start.r * C + start.c, g = goal.r * C + goal.c;
+    if (cost[s] === Infinity) return { ok: false, error: "start-blocked" };
+    if (cost[g] === Infinity) return { ok: false, error: "goal-blocked" };
+
+    var w = grid.cellWidthM, h = grid.cellHeightM, d = Math.sqrt(w * w + h * h);
+    // 8 neighbours: [row step, col step, distance in metres]
+    var steps = [[-1, 0, h], [1, 0, h], [0, -1, w], [0, 1, w],
+                 [-1, -1, d], [-1, 1, d], [1, -1, d], [1, 1, d]];
+
+    // Heuristic = straight-line distance × cheapest possible cost (1). Never overestimates,
+    // so A* is guaranteed to find the true lowest-cost path.
+    function heuristic(i) {
+      var dr = (Math.floor(i / C) - goal.r) * h, dc = (i % C - goal.c) * w;
+      return Math.sqrt(dr * dr + dc * dc);
+    }
+
+    var gScore = new Float64Array(R * C).fill(Infinity);
+    var cameFrom = new Int32Array(R * C).fill(-1);
+    var closed = new Uint8Array(R * C);
+    var open = new MinHeap();
+    gScore[s] = 0;
+    open.push(s, heuristic(s));
+
+    while (open.size() > 0) {
+      var cur = open.pop();
+      if (closed[cur]) continue;          // already handled with a better score
+      if (cur === g) break;               // reached the goal!
+      closed[cur] = 1;
+      var cr = Math.floor(cur / C), cc = cur % C;
+      for (var k = 0; k < 8; k++) {
+        var nr = cr + steps[k][0], nc = cc + steps[k][1];
+        if (nr < 0 || nc < 0 || nr >= R || nc >= C) continue;
+        var nb = nr * C + nc;
+        if (closed[nb] || cost[nb] === Infinity) continue;
+        // Moving costs: distance × average cost of the two cells
+        var tentative = gScore[cur] + steps[k][2] * (cost[cur] + cost[nb]) / 2;
+        if (tentative < gScore[nb]) {
+          gScore[nb] = tentative;
+          cameFrom[nb] = cur;
+          open.push(nb, tentative + heuristic(nb));
+        }
+      }
+    }
+
+    if (gScore[g] === Infinity) return { ok: false, error: "no-path" };
+    // Walk backwards from goal to start to read the path
+    var path = [];
+    for (var at = g; at !== -1; at = cameFrom[at]) path.push({ r: Math.floor(at / C), c: at % C });
+    path.reverse();
+    return { ok: true, path: path, cost: gScore[g] };
+  }
+
+  // ---------- 3. Walking speed & route statistics ----------
+  // Speed depends on the grade (rise / run) of each step. Based on Tobler's hiking
+  // function, scaled so flat ground = flatSpeedKmh. Downhill a little is fastest.
+  function walkingSpeedKmh(grade, o) {
+    var v = o.flatSpeedKmh * Math.exp(-3.5 * Math.abs(grade + 0.05)) / Math.exp(-3.5 * 0.05);
+    return Math.max(o.minSpeedKmh, Math.min(v, o.flatSpeedKmh * 1.2));
+  }
+
+  function routeStats(grid, path, opts) {
+    var o = withDefaults(opts);
+    var C = grid.cols;
+    var dist = 0, hoursOut = 0, hoursBack = 0, gain = 0, loss = 0;
+    var maxSlope = 0, sandCells = 0, slopeSum = 0;
+    for (var i = 0; i < path.length; i++) {
+      var idx = path[i].r * C + path[i].c;
+      var sl = grid.slope[idx];
+      slopeSum += sl;
+      if (sl > maxSlope) maxSlope = sl;
+      if (grid.thermal && grid.thermal[idx] !== null && grid.thermal[idx] < o.sandThreshold) sandCells++;
+      if (i === 0) continue;
+      var prev = path[i - 1], pIdx = prev.r * C + prev.c;
+      var dy = (path[i].r - prev.r) * grid.cellHeightM, dx = (path[i].c - prev.c) * grid.cellWidthM;
+      var run = Math.sqrt(dx * dx + dy * dy);
+      if (run === 0) continue;               // same cell twice: no distance, avoid dividing by 0
+      var dz = grid.elevation[idx] - grid.elevation[pIdx];
+      dist += run;
+      if (dz > 0) gain += dz; else loss -= dz;
+      hoursOut += (run / 1000) / walkingSpeedKmh(dz / run, o);
+      hoursBack += (run / 1000) / walkingSpeedKmh(-dz / run, o);   // same step, walked the other way
+    }
+    var roundTrip = hoursOut + hoursBack;
+    var sandFraction = path.length ? sandCells / path.length : 0;
+
+    // Safety score (our rules, explained in TEAM-GUIDE.md)
+    var reasons = [], level = "safe";
+    function raise(to, why) {
+      var rank = { safe: 0, caution: 1, danger: 2 };
+      if (rank[to] > rank[level]) level = to;
+      reasons.push(why);
+    }
+    if (maxSlope > o.cautionSlope) raise("danger", "slope>" + o.cautionSlope);
+    else if (maxSlope > o.safeSlope) raise("caution", "slope>" + o.safeSlope);
+    if (roundTrip > o.evaBudgetHours) raise("danger", "o2-exceeded");
+    else if (roundTrip > 0.75 * o.evaBudgetHours) raise("danger", "o2-reserve<25%");
+    else if (roundTrip > 0.5 * o.evaBudgetHours) raise("caution", "o2-reserve<50%");
+    if (sandFraction > 0.2) raise("caution", "sand>20%");
+
+    return {
+      distanceM: dist,
+      hoursOut: hoursOut,
+      hoursRoundTrip: roundTrip,
+      o2ReservePct: Math.max(0, 100 * (1 - roundTrip / o.evaBudgetHours)),
+      elevationGainM: gain,
+      elevationLossM: loss,
+      maxSlope: maxSlope,
+      meanSlope: path.length ? slopeSum / path.length : 0,
+      sandFraction: sandFraction,
+      safety: level,          // "safe" | "caution" | "danger"
+      reasons: reasons
+    };
+  }
+
+  // ---------- Helpers: convert between map coordinates and grid cells ----------
+  function latLonToCell(grid, lat, lon) {
+    var b = grid.bounds;
+    return { r: Math.floor((b.north - lat) / grid.cellDeg), c: Math.floor((lon - b.west) / grid.cellDeg) };
+  }
+  function cellToLatLon(grid, cell) {
+    var b = grid.bounds;
+    return { lat: b.north - (cell.r + 0.5) * grid.cellDeg, lon: b.west + (cell.c + 0.5) * grid.cellDeg };
+  }
+
+  var api = {
+    DEFAULTS: DEFAULTS,
+    cellCost: function (s, t, opts) { return cellCost(s, t, withDefaults(opts)); },
+    buildCostGrid: buildCostGrid,
+    findPath: findPath,
+    routeStats: routeStats,
+    walkingSpeedKmh: function (grade, opts) { return walkingSpeedKmh(grade, withDefaults(opts)); },
+    latLonToCell: latLonToCell,
+    cellToLatLon: cellToLatLon
+  };
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+  else root.DarbRoute = api;
+})(this);
