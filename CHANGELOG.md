@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## Round 3 — metre-scale roughness from the 1 m HiRISE data (2026-11-12)
+**Why:** validity. The 25 m slope cannot see rocks or the 1–2 m boxwork ridges (our own "honest limit" from round 2).
+**What changed**
+- `build_data.py`: each cell now reads a 6×6 patch of 1 m HiRISE pixels, 4 m apart (mean elevation + **roughness** =
+  90th-percentile slope between neighbouring samples). Grid file 6.4 MB, build 67 s.
+- `route.js`: roughness above 25° adds cost (never blocks); routes with > 15 % very rough ground (> 40°) → 🟡 Caution.
+- UI: new "Rough ground" layer (yellow 25–40°, purple > 40°), route-card row, hover value, HUD "ROUGH GROUND AHEAD",
+  roughness in Ask Darb's facts; English + Arabic.
+- Thresholds calibrated on Curiosity's 2025 stops (roughness 10–22°, places the rover chose as safe); written as our assumption.
+**Tested**
+- `node --test tests` → **19/19** (new: rough costs more but is not blocked; route walks around a rocky strip).
+- Browser: demo route unchanged (2.73 km, 🟡 Caution) with 0 % very rough ground — A* threads between rough ridges;
+  20 km route 5 % very rough; layer shows ridge lines that match the CTX image; Arabic labels; HUD; no new console errors.
+
 ## Round 2 — HiRISE 1 m elevation: 25 m route grid (2026-11-12)
 **Why:** validity. MOLA (463 m pixels) smoothed the terrain; slopes and elevations were too rough for a walk.
 **What changed**

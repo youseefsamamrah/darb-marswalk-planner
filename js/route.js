@@ -20,6 +20,8 @@
     cautionSlope: 15,     // degrees: below this it is hard but OK
     maxSlope: 20,         // degrees: above this the cell is BLOCKED (too steep to walk)
     sandThreshold: 0.25,  // thermal value below this = probably loose sand / dust
+    roughStart: 25,       // roughness (degrees over 4 m) above this costs extra; Curiosity's 2025 stops were 10-22
+    roughHigh: 40,        // above this = "very rough" (rocks, steps): warned in the route card and HUD
     flatSpeedKmh: 2.0,    // a suited astronaut walks ~2 km/h on flat ground
     minSpeedKmh: 0.3,     // never assume slower than this
     evaBudgetHours: 8.0,  // oxygen / life-support time for one EVA (walk out AND back)
@@ -36,7 +38,7 @@
   // ---------- 1. Cost of a single cell ----------
   // Returns Infinity for a blocked cell, otherwise a number >= 1.
   // 1 = perfect flat hard ground. Bigger = more tiring or more risky.
-  function cellCost(slope, thermal, o) {
+  function cellCost(slope, thermal, o, rough) {
     if (slope === null || slope === undefined || isNaN(slope)) return Infinity;
     if (slope > o.maxSlope) return Infinity;
     var cost = 1;
@@ -45,6 +47,11 @@
     // Loose sand (cold at night in THEMIS) = risk of sinking / slipping
     if (thermal !== null && thermal !== undefined && thermal < o.sandThreshold) {
       cost += 2 * (o.sandThreshold - thermal) / o.sandThreshold;
+    }
+    // Rough ground (metre-scale steps and rocks from the 1 m HiRISE data) = slow and tiring, risk of tripping.
+    // Not blocked: inside a 25 m cell there is usually a smoother way around.
+    if (rough !== null && rough !== undefined && rough > o.roughStart) {
+      cost += (rough - o.roughStart) / 10;
     }
     return cost;
   }
@@ -55,7 +62,8 @@
     var n = grid.rows * grid.cols;
     var cost = new Float64Array(n);
     for (var i = 0; i < n; i++) {
-      cost[i] = cellCost(grid.slope[i], grid.thermal ? grid.thermal[i] : null, o);
+      cost[i] = cellCost(grid.slope[i], grid.thermal ? grid.thermal[i] : null, o,
+                         grid.roughness ? grid.roughness[i] : null);
     }
     // Buddy mode: two astronauts walk side by side, up to buddyMeters apart.
     // A cell is only usable if every cell within buddyMeters/2 is also walkable.
@@ -229,10 +237,11 @@
     var o = withDefaults(opts);
     var C = grid.cols;
     var dist = 0, hoursOut = 0, hoursBack = 0, gain = 0, loss = 0;
-    var maxSlope = 0, sandCells = 0, slopeSum = 0;
+    var maxSlope = 0, sandCells = 0, slopeSum = 0, roughCells = 0;
     for (var i = 0; i < path.length; i++) {
       var idx = path[i].r * C + path[i].c;
       var sl = grid.slope[idx];
+      if (grid.roughness && grid.roughness[idx] !== null && grid.roughness[idx] > o.roughHigh) roughCells++;
       slopeSum += sl;
       if (sl > maxSlope) maxSlope = sl;
       if (grid.thermal && grid.thermal[idx] !== null && grid.thermal[idx] < o.sandThreshold) sandCells++;
@@ -263,6 +272,8 @@
     else if (roundTrip > 0.75 * o.evaBudgetHours) raise("danger", "o2-reserve<25%");
     else if (roundTrip > 0.5 * o.evaBudgetHours) raise("caution", "o2-reserve<50%");
     if (sandFraction > 0.2) raise("caution", "sand>20%");
+    var roughFraction = path.length ? roughCells / path.length : 0;
+    if (roughFraction > 0.15) raise("caution", "rough>15%");
 
     return {
       distanceM: dist,
@@ -274,6 +285,7 @@
       maxSlope: maxSlope,
       meanSlope: path.length ? slopeSum / path.length : 0,
       sandFraction: sandFraction,
+      roughFraction: roughFraction,
       safety: level,          // "safe" | "caution" | "danger"
       reasons: reasons
     };
@@ -291,7 +303,7 @@
 
   var api = {
     DEFAULTS: DEFAULTS,
-    cellCost: function (s, t, opts) { return cellCost(s, t, withDefaults(opts)); },
+    cellCost: function (s, t, opts, rough) { return cellCost(s, t, withDefaults(opts), rough); },
     buildCostGrid: buildCostGrid,
     findPath: findPath,
     routeStats: routeStats,

@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Darb — Marswalk Planner</title>
-  <!-- "?v=3" = version tag: change the number after editing a file so browsers load the new copy -->
+  <!-- "?v=4" = version tag: change the number after editing a file so browsers load the new copy -->
   <!-- Leaflet is stored locally in vendor/ so the app works without internet -->
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
   <header class="topbar">
@@ -33,6 +33,8 @@
         <h2 data-i18n="layersTitle">Data layers</h2>
         <label class="toggle"><input type="checkbox" id="lySlope" checked> <span data-i18n="layerSlope"></span></label>
         <p class="legend slope-legend" data-i18n="legendSlope"></p>
+        <label class="toggle"><input type="checkbox" id="lyRough"> <span data-i18n="layerRough"></span></label>
+        <p class="legend" data-i18n="legendRough"></p>
         <label class="toggle"><input type="checkbox" id="lyThermal"> <span data-i18n="layerThermal"></span></label>
         <p class="legend" data-i18n="legendThermal"></p>
         <label class="toggle"><input type="checkbox" id="lyMinerals"> <span data-i18n="layerMinerals"></span></label>
@@ -65,6 +67,7 @@
             <dt data-i18n="gain"></dt><dd id="stGain"></dd>
             <dt data-i18n="maxSlope"></dt><dd id="stSlope"></dd>
             <dt data-i18n="sand"></dt><dd id="stSand"></dd>
+            <dt data-i18n="rough"></dt><dd id="stRough"></dd>
             <dt data-i18n="dose"></dt><dd id="stDose"></dd>
           </dl>
           <button id="simBtn" class="btn primary" data-i18n="simulateBtn">Simulate walk</button>
@@ -119,10 +122,10 @@
   </main>
 
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="js/config.js?v=3"></script>
-  <script src="js/i18n.js?v=3"></script>
-  <script src="js/route.js?v=3"></script>
-  <script src="js/askdarb.js?v=3"></script>
-  <script src="js/app.js?v=3"></script>
+  <script src="js/config.js?v=4"></script>
+  <script src="js/i18n.js?v=4"></script>
+  <script src="js/route.js?v=4"></script>
+  <script src="js/askdarb.js?v=4"></script>
+  <script src="js/app.js?v=4"></script>
 </body>
 </html>

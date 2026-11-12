@@ -189,12 +189,20 @@ def build_grid():
     print("  using", "local file" if dem.local else "HTTP range requests (slower)")
     dem_rows = {}                     # cache: DEM row number -> list of elevations
 
-    def hirise_elevation(lat, lon):
-        """Mean of a 3x3 sample of 1 m HiRISE pixels inside the cell, or None if no data there."""
-        vals = []
-        for dy in (-0.33, 0, 0.33):
-            for dx in (-0.33, 0, 0.33):
-                col, row = dem.lonlat_to_colrow(lon + dx * CELL_DEG, lat + dy * CELL_DEG)
+    N, STEP_M = 6, 4.0                # 6 x 6 samples, 4 m apart, inside each ~25 m cell
+    deg_per_m = 1.0 / math.radians(1) / MARS_RADIUS_M
+
+    def hirise_cell(lat, lon):
+        """Read a 6x6 patch of 1 m HiRISE pixels (4 m apart) inside the cell.
+        Returns (mean elevation, roughness) or (None, None) if no data.
+        roughness = 90th percentile of the slopes between neighbouring samples (4 m apart), in degrees:
+        it sees metre-scale steps (rocks, small ridges) that the 25 m slope cannot."""
+        z = [[None] * N for _ in range(N)]
+        for i in range(N):
+            for j in range(N):
+                dy_m, dx_m = (i - (N - 1) / 2) * STEP_M, (j - (N - 1) / 2) * STEP_M
+                col, row = dem.lonlat_to_colrow(lon + dx_m * deg_per_m / math.cos(math.radians(lat)),
+                                                lat - dy_m * deg_per_m)
                 col, row = int(col), int(row)
                 if not (0 <= row < dem.height and 0 <= col < dem.width):
                     continue
@@ -202,8 +210,22 @@ def build_grid():
                     dem_rows[row] = dem.row(row)
                 v = dem_rows[row][col]
                 if v > NODATA + 1:
-                    vals.append(v)
-        return sum(vals) / len(vals) if vals else None
+                    z[i][j] = v
+        vals = [v for line in z for v in line if v is not None]
+        if not vals:
+            return None, None
+        local = []
+        for i in range(N):
+            for j in range(N):
+                if z[i][j] is None:
+                    continue
+                if j + 1 < N and z[i][j + 1] is not None:
+                    local.append(abs(z[i][j + 1] - z[i][j]))
+                if i + 1 < N and z[i + 1][j] is not None:
+                    local.append(abs(z[i + 1][j] - z[i][j]))
+        local.sort()
+        p90 = local[int(len(local) * 0.9)] if local else 0.0
+        return sum(vals) / len(vals), math.degrees(math.atan(p90 / STEP_M))
 
     n_rows = int(round((LAT_N - LAT_S) / CELL_DEG))
     n_cols = int(round((LON_E - LON_W) / CELL_DEG))
@@ -211,19 +233,20 @@ def build_grid():
     cell_h = math.radians(CELL_DEG) * MARS_RADIUS_M                 # metres north-south
     cell_w = math.radians(CELL_DEG) * MARS_RADIUS_M * math.cos(lat_mid)  # metres east-west
 
-    elev, themis, filled = [], [], 0
+    elev, rough, themis, filled = [], [], [], 0
     for r in range(n_rows):
         lat = LAT_N - (r + 0.5) * CELL_DEG
         if r % 50 == 0:
             print("  grid row %d / %d" % (r, n_rows))
-        dem_rows.clear()              # each grid row uses its own 3 DEM rows: keep memory small
+        dem_rows.clear()              # each grid row uses its own 6 DEM rows: keep memory small
         for c in range(n_cols):
             lon = LON_W + (c + 0.5) * CELL_DEG
-            z = hirise_elevation(lat, lon)
-            if z is None:             # gap in the HiRISE mosaic -> fill with MOLA
+            z, rg = hirise_cell(lat, lon)
+            if z is None:             # gap in the HiRISE mosaic -> fill with MOLA (no roughness known)
                 z = mola_elevation(rows, row0, col0, lat, lon)
                 filled += 1
             elev.append(round(z, 1))
+            rough.append(None if rg is None else round(rg, 1))
             # average a 3x3 sample of THEMIS pixels inside the cell
             vals = []
             for dy in (-0.33, 0, 0.33):
@@ -256,10 +279,14 @@ def build_grid():
         "cellDeg": CELL_DEG, "rows": n_rows, "cols": n_cols,
         "cellWidthM": round(cell_w, 2), "cellHeightM": round(cell_h, 2),
         "elevation": elev,
-        "elevationSource": "USGS MSL Gale DEM Mosaic 1m v3 (HiRISE stereo), mean of 3x3 samples per cell; "
+        "elevationSource": "USGS MSL Gale DEM Mosaic 1m v3 (HiRISE stereo), mean of 6x6 samples (4 m apart) per cell; "
                            "%d cells (%.1f%%) outside HiRISE coverage filled with MGS MOLA MEGDR 128 ppd. Metres."
                            % (filled, 100.0 * filled / (n_rows * n_cols)),
         "filledFromMola": filled,
+        "roughness": rough,
+        "roughnessNote": "Degrees. 90th percentile of slopes between HiRISE samples 4 m apart inside each cell "
+                         "(6x6 samples). Shows metre-scale steps such as rocks and small ridges. "
+                         "HiRISE DEM noise (~0.2-0.5 m) adds a few degrees.",
         "slope": slope,
         "slopeNote": "Computed at %.0f m cell size from the HiRISE DEM. Rocks and ridges smaller than a cell "
                      "(e.g. 1-2 m boxwork ridges) are not visible in this slope." % cell_h,

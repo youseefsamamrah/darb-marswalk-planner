@@ -34,7 +34,7 @@ device (Ollama), answering only from the map's data and saying "I don't know" ot
 ## Project details
 
 ### What it does
-- Shows a Mars map of lower Mount Sharp with **5 toggleable layers**: terrain slope (HiRISE 1 m DEM, 25 m cells), thermal-inertia proxy
+- Shows a Mars map of lower Mount Sharp with **6 toggleable layers**: terrain slope (HiRISE 1 m DEM, 25 m cells), metre-scale rough ground (rocks/small ridges, from the same 1 m DEM), thermal-inertia proxy
   (THEMIS night IR), minerals (CRISM, 4 mineral maps + true colour), elevation hillshade (MOLA), and Curiosity's
   real traverse with 8 stops from its 2025 boxwork campaign.
 - **Route planner:** click START and GOAL → the safest walking route is drawn as a dotted trail.

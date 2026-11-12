@@ -131,6 +131,23 @@ test("snap: too far from walkable ground still gives an error", () => {
   assert.strictEqual(R.findPath(g, { r: 0, c: 0 }, { r: 6, c: 6 }, { snapMeters: 150 }).error, "goal-blocked");
 });
 
+test("rough ground costs more but is not blocked", () => {
+  assert.strictEqual(R.cellCost(5, 1, undefined, 20), R.cellCost(5, 1, undefined, null), "normal roughness = no extra cost");
+  assert.ok(R.cellCost(5, 1, undefined, 50) > R.cellCost(5, 1, undefined, 20));
+  assert.ok(Number.isFinite(R.cellCost(5, 1, undefined, 80)), "very rough is slow, not blocked");
+});
+
+test("route avoids a very rough strip when a smooth detour is short", () => {
+  const g = flatGrid(3, 7);
+  g.roughness = new Array(21).fill(10);
+  for (let c = 1; c < 6; c++) g.roughness[1 * 7 + c] = 70;          // rocky middle row
+  const res = R.findPath(g, { r: 1, c: 0 }, { r: 1, c: 6 });
+  assert.ok(res.path.filter(p => p.r === 1).length <= 2, "walks around the rocks");
+  const st = R.routeStats(g, [{ r: 1, c: 0 }, { r: 1, c: 1 }, { r: 1, c: 2 }]);
+  assert.strictEqual(st.safety, "caution");
+  assert.ok(st.reasons.includes("rough>15%"));
+});
+
 test("lat/lon <-> cell round trip", () => {
   const g = flatGrid(10, 10);
   const cell = { r: 3, c: 7 };

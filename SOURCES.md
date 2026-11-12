@@ -45,6 +45,8 @@ Tile URL pattern: `https://trek.nasa.gov/tiles/Mars/EQ/{layer}/1.0.0/default/def
 - Walking speed 2 km/h on flat ground in a suit, slower on slopes (Tobler-style hiking formula).
 - EVA life-support budget 8 h for the whole trip (out and back).
 - THEMIS value < 0.25 (relative) = "probably loose sand".
+- Roughness (90th-percentile slope between 1 m HiRISE samples 4 m apart): < 25° normal, 25–40° rough, > 40° very rough.
+  Calibrated on Curiosity's 2025 stops (10–22°). Adds cost, never blocks.
 - Safety score rules (route.js `routeStats`).
 
 ## Validation we did

@@ -39,7 +39,7 @@ start.bat             starts a local web server on Windows
 |---|---|---|---|
 | 1 | Laptop check, Ollama + model selection | Local AI | done (no download needed) |
 | 2 | Verify every data URL, build data/*.json, SOURCES.md | Data | done |
-| 3 | route.js: cost grid, A*, route stats + unit tests | Algorithm | done (17 tests after round 2) |
+| 3 | route.js: cost grid, A*, route stats + unit tests | Algorithm | done (19 tests after round 3) |
 | 4 | index.html, CSS, Leaflet map, layer toggles, route card, Arabic toggle | Map/UI | done |
 | 5 | Ask Darb (Ollama client, grounding, timing, offline state) | Local AI | done |
 | 6 | Integrate | Lead | done |

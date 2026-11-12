@@ -58,8 +58,17 @@ area covered by the CRISM observation, so every layer covers the whole box.
 if slope > 20°                → BLOCKED (cost = Infinity)
 cost = 1 + 1.5 × (slope / 10)²            ← steeper costs much more
 if thermal < 0.25 (loose sand): cost += 2 × (0.25 − thermal) / 0.25
+if roughness > 25°:              cost += (roughness − 25) / 10   ← rocks / small steps (never blocked)
 ```
 Flat hard rock costs 1. A 10° slope costs 2.5. A 20° slope costs 7. Pure sand adds up to 2 more.
+Very rough ground (roughness 55°) adds 3.
+
+**Roughness (round 3).** Inside each 25 m cell, `build_data.py` reads a 6 × 6 patch of the 1 m HiRISE elevation,
+4 m apart, and measures the height step between neighbouring samples. Roughness = the 90th-percentile step,
+turned into an angle (a 1.5 m step over 4 m ≈ 20°). This sees rocks and small ridges that the 25 m slope misses.
+We calibrated the thresholds on Curiosity's own 2025 stops (places the rover chose as safe): their roughness is 10–22°.
+So: < 25° normal, 25–40° rough, > 40° very rough (purple on the map, "ROUGH GROUND AHEAD" in the HUD; more than 15 %
+very rough on a route makes it 🟡 Caution). Part of the value is DEM noise (~0.2–0.5 m), so we only add cost — we don't block.
 These limits are **our assumptions**, not NASA rules.
 
 ## 4. A* (A-star) path-finding
@@ -138,8 +147,8 @@ speeds, find the distance between them today, and convert: 1 AU = 8.317 light-mi
 
 ## 10. Known limits (say these honestly)
 - Slopes are computed at 25 m. Anything smaller than a cell — boulders, and the 1–2 m tall boxwork ridges
-  themselves — is not visible in the slope. Next step: a per-cell roughness value from the 1 m data, or rock
-  detection in HiRISE images.
+  themselves — is not visible in the slope. The roughness value (from 4 m steps in the 1 m data) flags these areas,
+  but cannot say exactly where each rock is. Next step: rock detection in HiRISE images.
 - THEMIS values are relative (stretched image), a proxy for thermal inertia, not exact numbers.
 - CRISM browse images are qualitative colour maps, not mineral identifications.
 - The REMS feed is outreach data (from Centro de Astrobiología); scientific data is in NASA's PDS.

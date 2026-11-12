@@ -120,11 +120,30 @@
     return cv.toDataURL();
   }
 
+  // Roughness layer: only rough cells are coloured (yellow 25–40°, purple > 40°), the rest is see-through.
+  function makeRoughImage() {
+    var g = Darb.grid, o = Object.assign({}, DarbRoute.DEFAULTS, DARB_CONFIG.routeOptions);
+    var cv = document.createElement("canvas");
+    cv.width = g.cols; cv.height = g.rows;
+    var cx = cv.getContext("2d"), img = cx.createImageData(g.cols, g.rows);
+    for (var i = 0; i < g.rows * g.cols; i++) {
+      var v = g.roughness ? g.roughness[i] : null, c = null;
+      if (v !== null && v > o.roughHigh) c = [190, 80, 255];
+      else if (v !== null && v > o.roughStart) c = [255, 210, 63];
+      if (!c) continue;                                   // alpha stays 0 = transparent
+      img.data[i * 4] = c[0]; img.data[i * 4 + 1] = c[1]; img.data[i * 4 + 2] = c[2]; img.data[i * 4 + 3] = 255;
+    }
+    cx.putImageData(img, 0, 0);
+    return cv.toDataURL();
+  }
+
   function buildLayers() {
     var g = Darb.grid, b = g.bounds, op = +$("opacity").value;
     Darb.layers.slope = L.imageOverlay(makeSlopeImage(), [[b.south, b.west], [b.north, b.east]],
       { opacity: op * 0.8, className: "pixelated",
         attribution: "Slope computed from the USGS MSL Gale 1 m DEM (HiRISE, NASA/JPL/UArizona)" }).addTo(Darb.map);
+    Darb.layers.rough = L.imageOverlay(makeRoughImage(), [[b.south, b.west], [b.north, b.east]],
+      { opacity: op, className: "pixelated", attribution: "Roughness from the USGS MSL Gale 1 m DEM (HiRISE)" });
 
     // CRISM select box
     var sel = $("crismSelect");
@@ -196,14 +215,16 @@
     var g = Darb.grid, c = DarbRoute.latLonToCell(g, lat, lon);
     if (c.r < 0 || c.c < 0 || c.r >= g.rows || c.c >= g.cols) return null;
     var i = c.r * g.cols + c.c;
-    return { cell: c, elevationM: g.elevation[i], slopeDeg: g.slope[i], thermalRel: g.thermal[i] };
+    return { cell: c, elevationM: g.elevation[i], slopeDeg: g.slope[i], thermalRel: g.thermal[i],
+             roughDeg: g.roughness ? g.roughness[i] : null };
   }
 
   function onHover(e) {
     var info = cellInfo(e.latlng.lat, e.latlng.lng);
     var s = e.latlng.lat.toFixed(4) + "°, " + e.latlng.lng.toFixed(4) + "°E";
     if (info) s += " · elev " + Math.round(info.elevationM) + " m · slope " + info.slopeDeg.toFixed(1) +
-      "° · thermal " + (info.thermalRel === null ? "n/a" : info.thermalRel.toFixed(2));
+      "° · thermal " + (info.thermalRel === null ? "n/a" : info.thermalRel.toFixed(2)) +
+      (info.roughDeg === null ? "" : " · rough " + Math.round(info.roughDeg) + "°");
     $("hover").textContent = s;
   }
 
@@ -347,6 +368,7 @@
     $("stGain").textContent = "+" + Math.round(s.elevationGainM) + " m / −" + Math.round(s.elevationLossM) + " m";
     $("stSlope").textContent = s.maxSlope.toFixed(1) + "° (mean " + s.meanSlope.toFixed(1) + "°)";
     $("stSand").textContent = Math.round(s.sandFraction * 100) + "%";
+    $("stRough").textContent = Math.round((s.roughFraction || 0) * 100) + "%";
     $("stDose").textContent = (rad * s.hoursRoundTrip / 24).toFixed(3) + " mSv";
   }
 
@@ -421,6 +443,7 @@
     var warn = "";
     var ahead = Darb.route.slice(step, step + 5).map(function (p) { return p.r * g.cols + p.c; });
     if (ahead.some(function (k) { return g.slope[k] > o.cautionSlope; })) warn = "⚠ STEEP SLOPE AHEAD";
+    else if (ahead.some(function (k) { return g.roughness && g.roughness[k] > DarbRoute.DEFAULTS.roughHigh; })) warn = "⚠ ROUGH GROUND AHEAD — WATCH YOUR STEP";
     else if (ahead.some(function (k) { return g.thermal[k] !== null && g.thermal[k] < 0.25; })) warn = "⚠ LOOSE SAND AHEAD";
     if (o2Left < Darb.stats.hoursOut + 0.25 * o.evaBudgetHours) warn = "⚠ O₂: KEEP RESERVE FOR RETURN";
     if (step === pts.length - 1) warn = "✔ GOAL REACHED — COLLECT SAMPLES";
@@ -477,7 +500,9 @@
     var t = info.thermalRel;
     var ground = t === null ? "unknown" : t < 0.25 ? "probably loose sand/dust" : t > 0.6 ? "rocky / hard ground" : "mixed ground";
     return label + " (" + lat.toFixed(4) + "°, " + lon.toFixed(4) + "°E): elevation " + Math.round(info.elevationM) +
-      " m [HiRISE DEM]; slope " + info.slopeDeg.toFixed(1) + "° [HiRISE DEM]; " + ground + " (THEMIS " + (t === null ? "n/a" : t.toFixed(2)) +
+      " m [HiRISE DEM]; slope " + info.slopeDeg.toFixed(1) + "° [HiRISE DEM]; " +
+      (info.roughDeg === null ? "" : "metre-scale roughness " + Math.round(info.roughDeg) + "° (" +
+        (info.roughDeg > 40 ? "very rough: rocks or small ridges" : info.roughDeg > 25 ? "rough" : "normal") + ") [HiRISE DEM]; ") + ground + " (THEMIS " + (t === null ? "n/a" : t.toFixed(2)) +
       ") [THEMIS]; minerals: " + mineralWords(lat, lon) + " [CRISM].";
   }
 
@@ -496,7 +521,8 @@
         ". Distance " + (s.distanceM / 1000).toFixed(2) + " km; walk out " + fmtHours(s.hoursOut) + "; round trip " + fmtHours(s.hoursRoundTrip) +
         "; O2 reserve after return " + Math.round(s.o2ReservePct) + "%; climb " + Math.round(s.elevationGainM) + " m, descent " +
         Math.round(s.elevationLossM) + " m; max slope " + s.maxSlope.toFixed(1) + "°, mean " + s.meanSlope.toFixed(1) + "°; loose sand on " +
-        Math.round(s.sandFraction * 100) + "% of the route" + (routeOptions().buddyMeters ? "; buddy mode " + routeOptions().buddyMeters + " m" : "") + ".");
+        Math.round(s.sandFraction * 100) + "% of the route; very rough ground (rocks/small ridges) on " +
+        Math.round((s.roughFraction || 0) * 100) + "% of the route" + (routeOptions().buddyMeters ? "; buddy mode " + routeOptions().buddyMeters + " m" : "") + ".");
       L1.push(pointLine("ROUTE START", pts[0][0], pts[0][1]));
       var mid = Math.floor(pts.length / 2);
       L1.push(pointLine("ROUTE MIDDLE", pts[mid][0], pts[mid][1]));
@@ -578,7 +604,7 @@
         if (this.checked) Darb.layers[key].addTo(map); else map.removeLayer(Darb.layers[key]);
       });
     }
-    toggleLayer("lySlope", "slope"); toggleLayer("lyThermal", "thermal"); toggleLayer("lyMinerals", "minerals");
+    toggleLayer("lySlope", "slope"); toggleLayer("lyRough", "rough"); toggleLayer("lyThermal", "thermal"); toggleLayer("lyMinerals", "minerals");
     toggleLayer("lyMola", "mola"); toggleLayer("lyRover", "rover");
     $("crismSelect").addEventListener("change", function () {
       var on = map.hasLayer(Darb.layers.minerals);
@@ -589,7 +615,7 @@
     });
     $("opacity").addEventListener("input", function () {
       var v = +this.value;
-      Darb.layers.slope.setOpacity(v * 0.8); Darb.layers.minerals.setOpacity(v);
+      Darb.layers.slope.setOpacity(v * 0.8); Darb.layers.rough.setOpacity(v); Darb.layers.minerals.setOpacity(v);
       Darb.layers.thermal.setOpacity(v); Darb.layers.mola.setOpacity(v);
     });
     $("demoBtn").addEventListener("click", demoRoute);

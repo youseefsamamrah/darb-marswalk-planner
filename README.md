@@ -12,7 +12,7 @@ runs **on the device** with no internet, because a message to Earth takes 4–24
 ## What it does
 - 🗺️ **Mars map** of lower Mount Sharp: NASA Mars Trek tiles (Viking + sharp MRO CTX mosaic).
 - 🧩 **Data layers** you can switch on/off:
-  terrain slope (HiRISE 1 m elevation, 25 m cells) · thermal inertia proxy (THEMIS night IR) · minerals (CRISM, 4 mineral maps + true colour) ·
+  terrain slope (HiRISE 1 m elevation, 25 m cells) · rough ground (rocks / small ridges, from the 1 m data) · thermal inertia proxy (THEMIS night IR) · minerals (CRISM, 4 mineral maps + true colour) ·
   elevation hillshade (MOLA) · Curiosity traverse with 8 real 2025 stops.
 - 🌡️ **Weather & radiation panel**: latest Curiosity REMS weather + RAD surface dose.
 - 🧭 **Route planner**: click START and GOAL → the **A\*** algorithm finds the lowest-cost walk
@@ -76,7 +76,7 @@ node --test tests
 | `tools/build_data.py` | rebuilds `data/` from NASA servers |
 | `tools/hirise_dem.py` | reads the HiRISE 1 m elevation GeoTIFF (plain Python TIFF + LZW reader) |
 | `tools/local_agent.py` | sends simple tasks (review, summaries) to a local model |
-| `tests/route.test.js` | 17 unit tests |
+| `tests/route.test.js` | 19 unit tests |
 
 ## Documents
 - [PLAN.md](PLAN.md) — plan, tasks, definition of done
@@ -88,8 +88,8 @@ node --test tests
 
 ## Honest limits
 - Slopes come from the HiRISE 1 m DEM averaged into 25 m cells (within 4.2 m of Curiosity's own recorded elevation).
-  Obstacles smaller than a cell — boulders and the 1–2 m boxwork ridges — are not in the slope.
-  Next step: per-cell roughness from the 1 m data, or rock detection in HiRISE images.
+  Obstacles smaller than a cell — boulders and the 1–2 m boxwork ridges — are not in the slope; a separate
+  roughness layer (4 m steps in the 1 m data) flags such areas but not each rock. Next step: rock detection in HiRISE images.
 - THEMIS night IR is a *relative* proxy for thermal inertia; CRISM browse colours are qualitative.
 - Map tiles are saved offline only for the study area (`tiles/`, ~11 MB); outside it they load from Mars Trek online.
   All data layers, routing and Ask Darb work offline.
