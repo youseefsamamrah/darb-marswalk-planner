@@ -1,4 +1,6 @@
 """
+
+AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
 local_agent.py  -  hand simple, repetitive tasks to a LOCAL model (Ollama) to save cloud usage.
 
 Used by the Lead agent for first drafts only (first-pass code review, test-case ideas,

@@ -1,4 +1,5 @@
 /*
+ * AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
  * askdarb.js — "Ask Darb", the offline AI assistant (Local AI agent)
  * ------------------------------------------------------------------
  * Talks to Ollama running on THIS computer (http://localhost:11434).

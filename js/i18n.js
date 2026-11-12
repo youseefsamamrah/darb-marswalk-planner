@@ -1,4 +1,5 @@
 /*
+ * AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
  * i18n.js — English / Arabic text for the interface.
  * Any HTML element with data-i18n="key" gets its text from here.
  * To add a language: copy the "en" block and translate the values.

@@ -1,140 +1,137 @@
 # Darb — Space Apps 2026 submission text (ready to paste)
 
-> ⚠️ **Re-check before submitting.** The official **2026 Project Submission Guide is published on 13 Nov 2026**.
-> The fields and limits below follow the **2025 submission format** and our best knowledge. Compare every field
-> and every length limit with the 2026 guide, then paste.
-> Submit through your team's project page on spaceappschallenge.org before your Local Event's end time.
+> ✅ **Checked against the official 2026 Project Submission Guide** (published 12 Nov 2026):
+> https://www.spaceappschallenge.org/resources/project-submission-guide/
+> - Submission opens **Sat 14 Nov, 9:00** and closes **Sun 15 Nov, 23:59** (your Local Event's time zone).
+> - Paste each block below into the field with the **same name** on your team's **Project** tab (My Team → Project → Edit).
+>   Save often ("Save Progress"); turn the edit **Lock** on so teammates don't overwrite you.
+> - Everything on the page and in linked material must be in **English**.
+> - All required fields must be filled, then tick **Terms and Conditions** + **Confirm All Work is Original** → **Submit for Judging**.
+> - The guide lists no character limits; the texts below are kept short so judges can read them quickly.
+> - Judging criteria: **Impact, Creativity, Validity, Relevance, Presentation** (details in the 2026 Judging and Awards
+>   Guide — not yet online when this was written).
 
 ---
 
-## Project name
-**Darb (دَرْب) — Marswalk Planner**
+## Project Name
+Darb (دَرْب) — Marswalk Planner
 
-## Challenge
-**Interplanetary Survival Guide: Martian Map** (2026 NASA Space Apps Challenge)
+## High-Level Project Summary
+Darb ("path" in Arabic) helps an astronaut plan a safe walk on Mars. We chose lower Mount Sharp in Gale Crater, where
+NASA's Curiosity rover studied boxwork ridges in 2025, and set a science goal: walk there and collect samples. Darb layers
+real NASA data — 1-metre HiRISE elevation, CTX and Viking imagery, THEMIS night-time infrared (rock vs. loose sand), CRISM
+minerals, Curiosity's REMS weather, RAD radiation and Navcam photos — into one walking-scale map. Click a start and a goal:
+an A* path-finder avoids steep slopes, rough ground and sand, and reports distance, walking time, oxygen reserve, radiation
+dose and a 🟢/🟡/🔴 safety score. A helmet HUD, buddy mode for two astronauts and real rover photos at each stop help the
+crew know what to expect. Because a message to Earth takes 4–24 minutes, our AI assistant "Ask Darb" runs on the device
+with no internet, answers only from the map's data and says "I don't know" otherwise (54/54 on our test set). It matters
+because the first Mars walkers will need mission-control-quality planning without mission control.
 
-## High-level project summary (≈180 words)
-Darb ("path" in Arabic) is an interactive map that helps a suited astronaut plan a **safe walk** on Mars.
-We chose lower Mount Sharp in Gale Crater, where NASA's Curiosity rover studied **boxwork** ridges in 2025, and
-set a science goal: walk there and collect samples. Darb layers real NASA data — CTX and Viking imagery from
-Mars Trek, 1-metre HiRISE elevation, THEMIS night-time infrared (a proxy for loose sand vs. rock), CRISM mineral maps,
-Curiosity's REMS weather and RAD radiation, and real rover Navcam photos. The astronaut clicks a start and a goal;
-an A* path-finder picks the lowest-cost route, avoiding steep slopes and loose sand, and shows distance, walking
-time, oxygen reserve, radiation dose and a 🟢/🟡/🔴 safety score. A helmet-visor **HUD mode** simulates the walk
-with a compass and warnings, and **buddy mode** keeps two astronauts on a corridor wide enough for both.
-Because a message to Earth takes 4–24 minutes, our assistant **"Ask Darb" runs locally** on the astronaut's own
-device (Ollama), answering only from the map's data and saying "I don't know" otherwise. English and Arabic.
+## Link to Project Demo
+`[PASTE: public link to the 30-second-or-less video OR the up-to-7-slide deck — see docs/DEMO-VIDEO.md. Test it in a private browser window: no login, no permission request.]`
 
-## Link to project demo
-`[PASTE: link to 30-second video or slide deck — see docs/DEMO-VIDEO.md]`
+## Link to Final Project
+`[PASTE: public GitHub repository URL — test it in a private browser window]`
 
-## Link to final project
-`[PASTE: GitHub repository URL]`
+## Detailed Project Description
 
-## Project details
+**What it does**
+- A Mars map of lower Mount Sharp with 6 toggleable layers: terrain slope (HiRISE 1 m elevation, 25 m cells), rough
+  ground (rocks and small ridges, from the same 1 m data), thermal-inertia proxy (THEMIS night IR), minerals (CRISM),
+  elevation hillshade (MOLA), and Curiosity's real traverse with 8 stops from its 2025 boxwork campaign.
+- Route planner: click START and GOAL → the safest walking route appears as a dotted trail. A point clicked on
+  too-steep ground is moved to the nearest walkable spot within 150 m.
+- Route card: distance, one-way and round-trip time, O₂ reserve after return, climb/descent, max slope, % loose sand,
+  % very rough ground, radiation dose, and a safety score with reasons.
+- Waypoints: a real Curiosity Navcam photo from each stop, with what to look for (boxwork ridges 1–2 m tall, central
+  fractures, sandy hollows).
+- Weather and radiation panel: latest REMS sol and RAD surface dose.
+- HUD mode: helmet-visor view with compass, distance to goal, O₂ timer, slope, today's Earth light-delay and warnings.
+- Buddy mode: a route wide enough for two astronauts who must stay within a chosen distance of each other.
+- Ask Darb: an offline AI assistant (English or Arabic) for questions like "Is this route safe?", "What minerals are
+  near waypoint 3?" or "Explain the rock photo at waypoint 6" (a local vision model looks at the real photo).
+- A guided 10-step tour for presenting, and an English/Arabic interface.
 
-### What it does
-- Shows a Mars map of lower Mount Sharp with **6 toggleable layers**: terrain slope (HiRISE 1 m DEM, 25 m cells), metre-scale rough ground (rocks/small ridges, from the same 1 m DEM), thermal-inertia proxy
-  (THEMIS night IR), minerals (CRISM, 4 mineral maps + true colour), elevation hillshade (MOLA), and Curiosity's
-  real traverse with 8 stops from its 2025 boxwork campaign.
-- **Route planner:** click START and GOAL → the safest walking route is drawn as a dotted trail.
-- **Route card:** distance, one-way and round-trip walking time, O₂ reserve after return, climb/descent, max slope,
-  % loose sand, radiation dose, and a safety score with reasons.
-- **Waypoints:** clicking the route shows the data at that point and the nearest real Curiosity Navcam photo,
-  with "what to look for" (boxwork ridges, central fractures, sandy hollows).
-- **Weather & radiation panel:** latest REMS sol (air/ground temperature, pressure, UV, sky) and RAD surface dose.
-- **HUD mode:** helmet-visor view with compass, distance to goal, O₂ timer, slope, Earth light-delay, and warnings
-  ("steep slope ahead", "loose sand ahead", "keep O₂ reserve for return").
-- **Buddy mode:** route for two astronauts who must stay within X metres of each other.
-- **Snap to safe ground:** a START or GOAL clicked on too-steep ground moves to the nearest walkable spot
-  within 150 m, with a message in English or Arabic.
-- **Ask Darb:** offline AI assistant (local model via Ollama). Example questions: "Is this route safe?",
-  "What minerals are near waypoint 3?", "Explain the rock photo at waypoint 6" (uses a vision model on the real photo).
-- Works fully without internet in the study area: map tiles for Mount Sharp are saved on the device, and all
-  data, routing and the AI run locally. If the AI is not running, the map still works and shows "Ask Darb is offline".
+**How it works**
+1. A Python script (standard library only) downloads and prepares real data: the USGS 1 m HiRISE elevation model of
+   Gale Crater (a 3.87 GB file, read with our own TIFF reader), THEMIS tiles, CRISM mineral maps, REMS weather and
+   Curiosity's positions and photos. It builds a grid of 515 × 560 cells (~25 m) with elevation, slope, roughness
+   (height steps over 4 m inside each cell) and a thermal value.
+2. Each cell gets a cost: steeper, rougher or sandier costs more; steeper than 20° is blocked.
+3. A* finds the lowest-cost path in a few milliseconds. Walking time uses a hiking formula scaled so flat ground = 2 km/h
+   for a suited astronaut; oxygen use assumes an 8-hour life-support budget for the round trip.
+4. Ask Darb (Ollama, local open model qwen3.5:9b) receives the current facts in plain English with a strict rule to use
+   only those facts. The safety score itself is computed by our algorithm, not by the AI.
+5. Map tiles for the study area are stored on the device: a full demo makes zero internet requests.
 
-### How it works
-1. A Python script (standard library only) prepares the real data. Elevation comes from the USGS **1 m HiRISE
-   DEM of Gale Crater** (a 3.87 GB GeoTIFF), read with our own plain-Python TIFF reader and LZW decoder; MOLA is
-   kept as an automatic gap-filler (not needed in our area). It also takes THEMIS tiles, CRISM browse images,
-   REMS weather and Curiosity positions/photos, and builds a **515 × 560 grid of ~25 m cells** with elevation,
-   slope and a thermal value (about 34 s).
-2. Each cell gets a cost: steeper = more expensive, loose sand = more expensive, steeper than 20° = blocked.
-   A point clicked on blocked ground is moved to the nearest walkable cell within 150 m.
-3. **A\*** finds the lowest-cost path (2–3 ms for the demo, ~82 ms for a 20 km route across the grid).
-   Buddy mode widens blocked areas with fast prefix sums (1000 m gap ≈ 4 ms).
-4. Walking time uses a Tobler-style hiking formula scaled so flat ground = 2 km/h (suited astronaut).
-5. Ask Darb receives the current facts in plain English (route numbers, data at each waypoint, weather) and a
-   strict rule to use only those facts.
+**What we measured**
+- Demo route (Curiosity's 2024 site → its 2025 boxwork stop): 2.73 km, 1 h 38 min one way, 61 % O₂ reserve,
+  max slope 10.5°, 🟡 Caution. With buddy mode at 100 m the two astronauts can't fit through the narrow safe gaps:
+  a 5.29 km detour, 🔴 Danger.
+- Our elevation matched Curiosity's own recorded elevation within 4.2 m at its 8 stops in 2025.
+- Ask Darb test set: 18 questions (12 facts, 6 with no answer in the data) × 3 runs = 54/54 correct, 1.9 s per answer.
+- 19 automated unit tests for the route planner pass.
 
-### Tested results (our demo)
-Demo route from Curiosity's sol-4300 site to its sol-4660 boxwork stop: **2.73 km, 1 h 38 min one way,
-3 h 05 min round trip, 61 % O₂ reserve (8 h budget), max slope 10.5° (mean 5.4°), 🟡 Caution** ("some slopes
-over 10°"). A* time 2–3 ms. With **buddy mode at 100 m**, the goal moves 50 m to safe ground and the route becomes
-a **5.29 km detour, 🔴 Danger** (slopes over 15°, 14 % O₂ reserve): two astronauts side by side cannot fit through
-the narrow safe gaps near the boxwork. Ask Darb (qwen3.5:9b on an RTX 5060 Ti 16 GB) answered in about **1.5–6 s**.
-Our grid elevation matched Curiosity's own recorded elevation within **4.2 m** at its 8 stops in 2025 (the older
-MOLA data was up to 44 m off). 17 automated unit tests pass.
+**Benefits and what we hope to achieve**
+- One walking-scale view of the safety-critical data (slope, roughness, sand, oxygen time, radiation, weather) instead of
+  separate regional maps.
+- Shows that a useful, tested AI assistant can work with no link to Earth.
+- Every number is traceable to a cited NASA source, and the limits are stated openly (e.g. single boulders are smaller than
+  a 25 m cell; the slope limits and 2 km/h speed are our assumptions).
+- Bilingual (English/Arabic) to bring Mars exploration data to more students.
 
-### Benefits and intended impact
-- Puts the safety-critical layers (slope, ground hardness, radiation, weather, time/O₂) into **one** hyper-local
-  view at walking scale — what global tools like Mars Trek were not built for.
-- Shows that a useful AI assistant can work **with no link to Earth**, which matters for any crewed Mars mission.
-- Every number is traceable to a NASA source (SOURCES.md); limits are stated openly.
-- Arabic + English: makes Mars exploration data accessible to more students.
+**Tools, coding languages, hardware and software**
+HTML, CSS, JavaScript (Leaflet.js 1.9.4); Python 3 (data preparation, standard library only); Node.js test runner;
+Ollama with local open models (qwen3.5:9b; gpt-oss:20b for comparison); Git. Developed and tested on a Windows 11 PC
+(Intel i7-14700F, 32 GB RAM, NVIDIA RTX 5060 Ti 16 GB). AI assistance in development is described in the
+"Use of Super Intelligence" field and in AI-USAGE.md in the repository.
 
-### What makes it creative
-- An Arabic name and bilingual interface for a Mars tool.
-- Uses Curiosity's **real path and photos** as "preview what you will see" waypoints.
-- A helmet HUD simulation and a buddy-mode corridor, both suggested by the challenge.
-- On-device AI that looks at real rover photos and refuses to invent facts.
+## Use of Super Intelligence (SI)
+> The guide says this answer is for data collection and is **not shown to judges**, but SI markers inside the project
+> (descriptive text and metadata) are. Our markers: an "AI notice" at the top of every code file, an `aiNotice` field in
+> every generated data file, and AI-USAGE.md. The guide also says SI must not be used to come up with the idea — the
+> team chose the challenge, the idea, the location and the science goal.
 
-### Tools, languages, hardware, software
-- **Languages:** HTML, CSS, JavaScript; Python (data preparation).
-- **Libraries:** Leaflet.js 1.9.4 (stored locally). No other dependencies.
-- **AI (in the product):** Ollama with local open models — qwen3.5:9b (chat + vision). Others installed and
-  selectable: gpt-oss:20b, qwen3.6:27b.
-- **Testing:** Node.js built-in test runner (`node --test tests`).
-- **Hardware used:** Windows 11 laptop/PC, Intel Core i7-14700F, 32 GB RAM, NVIDIA RTX 5060 Ti 16 GB.
+Yes. The team chose the challenge, the idea (a safe-walk planner with on-device AI), the location (Mount Sharp) and the
+science goal (boxwork). We then used a cloud AI coding assistant (Claude Code by Anthropic) to help write the code, the
+data-processing scripts and first drafts of the documentation, and local open models (gpt-oss:20b, qwen3.5:9b via Ollama)
+for first-pass code review. We tested and reviewed all AI-generated work: 19 unit tests, click-testing every feature,
+checking every data link, and comparing our elevation data with Curiosity's own measurements. All code files and generated
+data files carry an AI notice. Inside the product, "Ask Darb" uses a local open model (qwen3.5:9b) with no internet; it
+answers only from the map's data, says "I don't know" otherwise, and scored 54/54 on our test set. No SI-generated images,
+video or audio are used. `[If you use a text-to-speech voice in the demo video, add: "The demo voice-over is SI-generated text-to-speech" — and say so in the video description too.]`
 
-## NASA data used
-| Data | Use in Darb | Link |
-|---|---|---|
-| Viking MDIM 2.1 colour mosaic (Mars Trek WMTS) | base map, wide view | https://trek.nasa.gov/mars/ |
-| MRO CTX Gale Crater mosaic (Mars Trek WMTS) | detailed base map | https://trek.nasa.gov/mars/ |
-| MGS MOLA colour hillshade (Mars Trek WMTS) | elevation layer | https://trek.nasa.gov/mars/ |
-| Mars Odyssey THEMIS night IR mosaic v2 (Mars Trek WMTS) | thermal-inertia proxy layer + sand cost | https://trek.nasa.gov/mars/ |
-| MSL Gale DEM Mosaic 1m v3 — HiRISE stereo (USGS Astrogeology; NASA/JPL/UArizona) | elevation & slope grid for routing (25 m cells) | https://planetarymaps.usgs.gov/mosaic/Mars/MSL/MSL_Gale_DEM_Mosaic_1m_v3.tif |
-| MGS MOLA MEGDR 128 pixels/degree (PDS Geosciences) | automatic gap-filler for the elevation grid | https://pds-geosciences.wustl.edu/mgs/mgs-m-mola-5-megdr-l3-v1/mgsl_300x/meg128/ |
-| MRO CRISM MTRDR FRT0000B6F1 browse products (PDS Geosciences) | mineral layers | https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/browse/2008/2008_191/frt0000b6f1/ |
-| MSL Curiosity waypoints (MMGIS) | rover traverse and 2025 stops | https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints.json |
-| MSL raw images (Navcam / Mastcam) | waypoint photos | https://mars.nasa.gov/msl/multimedia/raw-images/ |
-| MSL REMS weather feed | weather panel | https://mars.nasa.gov/rss/api/?feed=weather&category=msl&feedtype=json |
-| MSL RAD surface dose — Hassler et al. 2014, *Science* 343 | radiation dose | https://doi.org/10.1126/science.1244797 |
-| NASA/JPL article on Curiosity and boxwork (Feb 2026) | science goal, "what to look for" | https://www.nasa.gov/missions/mars-science-laboratory/curiosity-rover/nasas-curiosity-rover-sees-martian-spiderwebs-up-close/ |
+## NASA Data
+- **MSL Gale DEM Mosaic 1m v3** (HiRISE stereo; USGS Astrogeology, NASA/JPL/University of Arizona) — elevation, slope and
+  roughness for routing. https://planetarymaps.usgs.gov/mosaic/Mars/MSL/MSL_Gale_DEM_Mosaic_1m_v3.tif
+- **NASA Mars Trek** WMTS tiles — MRO CTX Gale Crater mosaic and Viking MDIM 2.1 (base map), MGS MOLA colour hillshade,
+  Mars Odyssey THEMIS night-IR mosaic (thermal-inertia proxy). https://trek.nasa.gov/mars/
+- **MGS MOLA MEGDR** 128 pixels/degree (PDS Geosciences Node) — elevation gap-filler.
+  https://pds-geosciences.wustl.edu/mgs/mgs-m-mola-5-megdr-l3-v1/mgsl_300x/meg128/
+- **MRO CRISM** MTRDR browse products, observation FRT0000B6F1 (PDS Geosciences Node) — mineral layers.
+  https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/browse/2008/2008_191/frt0000b6f1/
+- **MSL Curiosity** waypoints (MMGIS) — rover traverse and 2025 stops.
+  https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints.json
+- **MSL raw images** (Navcam; Mastcam links) — waypoint photos. https://mars.nasa.gov/msl/multimedia/raw-images/
+- **MSL REMS** weather feed — weather panel. https://mars.nasa.gov/rss/api/?feed=weather&category=msl&feedtype=json
+- **MSL RAD** surface dose (Hassler et al. 2014, Science 343) — radiation. https://doi.org/10.1126/science.1244797
+- NASA/JPL article on Curiosity and boxwork (Feb 2026) — science goal.
+  https://www.nasa.gov/missions/mars-science-laboratory/curiosity-rover/nasas-curiosity-rover-sees-martian-spiderwebs-up-close/
+- The 2026 challenge page (boxwork, HUD and pairs of astronauts as suggested ideas).
+  https://www.spaceappschallenge.org/2026/challenges/interplanetary-survival-guide-martian-map/
 
-## Space agency partner data
-- **REMS** (Rover Environmental Monitoring Station) was provided to the Curiosity mission by Spain; the weather
-  feed we use is published by the **Centro de Astrobiología (CAB, CSIC-INTA)**. We use it through NASA's public
-  feed. (Check whether CAB/Spain counts as a "Space Agency Partner" in the 2026 list before ticking that box.)
-- No other partner-agency data is used.
+## Space Agency Partner Data and Other References
+**Space Agency Partner data:** none used directly. (The REMS instrument was provided to Curiosity by Spain and its public
+weather feed is published by the Centro de Astrobiología, CSIC-INTA; we access it through NASA's feed. The Spanish Space
+Agency is a 2026 partner, but we do not claim this as partner data.)
 
-## Use of Artificial Intelligence (AI / "SI")
-> Note: the 2026 Participant FAQ now uses the term **"Super Intelligence (SI)"** for these tools and says every
-> submission must describe how they were used. Use whichever term the 2026 form asks for.
-
-AI tools were used in two ways. **(1) During development:** a cloud coding assistant (Claude Code, Anthropic)
-helped write code, data-processing scripts and documentation drafts, and local open models (gpt-oss:20b,
-qwen3.5:9b via Ollama) did first-pass code review. The team chose the challenge, location and science goal,
-checked the datasets, made design decisions, tested every feature and reviewed all AI output before using it.
-**(2) Inside the product:** "Ask Darb" runs an open model locally (qwen3.5:9b) with no internet; it is given only
-the map's data and must say "I don't know" otherwise. It can still make mistakes, so the route safety score is
-computed by our own algorithm, not by the AI. Full details: `AI-USAGE.md`.
-
-## Tags
-`#Mars` `#GaleCrater` `#MountSharp` `#Curiosity` `#Boxwork` `#EVA` `#RoutePlanning` `#Astar` `#Leaflet`
-`#MarsTrek` `#HiRISE` `#MOLA` `#THEMIS` `#CRISM` `#OfflineAI` `#Ollama` `#HUD` `#Arabic` `#HumanExploration`
-
-## References
-See `SOURCES.md` in the repository for every data source, link and licence/credit line.
-Image credit for rover photos: NASA/JPL-Caltech (Navcam), NASA/JPL-Caltech/MSSS (Mastcam).
+**Other data, code, tools and references** (all free/open):
+- Leaflet 1.9.4 (BSD-2-Clause) — map library. https://leafletjs.com
+- Ollama (MIT) — runs local AI models. https://ollama.com
+- qwen3.5:9b (Qwen, open weights) and gpt-oss:20b (OpenAI, open weights) via the Ollama library. https://ollama.com/library
+- Python 3 standard library; Node.js test runner.
+- Claude Code (Anthropic) — AI coding assistant used during development (see Use of SI).
+- Viviano-Beck et al. (2014), CRISM browse product definitions (cited in the PDS labels).
+- Rover image credits: NASA/JPL-Caltech (Navcam), NASA/JPL-Caltech/MSSS (Mastcam).
+- Full list with every link: SOURCES.md in the repository.
+- No copyrighted material is used without permission; no images, video or audio of people.

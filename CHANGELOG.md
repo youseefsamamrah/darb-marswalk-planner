@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## Round 6 — matched the official 2026 Project Submission Guide (2026-11-12)
+**Why:** the guide was published today; a submission that breaks a rule (demo length, SI markers) can lose eligibility.
+**What changed**
+- `docs/SUBMISSION.md` rewritten with the **official field names** (Project Name, High-Level Project Summary, Link to
+  Project Demo, Link to Final Project, Detailed Project Description, Use of SI, NASA Data, Space Agency Partner Data and
+  Other References), submission times (Sat 14 Nov 9:00 → Sun 15 Nov 23:59 local), English-only rule, current numbers
+  (19 tests, 54/54 Ask Darb test set, 0 internet requests). Partner data: honestly "none used directly".
+- `docs/DEMO-VIDEO.md`: ≤ 30 s video or ≤ 7 slides (over the limit = not eligible for Global Judging); English subtitles;
+  text-to-speech counts as SI audio and must be declared; slide deck must show team name, member names and challenge
+  — flagged for the team to decide, because our own rule was "no names".
+- **SI markers the guide requires in the project itself:** an "AI notice" line at the top of all 14 code files, an
+  `aiNotice` field in every generated data file (and in the build script so it stays), README "AI notice" section,
+  AI-USAGE rule-by-rule table.
+**Tested:** all JS/Python files still parse; `node --test tests` 19/19; app loads, demo route 2.73 km 🟡, tour and Ask Darb work.
+
 ## Round 5 — guided tour for the pitch + offline audit (2026-11-12)
 **Why:** judging criterion "presentation" — a live demo must not depend on the presenter's memory or on Wi-Fi.
 **What changed**

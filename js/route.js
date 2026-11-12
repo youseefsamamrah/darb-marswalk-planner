@@ -1,4 +1,5 @@
 /*
+ * AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
  * route.js — Darb route planner (Algorithm agent)
  * ------------------------------------------------
  * 1. Turn the data grid (slope + thermal) into a COST for every cell.

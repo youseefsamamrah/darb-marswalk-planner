@@ -1,4 +1,5 @@
 {
+ "aiNotice": "The data values come from NASA/USGS/CAB sources (see SOURCES.md). The script that downloaded and processed them (tools/build_data.py) was written with help from an AI coding assistant (Claude Code, Anthropic) and checked by the team (e.g. elevation vs. Curiosity's own measurements). See AI-USAGE.md.",
  "source": "https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints.json",
  "rawImagesSource": "https://mars.nasa.gov/msl/multimedia/raw-images/",
  "traverse": [

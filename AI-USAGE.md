@@ -4,6 +4,16 @@ The Space Apps 2026 rules require every team to describe how AI tools were used.
 (The 2026 Participant FAQ calls these tools "Super Intelligence (SI)"; it means the same thing.)
 We try to be honest: not hiding AI help, and not exaggerating it.
 
+**What the official 2026 Project Submission Guide asks (checked 12 Nov 2026)** and what we did:
+| Rule | What we did |
+|---|---|
+| SI must not be used to come up with the idea | The team chose the challenge, idea, location and science goal (section 1). |
+| Code and data: acknowledge SI in descriptive text **and metadata** | Every code file starts with an "AI notice" line; every generated data file in `data/` has an `aiNotice` field; this file + README. |
+| Images and video: visible watermark if SI-generated | We use no SI-generated images or video. Screenshots are of our app; rover photos are real NASA images. |
+| Audio: acknowledge SI generation | Only if the team uses a text-to-speech voice-over in the demo video — then say so in the video description, file metadata and the "Use of SI" field. |
+| No NASA branding in generated content | No NASA logos or insignia are used anywhere. |
+| The "Use of SI" answer is not shown to judges | So the markers above (inside the project) are what judges see. |
+
 ---
 
 ## 1. What the TEAM did  ✍️ (filled in by the team — please write this yourselves)

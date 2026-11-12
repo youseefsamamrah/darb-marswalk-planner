@@ -1,4 +1,5 @@
 {
+ "aiNotice": "The data values come from NASA/USGS/CAB sources (see SOURCES.md). The script that downloaded and processed them (tools/build_data.py) was written with help from an AI coding assistant (Claude Code, Anthropic) and checked by the team (e.g. elevation vs. Curiosity's own measurements). See AI-USAGE.md.",
  "observation": "FRT0000B6F1 (2008-07-09)",
  "products": [
   {

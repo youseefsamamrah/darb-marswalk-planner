@@ -1,4 +1,5 @@
 /*
+ * AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
  * tour.js — guided demo for the live pitch
  * ------------------------------------------
  * Click "▶ Tour" in the top bar. Each step sets up the map BY ITSELF (layers, route, popups, HUD),

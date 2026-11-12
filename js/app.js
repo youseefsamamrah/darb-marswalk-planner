@@ -1,4 +1,5 @@
 /*
+ * AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
  * app.js — Darb main program (Map/UI agent)
  * ------------------------------------------
  * 1. Loads our data files (built from NASA data by tools/build_data.py)

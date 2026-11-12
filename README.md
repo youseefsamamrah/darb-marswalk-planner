@@ -82,6 +82,11 @@ Test Ask Darb's answers (Ollama running): open http://localhost:8000/?eval=qwen3
 | `tools/local_agent.py` | sends simple tasks (review, summaries) to a local model |
 | `tests/route.test.js` | 19 unit tests |
 
+## AI notice
+Parts of this project were written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed and tested
+by the team. Every code file starts with an "AI notice" line and every generated data file has an `aiNotice` field.
+The in-app assistant "Ask Darb" is a local open model. Full details: [AI-USAGE.md](AI-USAGE.md).
+
 ## Documents
 - [PLAN.md](PLAN.md) — plan, tasks, definition of done
 - [SOURCES.md](SOURCES.md) — every dataset with links

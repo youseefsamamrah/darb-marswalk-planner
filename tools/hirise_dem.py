@@ -1,4 +1,6 @@
 """
+
+AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
 hirise_dem.py  -  read the USGS "MSL Gale DEM Mosaic 1m v3" GeoTIFF with ONLY the Python standard library.
 
 The DEM (made from HiRISE stereo images, 1 metre per pixel) is one big file (3.9 GB):

@@ -1,4 +1,6 @@
 """
+
+AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
 build_data.py  -  Data agent script for Darb (Marswalk Planner)
 
 Downloads REAL public NASA data for our study area on Mount Sharp (Gale Crater)
@@ -34,6 +36,8 @@ MARS_RADIUS_M = 3396190.0            # IAU Mars sphere radius used by MOLA / Tre
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "..", "data")
+AI_DATA_NOTICE = "The data values come from NASA/USGS/CAB sources (see SOURCES.md). The script that downloaded and processed them (tools/build_data.py) was written with help from an AI coding assistant (Claude Code, Anthropic) and checked by the team (e.g. elevation vs. Curiosity's own measurements). See AI-USAGE.md."
+# ^ written into every data file as "aiNotice" (Space Apps rule: say where SI helped, in text AND metadata)
 UA = {"User-Agent": "darb-marswalk-student-project"}
 
 
@@ -274,6 +278,7 @@ def build_grid():
     therm = [None if v is None else round(min(1, max(0, (v - lo) / (hi - lo))), 2) for v in themis]
 
     grid = {
+        "aiNotice": AI_DATA_NOTICE,
         "about": "Built by tools/build_data.py from real NASA data. See SOURCES.md.",
         "bounds": {"north": LAT_N, "south": LAT_S, "west": LON_W, "east": LON_E},
         "cellDeg": CELL_DEG, "rows": n_rows, "cols": n_cols,
@@ -342,7 +347,7 @@ def build_crism():
         })
         print("CRISM", code, "ok")
     with open(os.path.join(DATA, "crism", "products.json"), "w") as f:
-        json.dump({"observation": "FRT0000B6F1 (2008-07-09)", "products": out}, f, indent=1)
+        json.dump({"aiNotice": AI_DATA_NOTICE, "observation": "FRT0000B6F1 (2008-07-09)", "products": out}, f, indent=1)
 
 
 # ---------------------------------------------------------------------------
@@ -370,6 +375,7 @@ def build_environment():
             "opacity": s["atmo_opacity"], "sunrise": s["sunrise"], "sunset": s["sunset"],
         })
     env = {
+        "aiNotice": AI_DATA_NOTICE,
         "rems": {
             "source": REMS_URL,
             "note": "REMS data provided by Centro de Astrobiologia (CSIC-INTA) for outreach. "
@@ -440,7 +446,7 @@ def build_waypoints():
                     "elevM": p.get("elev_geoid"), "images": imgs})
         print("waypoint sol", p["sol"], len(imgs), "images")
     with open(os.path.join(DATA, "waypoints.json"), "w") as f:
-        json.dump({"source": WAYPOINTS_URL, "rawImagesSource": "https://mars.nasa.gov/msl/multimedia/raw-images/",
+        json.dump({"aiNotice": AI_DATA_NOTICE, "source": WAYPOINTS_URL, "rawImagesSource": "https://mars.nasa.gov/msl/multimedia/raw-images/",
                    "traverse": traverse, "waypoints": out}, f, indent=1)
 
 
