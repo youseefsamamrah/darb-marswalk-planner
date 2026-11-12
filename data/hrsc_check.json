@@ -1,0 +1,60 @@
+{
+ "aiNotice": "Computed by tools/hrsc_check.py (written with AI assistance, checked by the team). See AI-USAGE.md.",
+ "source": "https://planetarymaps.usgs.gov/mosaic/Mars/HRSC_MOLA_Blend/Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif",
+ "sourceName": "Mars MGS MOLA - MEX HRSC Blended DEM Global 200m v2 (USGS; HRSC: ESA/DLR/FU Berlin; MOLA: NASA)",
+ "pixelsCompared": 4416,
+ "meanDifferenceM": 3.7,
+ "medianAbsDifferenceM": 12.1,
+ "p95AbsDifferenceM": 44.0,
+ "note": "Our grid (HiRISE 1 m, 25 m cells) averaged over each 200 m HRSC-blend pixel, minus the HRSC-blend value. A small offset is expected: the two models use different references and resolutions.",
+ "curiosityStops": [
+  {
+   "waypoint": 1,
+   "sol": 4480,
+   "roverElevM": -3707.2,
+   "hrscBlendElevM": -3689
+  },
+  {
+   "waypoint": 2,
+   "sol": 4503,
+   "roverElevM": -3688.4,
+   "hrscBlendElevM": -3679
+  },
+  {
+   "waypoint": 3,
+   "sol": 4527,
+   "roverElevM": -3660.6,
+   "hrscBlendElevM": -3656
+  },
+  {
+   "waypoint": 4,
+   "sol": 4552,
+   "roverElevM": -3648.4,
+   "hrscBlendElevM": -3657
+  },
+  {
+   "waypoint": 5,
+   "sol": 4585,
+   "roverElevM": -3644.1,
+   "hrscBlendElevM": -3628
+  },
+  {
+   "waypoint": 6,
+   "sol": 4609,
+   "roverElevM": -3624.3,
+   "hrscBlendElevM": -3620
+  },
+  {
+   "waypoint": 7,
+   "sol": 4633,
+   "roverElevM": -3611.2,
+   "hrscBlendElevM": -3596
+  },
+  {
+   "waypoint": 8,
+   "sol": 4660,
+   "roverElevM": -3605.5,
+   "hrscBlendElevM": -3597
+  }
+ ]
+}

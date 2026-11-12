@@ -5,10 +5,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Darb — Marswalk Planner</title>
-  <!-- "?v=13" = version tag: change the number after editing a file so browsers load the new copy -->
+  <!-- "?v=14" = version tag: change the number after editing a file so browsers load the new copy -->
   <!-- Leaflet is stored locally in vendor/ so the app works without internet -->
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=13">
+  <link rel="stylesheet" href="css/style.css?v=14">
 </head>
 <body>
   <header class="topbar">
@@ -83,6 +83,12 @@
         <p class="source" id="envSource"></p>
       </section>
 
+      <!-- Data check: does our elevation agree with independent measurements? -->
+      <section class="card">
+        <h2 data-i18n="checkTitle">Data check</h2>
+        <ul class="checks" id="dataCheck"></ul>
+      </section>
+
       <!-- Ask Darb -->
       <section class="card ask">
         <h2 data-i18n="askTitle">Ask Darb</h2>
@@ -124,14 +130,14 @@
   </main>
 
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="js/config.js?v=13"></script>
-  <script src="js/i18n.js?v=13"></script>
-  <script src="js/route.js?v=13"></script>
-  <script src="js/askdarb.js?v=13"></script>
-  <script src="js/app.js?v=13"></script>
+  <script src="js/config.js?v=14"></script>
+  <script src="js/i18n.js?v=14"></script>
+  <script src="js/route.js?v=14"></script>
+  <script src="js/askdarb.js?v=14"></script>
+  <script src="js/app.js?v=14"></script>
   <!-- Guided demo for the pitch ("▶ Tour" button) -->
-  <script src="js/tour.js?v=13"></script>
+  <script src="js/tour.js?v=14"></script>
   <!-- Ask Darb test set: only runs when the address ends with ?eval -->
-  <script src="js/eval.js?v=13"></script>
+  <script src="js/eval.js?v=14"></script>
 </body>
 </html>

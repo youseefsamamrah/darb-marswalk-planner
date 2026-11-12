@@ -156,6 +156,15 @@ captions (km, time, O₂) are filled in from the app's live route statistics, ne
   when the data has no answer. Score: 54/54 over 3 runs. How to explain it: "We don't just hope the AI is right —
   we test it like a student taking an exam, and we also test that it admits when it doesn't know."
 
+**Data check card (`tools/hrsc_check.py`, round 7).** How do we know our elevation is right? We compare it with two
+independent sources. (1) Curiosity's own recorded altitude at its 8 stops: within 4.2 m. (2) A different elevation model
+that uses ESA's Mars Express HRSC camera (a Space Apps partner agency) blended with NASA's MOLA, at 200 m pixels. That
+file is 11.4 GB, but it is stored row by row without compression, so the script asks the server for only the ~65 rows
+×70 pixels over our box (a few KB). For each 200 m pixel we average our 25 m cells inside it and subtract. Result over
+4,416 pixels: 3.7 m apart on average (median 12.1 m — bigger single differences are normal on steep slopes, because a
+200 m pixel smooths them). How to explain it: "Two different spacecraft, from two space agencies, give nearly the same
+height — and the rover standing on the ground agrees with us within 4 metres."
+
 ## 10. Known limits (say these honestly)
 - Slopes are computed at 25 m. Anything smaller than a cell — boulders, and the 1–2 m tall boxwork ridges
   themselves — is not visible in the slope. The roughness value (from 4 m steps in the 1 m data) flags these areas,

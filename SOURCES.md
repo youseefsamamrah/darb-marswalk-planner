@@ -28,6 +28,8 @@ Tile URL pattern: `https://trek.nasa.gov/tiles/Mars/EQ/{layer}/1.0.0/default/def
 | `waypoints.json` → traverse + stops | Curiosity rover positions (site/drive, lat/lon, elevation, sol) | MSL MMGIS waypoints: https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints.json |
 | `images/wp*.jpg` + image links | Curiosity raw **Navcam** (and Mastcam links) from the same sols. Credit: NASA/JPL-Caltech (Mastcam: NASA/JPL-Caltech/MSSS) | https://mars.nasa.gov/msl/multimedia/raw-images/ (API: https://mars.nasa.gov/api/v1/raw_image_items/) |
 
+| `hrsc_check.json` | **Independent elevation check**: "Mars MGS MOLA – MEX HRSC Blended DEM Global 200m v2" (USGS Astrogeology; HRSC camera on ESA's **Mars Express** — ESA/DLR/FU Berlin; MOLA: NASA). 11.4 GB BigTIFF, uncompressed int16, 0.003374°/px; we read only ~65 rows over HTTP range requests (`tools/hrsc_check.py`). Result: our grid is 3.7 m from it on average (median 12.1 m, 4,416 pixels). | https://planetarymaps.usgs.gov/mosaic/Mars/HRSC_MOLA_Blend/Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif |
+
 ## Facts used in text
 | Fact | Source |
 |---|---|

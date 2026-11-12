@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## Round 7 — Space Agency Partner data: ESA Mars Express HRSC elevation cross-check (2026-11-12)
+**Why:** the guide encourages 2026 Space Agency Partner data; an independent check also strengthens "validity".
+**What we looked at**
+- UAE Hope mission (Mohammed Bin Rashid Space Center): its Science Data Center sends both data search and quicklook to a
+  sign-in page, so we did not use it (creating an account is the team's decision).
+- ESA: Mars Express HRSC is available as the USGS "MOLA – MEX HRSC Blended DEM Global 200m v2" (11.4 GB BigTIFF).
+**What changed**
+- New `tools/hrsc_check.py`: parses the BigTIFF header and reads only ~65 rows over our box with HTTP range requests
+  (no big download); compares each 200 m pixel with the mean of our 25 m HiRISE cells → `data/hrsc_check.json`.
+- Result: **3.7 m mean difference**, median 12.1 m, 95th percentile 44 m over 4,416 pixels. At Curiosity's stops the
+  HRSC blend is 4–18 m off the rover's altitude; our HiRISE grid is within 4.2 m.
+- App: new "Data check" card (EN/AR); Ask Darb facts include the check.
+- SUBMISSION.md partner-data field, SOURCES.md, README, TEAM-GUIDE updated.
+**Tested:** Ask Darb test set 36/36 (2 runs, 1.8 s); Ask Darb answers the ESA question correctly; `node --test tests` 19/19.
+
 ## Round 6 — matched the official 2026 Project Submission Guide (2026-11-12)
 **Why:** the guide was published today; a submission that breaks a rule (demo length, SI markers) can lose eligibility.
 **What changed**

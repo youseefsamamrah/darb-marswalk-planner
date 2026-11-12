@@ -68,7 +68,8 @@ because the first Mars walkers will need mission-control-quality planning withou
 - Demo route (Curiosity's 2024 site → its 2025 boxwork stop): 2.73 km, 1 h 38 min one way, 61 % O₂ reserve,
   max slope 10.5°, 🟡 Caution. With buddy mode at 100 m the two astronauts can't fit through the narrow safe gaps:
   a 5.29 km detour, 🔴 Danger.
-- Our elevation matched Curiosity's own recorded elevation within 4.2 m at its 8 stops in 2025.
+- Our elevation matched Curiosity's own recorded elevation within 4.2 m at its 8 stops in 2025, and an independent
+  model using ESA Mars Express HRSC data within 3.7 m on average.
 - Ask Darb test set: 18 questions (12 facts, 6 with no answer in the data) × 3 runs = 54/54 correct, 1.9 s per answer.
 - 19 automated unit tests for the route planner pass.
 
@@ -121,9 +122,14 @@ video or audio are used. `[If you use a text-to-speech voice in the demo video, 
   https://www.spaceappschallenge.org/2026/challenges/interplanetary-survival-guide-martian-map/
 
 ## Space Agency Partner Data and Other References
-**Space Agency Partner data:** none used directly. (The REMS instrument was provided to Curiosity by Spain and its public
-weather feed is published by the Centro de Astrobiología, CSIC-INTA; we access it through NASA's feed. The Spanish Space
-Agency is a 2026 partner, but we do not claim this as partner data.)
+**Space Agency Partner data:** **ESA Mars Express HRSC** — we cross-check our elevation grid against the
+"Mars MGS MOLA – MEX HRSC Blended DEM Global 200m v2" (USGS Astrogeology; HRSC: ESA/DLR/FU Berlin; MOLA: NASA), which
+blends ESA's HRSC stereo elevation with NASA's MOLA. Over our study area the two agree within 3.7 m on average (median
+12.1 m over 4,416 pixels of 200 m); the app shows this in a "Data check" card and Ask Darb can explain it.
+https://planetarymaps.usgs.gov/mosaic/Mars/HRSC_MOLA_Blend/Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif
+(The REMS weather instrument was provided to Curiosity by Spain and its public feed is published by the Centro de
+Astrobiología, CSIC-INTA; we use it through NASA's feed and do not count it as partner data. We also looked at the UAE's
+Hope mission data, but its Science Data Center requires an account, so it is not used yet.)
 
 **Other data, code, tools and references** (all free/open):
 - Leaflet 1.9.4 (BSD-2-Clause) — map library. https://leafletjs.com

@@ -59,7 +59,11 @@ All data files are already in `data/`. To download them again from NASA (Python 
 python tools/build_data.py
 ```
 The elevation grid uses the USGS HiRISE 1 m DEM of Gale (3.87 GB). If `raw/hirise_dem/MSL_Gale_DEM_Mosaic_1m_v3.tif`
-exists it is read locally (~34 s); otherwise only the needed rows are fetched over the internet (slower, no big download).
+exists it is read locally (~67 s); otherwise only the needed rows are fetched over the internet (slower, no big download).
+Independent elevation check against ESA Mars Express HRSC data (reads only a few KB of an 11.4 GB file):
+```bash
+python tools/hrsc_check.py
+```
 
 ## Run the tests
 ```bash

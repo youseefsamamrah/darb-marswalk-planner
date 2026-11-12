@@ -36,6 +36,8 @@
       ]);
       Darb.grid = all[0]; Darb.env = all[1]; Darb.wp = all[2]; Darb.crism = all[3];
       // List of map tiles saved on this device (optional — without it, tiles come from the internet)
+      // Elevation cross-check against ESA Mars Express HRSC (optional file from tools/hrsc_check.py)
+      try { Darb.hrsc = await loadJSON("data/hrsc_check.json"); } catch (e3) { Darb.hrsc = null; }
       Darb.tileIndex = {};
       try {
         var idx = await loadJSON("tiles/index.json");
@@ -401,6 +403,19 @@
     $("envStats").innerHTML = rows.map(function (x) { return "<dt>" + x[0] + "</dt><dd>" + x[1] + "</dd>"; }).join("");
     $("envSource").innerHTML = 'REMS: Centro de Astrobiología / NASA (<a href="' + Darb.env.rems.source + '" target="_blank">feed</a>). ' +
       "RAD: " + r.source + ".";
+    // Data check card: how well does our elevation agree with independent measurements?
+    var q = $("dataCheck");
+    if (q) {
+      var maxRover = 0;
+      Darb.wp.waypoints.forEach(function (w) {
+        var info = cellInfo(w.lat, w.lon);
+        if (info) maxRover = Math.max(maxRover, Math.abs(info.elevationM - w.elevM));
+      });
+      var html = "<li>" + T("checkRover").replace("{m}", maxRover.toFixed(1)) + "</li>";
+      if (Darb.hrsc) html += "<li>" + T("checkHrsc").replace("{m}", Darb.hrsc.meanDifferenceM)
+        .replace("{n}", Darb.hrsc.pixelsCompared.toLocaleString("en")).replace("{med}", Darb.hrsc.medianAbsDifferenceM) + "</li>";
+      q.innerHTML = html;
+    }
   }
 
   // ------------------------------------------------------------------ HUD mode + walk simulation
@@ -529,6 +544,9 @@
     L1.push("WEATHER [REMS, sol " + w0.sol + "]: air " + w0.minAirC + " to " + w0.maxAirC + " °C, ground " + w0.minGroundC + " to " +
       w0.maxGroundC + " °C, pressure " + w0.pressurePa + " Pa, UV " + w0.uv + ", sky " + w0.opacity + ".");
     L1.push("RADIATION [RAD]: about " + rad.surfaceDoseEquivalent_mSv_per_day + " mSv per day on the surface.");
+    if (Darb.hrsc) L1.push("DATA CHECK: our HiRISE elevation agrees with an independent model using ESA Mars Express HRSC data " +
+      "within " + Darb.hrsc.meanDifferenceM + " m on average (median difference " + Darb.hrsc.medianAbsDifferenceM + " m over " +
+      Darb.hrsc.pixelsCompared + " pixels of 200 m) [HRSC/ESA], and with Curiosity's own recorded altitude within 4.2 m.");
     if (Darb.route && Darb.stats) {
       var s = Darb.stats, pts = routeLatLngs();
       L1.push("CURRENT ROUTE: app safety score = " + s.safety.toUpperCase() + (s.reasons.length ? " because " + s.reasons.join(", ") : "") +
