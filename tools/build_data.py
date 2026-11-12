@@ -8,7 +8,7 @@ Uses ONLY the Python standard library (no installs needed).
 Run from the project folder:   python tools/build_data.py
 
 Outputs (all in data/):
-  grid.json         elevation (MOLA), slope, THEMIS night-IR brightness per grid cell
+  grid.json         elevation (HiRISE 1 m DEM, MOLA for gaps), slope, THEMIS night-IR brightness per ~25 m cell
   environment.json  REMS weather (last 30 sols) + RAD radiation (published values)
   waypoints.json    Curiosity rover positions in the 2025 boxwork campaign + raw image links
   crism/*.png       CRISM browse images (mineral maps) + crism/products.json
@@ -29,7 +29,7 @@ import zlib
 # ---------------------------------------------------------------------------
 LAT_N, LAT_S = -4.6935, -4.9100      # degrees (negative = south)
 LON_W, LON_E = 137.3012, 137.5362    # degrees east
-CELL_DEG = 0.0018                    # grid cell size in degrees (~107 m on Mars)
+CELL_DEG = 0.00042                   # grid cell size in degrees (~25 m on Mars)
 MARS_RADIUS_M = 3396190.0            # IAU Mars sphere radius used by MOLA / Trek
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -177,10 +177,33 @@ def themis_value(tiles, lat, lon):
 # 4. Build the grid
 # ---------------------------------------------------------------------------
 def build_grid():
+    import sys
+    sys.path.insert(0, HERE)          # so we can import tools/hirise_dem.py
+    from hirise_dem import HiriseDEM, NODATA
     print("MOLA: downloading rows ...")
     rows, row0, col0 = load_mola()
     print("THEMIS: downloading tiles ...")
     tiles = load_themis_tiles()
+    print("HiRISE DEM: opening ...")
+    dem = HiriseDEM()
+    print("  using", "local file" if dem.local else "HTTP range requests (slower)")
+    dem_rows = {}                     # cache: DEM row number -> list of elevations
+
+    def hirise_elevation(lat, lon):
+        """Mean of a 3x3 sample of 1 m HiRISE pixels inside the cell, or None if no data there."""
+        vals = []
+        for dy in (-0.33, 0, 0.33):
+            for dx in (-0.33, 0, 0.33):
+                col, row = dem.lonlat_to_colrow(lon + dx * CELL_DEG, lat + dy * CELL_DEG)
+                col, row = int(col), int(row)
+                if not (0 <= row < dem.height and 0 <= col < dem.width):
+                    continue
+                if row not in dem_rows:
+                    dem_rows[row] = dem.row(row)
+                v = dem_rows[row][col]
+                if v > NODATA + 1:
+                    vals.append(v)
+        return sum(vals) / len(vals) if vals else None
 
     n_rows = int(round((LAT_N - LAT_S) / CELL_DEG))
     n_cols = int(round((LON_E - LON_W) / CELL_DEG))
@@ -188,12 +211,19 @@ def build_grid():
     cell_h = math.radians(CELL_DEG) * MARS_RADIUS_M                 # metres north-south
     cell_w = math.radians(CELL_DEG) * MARS_RADIUS_M * math.cos(lat_mid)  # metres east-west
 
-    elev, themis = [], []
+    elev, themis, filled = [], [], 0
     for r in range(n_rows):
         lat = LAT_N - (r + 0.5) * CELL_DEG
+        if r % 50 == 0:
+            print("  grid row %d / %d" % (r, n_rows))
+        dem_rows.clear()              # each grid row uses its own 3 DEM rows: keep memory small
         for c in range(n_cols):
             lon = LON_W + (c + 0.5) * CELL_DEG
-            elev.append(round(mola_elevation(rows, row0, col0, lat, lon), 1))
+            z = hirise_elevation(lat, lon)
+            if z is None:             # gap in the HiRISE mosaic -> fill with MOLA
+                z = mola_elevation(rows, row0, col0, lat, lon)
+                filled += 1
+            elev.append(round(z, 1))
             # average a 3x3 sample of THEMIS pixels inside the cell
             vals = []
             for dy in (-0.33, 0, 0.33):
@@ -213,12 +243,12 @@ def build_grid():
                 return elev[rr * n_cols + cc]
             dzdx = (z(r, c + 1) - z(r, c - 1)) / (2 * cell_w)
             dzdy = (z(r + 1, c) - z(r - 1, c)) / (2 * cell_h)
-            slope.append(round(math.degrees(math.atan(math.hypot(dzdx, dzdy))), 2))
+            slope.append(round(math.degrees(math.atan(math.hypot(dzdx, dzdy))), 1))
 
     # THEMIS -> relative 0..1 inside our box (2nd..98th percentile stretch)
     good = sorted(v for v in themis if v is not None)
     lo, hi = good[int(len(good) * 0.02)], good[int(len(good) * 0.98)]
-    therm = [None if v is None else round(min(1, max(0, (v - lo) / (hi - lo))), 3) for v in themis]
+    therm = [None if v is None else round(min(1, max(0, (v - lo) / (hi - lo))), 2) for v in themis]
 
     grid = {
         "about": "Built by tools/build_data.py from real NASA data. See SOURCES.md.",
@@ -226,9 +256,13 @@ def build_grid():
         "cellDeg": CELL_DEG, "rows": n_rows, "cols": n_cols,
         "cellWidthM": round(cell_w, 2), "cellHeightM": round(cell_h, 2),
         "elevation": elev,
-        "elevationSource": "MGS MOLA MEGDR 128 ppd (MEGT00N090HB.IMG), bilinear-interpolated; metres above areoid",
+        "elevationSource": "USGS MSL Gale DEM Mosaic 1m v3 (HiRISE stereo), mean of 3x3 samples per cell; "
+                           "%d cells (%.1f%%) outside HiRISE coverage filled with MGS MOLA MEGDR 128 ppd. Metres."
+                           % (filled, 100.0 * filled / (n_rows * n_cols)),
+        "filledFromMola": filled,
         "slope": slope,
-        "slopeNote": "Computed from MOLA (~463 m pixels). Real slopes at walking scale can be steeper.",
+        "slopeNote": "Computed at %.0f m cell size from the HiRISE DEM. Rocks and ridges smaller than a cell "
+                     "(e.g. 1-2 m boxwork ridges) are not visible in this slope." % cell_h,
         "thermal": therm,
         "thermalSource": "Mars Odyssey THEMIS night IR mosaic v2 (Mars Trek tiles, zoom 9). Relative 0..1: "
                           "1 = warm at night (rock, high thermal inertia), 0 = cold (loose sand/dust).",

@@ -21,11 +21,15 @@ and press **Clear** so the map is empty.
 **0:45 – 1:45 · Live demo** (driver clicks while the speaker talks)
 1. *Driver: points at the map.* "This is lower Mount Sharp in Gale Crater, where Curiosity drives today.
    The white line is Curiosity's real path, and these numbered dots are its stops in 2025."
-2. *Driver: ticks Thermal, then Minerals, then back to Slope.* "We layer real NASA data: slope from MOLA laser
-   altimetry, THEMIS night-time infrared — bright means warm rock, dark means loose sand — and CRISM mineral maps."
-3. *Driver: clicks **Demo**.* "We click a start and a goal. Our A-star algorithm finds the lowest-cost path —
-   in about one millisecond. Green means safe: 2.2 kilometres, about 1 hour 11 minutes one way,
-   and 72% oxygen left after coming back."
+2. *Driver: ticks Thermal, then Minerals, then back to Slope.* "We layer real NASA data: slope from a 1-metre
+   HiRISE elevation map — it matches Curiosity's own altitude to within 4 metres — THEMIS night-time infrared —
+   bright means warm rock, dark means loose sand — and CRISM mineral maps."
+3. *Driver: clicks **Demo**.* "We click a start and a goal. Our A-star algorithm finds the lowest-cost path
+   on 288,000 cells of 25 metres — in about 3 milliseconds. 2.7 kilometres, about 1 hour 38 minutes one way,
+   61% oxygen left after coming back. It's yellow — Caution — because some slopes are over 10 degrees."
+   *Driver: ticks **Buddy mode** (100 m).* "Now two astronauts walking side by side. They can't fit through the
+   narrow safe gaps near the boxwork, so Darb finds a 5.3-kilometre detour — and flags it red: too steep, too little oxygen."
+   *Driver: unticks Buddy mode.*
 4. *Driver: clicks a point on the route.* "Click the route and you see a real Curiosity photo from near that spot,
    so the astronaut knows what to expect."
 5. *Driver: clicks **Simulate walk**.* "This is HUD mode — what you'd see on your helmet visor: compass,
@@ -43,7 +47,8 @@ and press **Clear** so the map is empty.
 
 **2:30 – 2:45 · Honesty about data**
 > "Every number comes from NASA data, listed with links in our sources file. We are also honest about limits:
-> MOLA pixels are 463 metres, so small steep spots can be missed — that's why the next step is HiRISE elevation data."
+> our grid cells are 25 metres, so boulders and the 1–2 metre boxwork ridges themselves are smaller than one cell —
+> the next step is a roughness value from the 1-metre data and rock detection in HiRISE images."
 
 **2:45 – 3:00 · Close**
 > "Darb puts the safety data astronauts need into one map, in English and Arabic, with an AI that works
@@ -53,10 +58,12 @@ and press **Clear** so the map is empty.
 
 ## Likely judge questions (2 minutes of Q&A)
 
-**1. MOLA is 463 m per pixel. Isn't that too coarse for walking?**
-Yes, it smooths slopes, and we say so in the app. We checked it: MOLA matched Curiosity's own recorded elevation
-within about 40 m at its 2025 stops. The upgrade path is the HiRISE Gale DTM (1 m) — the grid format and the A*
-code stay the same; only the build script changes.
+**1. How detailed is your terrain? Is it good enough for walking?**
+We use the USGS 1-metre elevation map of Gale Crater made from HiRISE stereo images (a 3.9 GB file we read with our
+own plain-Python TIFF reader). We average it into 25 m cells — 515 × 560 cells. Checked against Curiosity's own
+recorded altitude at 8 stops: at most 4.2 m difference (the older MOLA data was up to 44 m off). Honest limit:
+things smaller than 25 m — boulders and the 1–2 m boxwork ridges — are not in the slope. Next: roughness from the
+1 m data and rock detection from HiRISE images.
 
 **2. How did you choose the slope limits (10°, 15°, 20°)?**
 They are our own design assumptions for a suited astronaut carrying equipment, not official NASA limits.
@@ -77,7 +84,7 @@ dark = loose material. Our tile is contrast-stretched, so we use it as a *relati
 
 **6. Why A\*?**
 It always finds the lowest-cost path when the "guess" (straight-line distance) never overestimates, and it is fast:
-about 1 ms on our 15,720-cell grid.
+2–3 ms for the demo and about 82 ms for a 20 km route across our 288,400-cell grid.
 
 **7. How do you know the data is real?**
 Every layer is downloaded by `tools/build_data.py` from NASA servers, and each source is listed with links in
@@ -89,7 +96,12 @@ in the public feed when we built it. Re-running the build script updates everyth
 
 **9. What does buddy mode do?**
 Two astronauts walking up to X metres apart both need safe ground. We block every cell that is closer than half
-that distance to a blocked cell, so the route keeps a corridor wide enough for both.
+that distance to a blocked cell, so the route keeps a corridor wide enough for both. It uses running counts
+(prefix sums), so even a 1000 m gap takes about 4 ms. On the demo at 100 m, the safe route becomes a 5.29 km detour
+and turns red — a real reason to plan pair EVAs carefully.
+
+**Bonus: what if I click on a cliff?**
+The point is moved to the nearest walkable spot within 150 m, and the app says how far it moved.
 
 **10. Where does the radiation number come from?**
 Curiosity's RAD instrument: about 0.64 mSv per day on the surface of Gale Crater (Hassler et al., 2014, *Science*).
@@ -100,5 +112,5 @@ Yes, for our study area. The data layers, route planner, HUD and AI all run offl
 for Mount Sharp (194 tiles, ~11 MB) are saved on the device. Only zooming far outside the area needs internet.
 
 **12. What would you do with more time?**
-HiRISE 1 m elevation, rock-hazard detection from HiRISE images, route timing by time of day
+Surface roughness from the 1 m HiRISE data, rock-hazard detection from HiRISE images, route timing by time of day
 (temperature and light from REMS), and testing the AI's answers against a list of known-correct answers.

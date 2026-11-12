@@ -124,7 +124,7 @@
     var g = Darb.grid, b = g.bounds, op = +$("opacity").value;
     Darb.layers.slope = L.imageOverlay(makeSlopeImage(), [[b.south, b.west], [b.north, b.east]],
       { opacity: op * 0.8, className: "pixelated",
-        attribution: "Slope computed from MGS MOLA MEGDR (NASA PDS)" }).addTo(Darb.map);
+        attribution: "Slope computed from the USGS MSL Gale 1 m DEM (HiRISE, NASA/JPL/UArizona)" }).addTo(Darb.map);
 
     // CRISM select box
     var sel = $("crismSelect");
@@ -243,6 +243,7 @@
     var key = "b" + o.buddyMeters;               // cost grid is cached per buddy setting
     if (!Darb.costCache[key]) Darb.costCache[key] = DarbRoute.buildCostGrid(g, o);
     o.costGrid = Darb.costCache[key];
+    o.snapMeters = 150;          // a point on too-steep ground moves to safe ground up to 150 m away
     var a = DarbRoute.latLonToCell(g, Darb.start.lat, Darb.start.lng);
     var b = DarbRoute.latLonToCell(g, Darb.goal.lat, Darb.goal.lng);
     var t0 = performance.now();
@@ -255,9 +256,19 @@
       $("routeMsg").textContent = "⚠ " + T("err." + res.error);
       return;
     }
+    // Move a pin that was snapped to safe ground, and explain why
+    var notes = [];
+    ["start", "goal"].forEach(function (kind) {
+      var sn = res.snapped && res.snapped[kind];
+      if (!sn) return;
+      var ll = DarbRoute.cellToLatLon(g, sn);
+      Darb[kind] = L.latLng(ll.lat, ll.lon);
+      Darb[kind + "Marker"].setLatLng(Darb[kind]);
+      notes.push(T(kind === "start" ? "snapStart" : "snapGoal").replace("{m}", Math.round(sn.movedM)));
+    });
     Darb.route = res.path;
     Darb.stats = DarbRoute.routeStats(g, res.path, o);
-    $("routeMsg").textContent = "A* found the route in " + ms.toFixed(0) + " ms (" + res.path.length + " cells).";
+    $("routeMsg").textContent = "A* found the route in " + ms.toFixed(0) + " ms (" + res.path.length + " cells). " + notes.join(" ");
     drawRoute();
     renderRouteCard();
   }
@@ -285,7 +296,7 @@
     var info = cellInfo(e.latlng.lat, e.latlng.lng);
     var near = nearestWaypoint(e.latlng.lat, e.latlng.lng);
     var html = "<b>Route point</b><br>" + e.latlng.lat.toFixed(4) + "°, " + e.latlng.lng.toFixed(4) + "°E";
-    if (info) html += "<br>Elevation " + Math.round(info.elevationM) + " m (MOLA) · slope " + info.slopeDeg.toFixed(1) +
+    if (info) html += "<br>Elevation " + Math.round(info.elevationM) + " m (HiRISE DEM) · slope " + info.slopeDeg.toFixed(1) +
       "° · thermal " + (info.thermalRel === null ? "n/a" : info.thermalRel.toFixed(2)) + " (THEMIS)";
     if (near) html += "<hr>Nearest Curiosity stop: <b>#" + near.w.id + "</b>, " + (near.d / 1000).toFixed(2) + " km away" + waypointPopup(near.w);
     L.popup({ maxWidth: 320 }).setLatLng(e.latlng).setContent(html).openOn(Darb.map);
@@ -427,13 +438,15 @@
     var pts = routeLatLngs(), step = 0;
     var marker = L.marker(pts[0], { icon: L.divIcon({ className: "", html: '<div class="pin astro"></div>', iconSize: [14, 14] }) }).addTo(Darb.map);
     Darb.map.setView(pts[0], 14);
+    // The whole walk plays in about 20 seconds, however many cells the route has
+    var stride = Math.max(1, Math.round(pts.length / 60));
     Darb.sim = { marker: marker, timer: setInterval(function () {
-      step++;
-      if (step >= pts.length) { clearInterval(Darb.sim.timer); return; }
+      step = Math.min(step + stride, pts.length - 1);
       marker.setLatLng(pts[step]);
       Darb.map.panTo(pts[step], { animate: true, duration: 0.3 });
       updateHUD(step);
-    }, 350) };
+      if (step >= pts.length - 1) clearInterval(Darb.sim.timer);
+    }, 330) };
     updateHUD(0);
   }
 
@@ -464,7 +477,7 @@
     var t = info.thermalRel;
     var ground = t === null ? "unknown" : t < 0.25 ? "probably loose sand/dust" : t > 0.6 ? "rocky / hard ground" : "mixed ground";
     return label + " (" + lat.toFixed(4) + "°, " + lon.toFixed(4) + "°E): elevation " + Math.round(info.elevationM) +
-      " m [MOLA]; slope " + info.slopeDeg.toFixed(1) + "° [MOLA]; " + ground + " (THEMIS " + (t === null ? "n/a" : t.toFixed(2)) +
+      " m [HiRISE DEM]; slope " + info.slopeDeg.toFixed(1) + "° [HiRISE DEM]; " + ground + " (THEMIS " + (t === null ? "n/a" : t.toFixed(2)) +
       ") [THEMIS]; minerals: " + mineralWords(lat, lon) + " [CRISM].";
   }
 
@@ -473,7 +486,7 @@
     L1.push("PLACE: Planet MARS. Lower Mount Sharp, Gale Crater (Curiosity rover area). Goal of the EVA: reach the boxwork ridges and collect rock samples.");
     L1.push("RULES OF THIS APP: slope < " + o.safeSlope + "° easy, " + o.safeSlope + "-" + o.cautionSlope + "° caution, " +
       o.cautionSlope + "-" + o.maxSlope + "° danger, > " + o.maxSlope + "° blocked. Suit life support budget " + o.evaBudgetHours +
-      " h for the whole EVA (out and back). Slopes come from 463 m MOLA data, so small steep spots can be missed.");
+      " h for the whole EVA (out and back). Slopes come from a 1 m HiRISE elevation model averaged into 25 m cells, so boulders and ridges smaller than 25 m can be missed.");
     L1.push("WEATHER [REMS, sol " + w0.sol + "]: air " + w0.minAirC + " to " + w0.maxAirC + " °C, ground " + w0.minGroundC + " to " +
       w0.maxGroundC + " °C, pressure " + w0.pressurePa + " Pa, UV " + w0.uv + ", sky " + w0.opacity + ".");
     L1.push("RADIATION [RAD]: about " + rad.surfaceDoseEquivalent_mSv_per_day + " mSv per day on the surface.");

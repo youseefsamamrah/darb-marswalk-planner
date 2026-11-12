@@ -39,14 +39,15 @@ start.bat             starts a local web server on Windows
 |---|---|---|---|
 | 1 | Laptop check, Ollama + model selection | Local AI | done (no download needed) |
 | 2 | Verify every data URL, build data/*.json, SOURCES.md | Data | done |
-| 3 | route.js: cost grid, A*, route stats + unit tests | Algorithm | done (14 tests) |
+| 3 | route.js: cost grid, A*, route stats + unit tests | Algorithm | done (17 tests after round 2) |
 | 4 | index.html, CSS, Leaflet map, layer toggles, route card, Arabic toggle | Map/UI | done |
 | 5 | Ask Darb (Ollama client, grounding, timing, offline state) | Local AI | done |
 | 6 | Integrate | Lead | done |
 | 7 | Click-test every feature + edge cases, bug list | QA/Tester | done (round 0) |
 | 8 | Code review: bugs, comments, rule check | Reviewer | done (local model first pass + Lead) |
 | 9 | Extras: waypoints + rover photos, HUD, buddy mode | Map/UI + Algorithm | done |
-| 10 | README, TEAM-GUIDE, AI-USAGE, submission text, pitch, video script | Pitch | done (round 1) |
+| 10 | README, TEAM-GUIDE, AI-USAGE, submission text, pitch, video script | Pitch | done (round 1), updated round 2 |
+| 11 | Round 2: HiRISE 1 m DEM → 25 m grid, snap-to-safe-ground, fast buddy mode | Data + Algorithm | done |
 
 Agents never edit the same file at once; the Lead merges.
 

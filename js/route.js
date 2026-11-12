@@ -7,7 +7,7 @@
  *
  * Works in the browser (window.DarbRoute) and in Node.js (require) so we can unit-test it.
  *
- * Data sources for the grid: MOLA elevation + THEMIS night IR (see SOURCES.md).
+ * Data sources for the grid: HiRISE 1 m elevation (USGS Gale DEM, ~25 m cells) + THEMIS night IR (see SOURCES.md).
  * The thresholds below are OUR design assumptions for a suited astronaut,
  * not official NASA limits — they are written in the docs as assumptions.
  */
@@ -61,23 +61,33 @@
     // A cell is only usable if every cell within buddyMeters/2 is also walkable.
     if (o.buddyMeters > 0) {
       var rad = Math.ceil((o.buddyMeters / 2) / Math.min(grid.cellWidthM, grid.cellHeightM));
-      var widened = new Float64Array(n);
-      for (var r = 0; r < grid.rows; r++) {
-        for (var c = 0; c < grid.cols; c++) {
-          var worst = cost[r * grid.cols + c];
-          for (var dr = -rad; dr <= rad && worst !== Infinity; dr++) {
-            for (var dc = -rad; dc <= rad; dc++) {
-              var rr = r + dr, cc = c + dc;
-              if (rr < 0 || cc < 0 || rr >= grid.rows || cc >= grid.cols) continue;
-              if (cost[rr * grid.cols + cc] === Infinity) { worst = Infinity; break; }
-            }
-          }
-          widened[r * grid.cols + c] = worst;
-        }
-      }
-      cost = widened;
+      var near = nearBlocked(cost, grid.rows, grid.cols, rad);
+      for (var k = 0; k < n; k++) if (near[k]) cost[k] = Infinity;
     }
     return cost;
+  }
+
+  // For every cell: is there a blocked cell within `rad` cells (a square window)?
+  // Done in two passes (along rows, then along columns) with running counts ("prefix sums"),
+  // so it is fast even for a big window: the time does not depend on `rad`.
+  function nearBlocked(cost, R, C, rad) {
+    var rowPass = new Uint8Array(R * C), out = new Uint8Array(R * C);
+    var sum = new Int32Array(Math.max(R, C) + 1), r, c, lo, hi;
+    for (r = 0; r < R; r++) {                       // pass 1: blocked cell within rad along the row?
+      for (c = 0; c < C; c++) sum[c + 1] = sum[c] + (cost[r * C + c] === Infinity ? 1 : 0);
+      for (c = 0; c < C; c++) {
+        lo = Math.max(0, c - rad); hi = Math.min(C - 1, c + rad);
+        rowPass[r * C + c] = sum[hi + 1] - sum[lo] > 0 ? 1 : 0;
+      }
+    }
+    for (c = 0; c < C; c++) {                       // pass 2: ...and within rad along the column?
+      for (r = 0; r < R; r++) sum[r + 1] = sum[r] + rowPass[r * C + c];
+      for (r = 0; r < R; r++) {
+        lo = Math.max(0, r - rad); hi = Math.min(R - 1, r + rad);
+        out[r * C + c] = sum[hi + 1] - sum[lo] > 0 ? 1 : 0;
+      }
+    }
+    return out;
   }
 
   // ---------- 2. A* search ----------
@@ -122,9 +132,21 @@
     if (start.r === goal.r && start.c === goal.c) return { ok: false, error: "same-cell" };
 
     var cost = (opts && opts.costGrid) || buildCostGrid(grid, opts);
+    // If a point is on blocked ground, optionally move it to the nearest walkable cell (opts.snapMeters)
+    var snapped = { start: null, goal: null };
+    var snapCells = opts && opts.snapMeters ? Math.ceil(opts.snapMeters / Math.min(grid.cellWidthM, grid.cellHeightM)) : 0;
+    if (cost[start.r * C + start.c] === Infinity && snapCells) {
+      var ns = nearestWalkable(grid, cost, start, snapCells);
+      if (ns) { snapped.start = ns; start = ns; }
+    }
+    if (cost[goal.r * C + goal.c] === Infinity && snapCells) {
+      var ng = nearestWalkable(grid, cost, goal, snapCells);
+      if (ng) { snapped.goal = ng; goal = ng; }
+    }
     var s = start.r * C + start.c, g = goal.r * C + goal.c;
     if (cost[s] === Infinity) return { ok: false, error: "start-blocked" };
     if (cost[g] === Infinity) return { ok: false, error: "goal-blocked" };
+    if (s === g) return { ok: false, error: "same-cell" };
 
     var w = grid.cellWidthM, h = grid.cellHeightM, d = Math.sqrt(w * w + h * h);
     // 8 neighbours: [row step, col step, distance in metres]
@@ -171,7 +193,28 @@
     var path = [];
     for (var at = g; at !== -1; at = cameFrom[at]) path.push({ r: Math.floor(at / C), c: at % C });
     path.reverse();
-    return { ok: true, path: path, cost: gScore[g] };
+    return { ok: true, path: path, cost: gScore[g], snapped: snapped };
+  }
+
+  // Closest walkable cell (in metres) within maxCells of `cell`, or null if there is none.
+  // We check growing square "rings" around the cell and keep the closest walkable one.
+  function nearestWalkable(grid, cost, cell, maxCells) {
+    var best = null, bestD = Infinity, w = grid.cellWidthM, h = grid.cellHeightM;
+    for (var k = 1; k <= maxCells; k++) {
+      for (var dr = -k; dr <= k; dr++) {
+        for (var dc = -k; dc <= k; dc++) {
+          if (Math.max(Math.abs(dr), Math.abs(dc)) !== k) continue;   // only the ring, not the inside
+          var r = cell.r + dr, c = cell.c + dc;
+          if (r < 0 || c < 0 || r >= grid.rows || c >= grid.cols) continue;
+          if (cost[r * grid.cols + c] === Infinity) continue;
+          var d = Math.sqrt(dr * dr * h * h + dc * dc * w * w);
+          if (d < bestD) { bestD = d; best = { r: r, c: c, movedM: d }; }
+        }
+      }
+      // a cell in a later ring is at least k*min(w,h) away, so we can stop once we found one closer than that
+      if (best && bestD <= k * Math.min(w, h)) break;
+    }
+    return best;
   }
 
   // ---------- 3. Walking speed & route statistics ----------
@@ -253,6 +296,7 @@
     findPath: findPath,
     routeStats: routeStats,
     walkingSpeedKmh: function (grade, opts) { return walkingSpeedKmh(grade, withDefaults(opts)); },
+    nearestWalkable: nearestWalkable,
     latLonToCell: latLonToCell,
     cellToLatLon: cellToLatLon
   };

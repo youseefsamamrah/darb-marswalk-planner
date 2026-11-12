@@ -13,8 +13,9 @@ This guide explains every part of the code simply, so each of us can answer judg
 | `js/askdarb.js` | Talks to Ollama on this computer for "Ask Darb" |
 | `js/app.js` | Builds the map and layers, handles clicks, draws the route, waypoints, HUD, walk simulation, Ask Darb context |
 | `tools/build_data.py` | Downloads the real NASA data and builds the files in `data/` |
+| `tools/hirise_dem.py` | Reads the 1 m HiRISE elevation GeoTIFF with plain Python (own TIFF reader + LZW decoder) |
 | `tools/local_agent.py` | Sends simple jobs (first-pass review, test ideas, summaries) to a local model; output is a draft we check |
-| `tests/route.test.js` | 14 automatic tests for `route.js` (`node --test tests`) |
+| `tests/route.test.js` | 17 automatic tests for `route.js` (`node --test tests`) |
 | `data/` | `grid.json`, `environment.json`, `waypoints.json`, `crism/*.png`, `images/wp1-8.jpg` |
 | `vendor/leaflet/` | The Leaflet map library, saved locally so it works offline |
 
@@ -22,12 +23,22 @@ This guide explains every part of the code simply, so each of us can answer judg
 It uses only Python's standard library. Our study box is 4.6935°S–4.9100°S, 137.3012°E–137.5362°E — exactly the
 area covered by the CRISM observation, so every layer covers the whole box.
 
-- **MOLA elevation.** The MOLA file for this part of Mars is 130 MB. Each row of the file is one line of latitude, so we
-  ask the server for **only the rows we need** (an HTTP *range request*, about 0.8 MB). Values are metres.
-- **Bilinear interpolation.** MOLA pixels are ~463 m, our grid cells are ~107 m (0.0018°). For each cell we blend the
-  4 nearest MOLA pixels, weighted by how close they are.
+- **HiRISE elevation (main source).** USGS made a 1 m elevation map of Gale Crater from HiRISE stereo images:
+  "MSL Gale DEM Mosaic 1m v3", one 3.87 GB GeoTIFF file (32,980 × 57,440 pixels, one height in metres per pixel).
+  We downloaded it once into `raw/hirise_dem/` (not stored in git). `tools/hirise_dem.py` reads it with only plain
+  Python: it reads the file's TIFF "tags" (size, compression, where each row starts, map position) and has its own
+  **LZW decoder** to unpack each compressed row. If the big file is not there, it fetches only the rows we need
+  from the USGS server (HTTP *range requests*).
+- **Grid cells.** Our grid is 515 × 560 cells, each 0.00042° ≈ **25 m**. For each cell we take 9 HiRISE samples
+  (a 3 × 3 pattern inside the cell) and average them. Building the whole grid takes about 34 s.
+- **MOLA as a backup.** Where HiRISE has no data, the cell gets MOLA elevation instead (MOLA = laser altimeter,
+  ~463 m pixels; we read only the rows we need with a range request and blend the 4 nearest pixels). In our box
+  HiRISE covers 100 % of the cells, so MOLA was not needed — but the code is there.
+- **Check against the rover.** At Curiosity's 8 stops, our grid elevation differs from the rover's own recorded
+  elevation by at most **4.2 m** (with MOLA it was up to 44 m).
 - **Slope by central differences.** For each cell: (elevation of right neighbour − left neighbour) ÷ (2 × cell width)
   gives the east–west steepness; the same for north–south. Combine them (Pythagoras), then `atan` → degrees.
+  At 25 m the median slope in our box is 10.6°, and 15.6 % of cells are steeper than 20° (blocked).
 - **THEMIS night infrared.** We download the zoom-9 Mars Trek tiles (PNG images, ~81 m per pixel) and decode them with
   our own small PNG decoder. For each cell we average 9 sample pixels. Then a **percentile stretch**: the 2nd-percentile
   brightness becomes 0 and the 98th becomes 1. So the value is *relative* (0 = coldest at night = loose sand/dust,
@@ -59,9 +70,14 @@ wrong way, but you never skip the real best route either.
 In Darb: the map is a grid; from each cell you can step to 8 neighbours. A step costs
 `distance in metres × average cost of the two cells`. The "guess" (heuristic) is the straight-line distance to the goal
 × 1 (the cheapest possible cost), so it never overestimates → A* is guaranteed to find the lowest-cost path.
-A *priority queue* (binary heap) always gives us the most promising cell next. It takes about 1 ms.
+A *priority queue* (binary heap) always gives us the most promising cell next. The demo route takes 2–3 ms;
+a 20 km route across the whole map takes about 82 ms.
 
-Error messages: outside the box, start = goal, start blocked, goal blocked, no possible path.
+**Snapping to safe ground:** if you click START or GOAL on a blocked (too steep) cell, `nearestWalkable` looks in
+growing square rings around it and moves the point to the closest walkable cell within **150 m**. The app moves the
+pin and says how far it moved (in English or Arabic).
+
+Error messages: outside the box, start = goal, start blocked, goal blocked (no safe ground within 150 m), no possible path.
 
 ## 5. Walking time, O₂ and the safety score (`routeStats`)
 - **Speed:** Tobler's hiking formula, scaled so flat ground = **2 km/h** for a suited astronaut. Slightly downhill is
@@ -84,11 +100,20 @@ Error messages: outside the box, start = goal, start blocked, goal blocked, no p
 Two astronauts walk side by side up to X metres apart, so the path must be wide. We "grow" every blocked cell by half
 of X: any cell closer than X/2 to a blocked cell is also blocked. Then A* runs as normal.
 
+To do this fast we use **prefix sums** (running counts): first along each row ("is there a blocked cell within
+X/2 to my left or right?"), then along each column. The time does not depend on X — even 1000 m takes about 4 ms.
+A test checks that this fast method gives exactly the same answer as checking every neighbour one by one.
+
+**Demo story:** with buddy mode at 100 m, the demo goal is moved 50 m to safe ground and the route becomes 5.29 km,
+🔴 Danger (slopes over 15°, only 14 % O₂ reserve). Two astronauts side by side cannot fit through the narrow safe gaps
+near the boxwork, so they must take a long detour.
+
 ## 7. The map (`js/app.js`)
 - Leaflet with `L.CRS.EPSG4326` (plain latitude/longitude). Mars Trek tiles use the same tiling (2 × 1 tiles at zoom 0),
   so the tile URL `{z}/{y}/{x}` lines up exactly.
 - Base: Viking colour mosaic everywhere + CTX mosaic over Gale Crater (sharper, up to zoom 12).
-- The slope layer is drawn by us: one coloured pixel per grid cell on a canvas, stretched over the box.
+- The slope layer is drawn by us: one coloured pixel per grid cell (560 × 515 pixels) on a canvas, stretched over the box.
+- The "Elevation hillshade" layer is MOLA (Mars Trek tiles) — a wide overview; the routing uses HiRISE.
 - CRISM images are placed with their exact corners. Hovering reads the data under the mouse.
 
 ## 8. HUD mode and the Earth delay
@@ -112,7 +137,9 @@ speeds, find the distance between them today, and convert: 1 AU = 8.317 light-mi
 - The app shows the model name and response time for every answer.
 
 ## 10. Known limits (say these honestly)
-- MOLA pixels are ~463 m, so slopes are smoothed; small steep spots and boulders can be missed.
+- Slopes are computed at 25 m. Anything smaller than a cell — boulders, and the 1–2 m tall boxwork ridges
+  themselves — is not visible in the slope. Next step: a per-cell roughness value from the 1 m data, or rock
+  detection in HiRISE images.
 - THEMIS values are relative (stretched image), a proxy for thermal inertia, not exact numbers.
 - CRISM browse images are qualitative colour maps, not mineral identifications.
 - The REMS feed is outreach data (from Centro de Astrobiología); scientific data is in NASA's PDS.

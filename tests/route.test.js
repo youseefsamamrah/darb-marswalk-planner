@@ -95,6 +95,42 @@ test("buddy mode needs a wider safe corridor", () => {
   assert.strictEqual(R.findPath(g, { r: 2, c: 0 }, { r: 2, c: 6 }, { buddyMeters: 300 }).error, "no-path");
 });
 
+test("fast buddy-mode check matches the slow, obvious method", () => {
+  let seed = 7;
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;   // repeatable random numbers
+  for (let trial = 0; trial < 5; trial++) {
+    const g = flatGrid(30, 40);
+    for (let i = 0; i < g.slope.length; i++) if (rand() < 0.05) g.slope[i] = 45;
+    const buddy = 250, rad = Math.ceil((buddy / 2) / 100);
+    const fast = R.buildCostGrid(g, { buddyMeters: buddy });
+    const base = R.buildCostGrid(g);
+    for (let r = 0; r < g.rows; r++) for (let c = 0; c < g.cols; c++) {
+      let blocked = false;                               // slow way: look at every neighbour
+      for (let dr = -rad; dr <= rad; dr++) for (let dc = -rad; dc <= rad; dc++) {
+        const rr = r + dr, cc = c + dc;
+        if (rr >= 0 && cc >= 0 && rr < g.rows && cc < g.cols && base[rr * g.cols + cc] === Infinity) blocked = true;
+      }
+      assert.strictEqual(fast[r * g.cols + c] === Infinity, blocked);
+    }
+  }
+});
+
+test("snap: a goal on blocked ground moves to the nearest walkable cell", () => {
+  const g = flatGrid(5, 5); block(g, 2, 4);
+  assert.strictEqual(R.findPath(g, { r: 2, c: 0 }, { r: 2, c: 4 }).error, "goal-blocked");   // no snap = error
+  const res = R.findPath(g, { r: 2, c: 0 }, { r: 2, c: 4 }, { snapMeters: 150 });
+  assert.ok(res.ok);
+  assert.ok(res.snapped.goal && Math.abs(res.snapped.goal.movedM - 100) < 1e-6, "moved one cell (100 m)");
+  const last = res.path[res.path.length - 1];
+  assert.strictEqual(g.slope[last.r * 5 + last.c], 0, "ends on walkable ground");
+});
+
+test("snap: too far from walkable ground still gives an error", () => {
+  const g = flatGrid(7, 7);
+  for (let r = 2; r <= 6; r++) for (let c = 2; c <= 6; c++) block(g, r, c);
+  assert.strictEqual(R.findPath(g, { r: 0, c: 0 }, { r: 6, c: 6 }, { snapMeters: 150 }).error, "goal-blocked");
+});
+
 test("lat/lon <-> cell round trip", () => {
   const g = flatGrid(10, 10);
   const cell = { r: 3, c: 7 };

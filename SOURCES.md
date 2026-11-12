@@ -18,8 +18,9 @@ Tile URL pattern: `https://trek.nasa.gov/tiles/Mars/EQ/{layer}/1.0.0/default/def
 ## Data files in `data/` (built by `tools/build_data.py`, work offline)
 | File | What | Source |
 |---|---|---|
-| `grid.json` → elevation | MGS **MOLA MEGDR** 128 pixels/degree (~463 m), file MEGT00N090HB.IMG, read with an HTTP range request | NASA PDS Geosciences Node: https://pds-geosciences.wustl.edu/mgs/mgs-m-mola-5-megdr-l3-v1/mgsl_300x/meg128/megt00n090hb.img (label: same path `.lbl`) |
-| `grid.json` → slope | Computed by us from the MOLA elevation (central differences) | — |
+| `grid.json` → elevation (main) | **MSL Gale DEM Mosaic 1m v3** — 1 m/pixel elevation from **HiRISE** stereo images (USGS Astrogeology; HiRISE: NASA/JPL/University of Arizona). 3.87 GB GeoTIFF, 32980 × 57440 px, float32, LZW, Mars equirectangular (centre lon 0, R = 3,396,190 m), NoData −32767. Downloaded once to `raw/hirise_dem/` (not in git); read by `tools/hirise_dem.py`. Each 25 m cell = mean of 3 × 3 samples. | https://planetarymaps.usgs.gov/mosaic/Mars/MSL/MSL_Gale_DEM_Mosaic_1m_v3.tif |
+| `grid.json` → elevation (gap filler) | MGS **MOLA MEGDR** 128 pixels/degree (~463 m), file MEGT00N090HB.IMG, read with an HTTP range request; used only where HiRISE has no data (0 % of cells in our box) | NASA PDS Geosciences Node: https://pds-geosciences.wustl.edu/mgs/mgs-m-mola-5-megdr-l3-v1/mgsl_300x/meg128/megt00n090hb.img (label: same path `.lbl`) |
+| `grid.json` → slope | Computed by us from the HiRISE-based elevation at 25 m cells (central differences) | — |
 | `grid.json` → thermal | THEMIS night IR tiles (zoom 9, ~81 m/pixel), averaged per cell, stretched 0–1 inside our box (relative) | Mars Trek tiles above |
 | `crism/*.png`, `crism/products.json` | MRO **CRISM** MTRDR browse products (PHY, HYD, MAF, FEM, TRU) of observation **FRT0000B6F1** (2008-07-09), map-projected | PDS Geosciences Node: https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/browse/2008/2008_191/frt0000b6f1/ · product search via PDS ODE REST: https://oderest.rsl.wustl.edu/ |
 | `environment.json` → REMS | Curiosity **REMS** daily weather (last 30 sols), provided by Centro de Astrobiología (CSIC-INTA, Spain) for outreach | https://mars.nasa.gov/rss/api/?feed=weather&category=msl&feedtype=json (science data: PDS Atmospheres Node) |
@@ -47,5 +48,7 @@ Tile URL pattern: `https://trek.nasa.gov/tiles/Mars/EQ/{layer}/1.0.0/default/def
 - Safety score rules (route.js `routeStats`).
 
 ## Validation we did
-- MOLA elevation at Curiosity's 2025 stops vs the rover's own recorded elevation: differences 2–44 m (`tests/route.test.js` and build check).
+- Grid elevation (HiRISE) at Curiosity's 8 stops in 2025 vs the rover's own recorded elevation: max difference **4.2 m**
+  (the earlier MOLA-only grid was up to 44 m off).
+- The routing grid covers our whole box with HiRISE data (0 cells filled from MOLA).
 - CRISM browse PNG bounds come from the PDS label (`MINIMUM_LATITUDE` … `EASTERNMOST_LONGITUDE`).

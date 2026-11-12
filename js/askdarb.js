@@ -20,7 +20,7 @@ var AskDarb = (function () {
     "if an image is attached, what you can clearly see in it. If the answer is not in the context, " +
     "say \"I don't know\" and say which data would be needed. Never invent numbers, minerals or places. " +
     "Safety first: if anything looks risky, say so clearly. Keep answers under 120 words, " +
-    "use simple words, and name which data layer each fact comes from (MOLA, THEMIS, CRISM, REMS, RAD, Curiosity). " +
+    "use simple words, and name which data layer each fact comes from (HiRISE DEM, THEMIS, CRISM, REMS, RAD, Curiosity). " +
     "Reply in the same language as the question.";
 
   // Check if Ollama is running and which models are installed.

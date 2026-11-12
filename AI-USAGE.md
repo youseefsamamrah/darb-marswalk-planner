@@ -47,8 +47,11 @@ Why these models (laptop: Intel i7-14700F, 32 GB RAM, NVIDIA RTX 5060 Ti 16 GB V
 
 ### How the output was checked
 - Every data URL was tested by actually downloading from it (HTTP 200) before use.
-- The elevation data was cross-checked against Curiosity's own recorded elevations (2–44 m difference).
-- The route code has **14 automated unit tests** (`node --test tests`), including the edge cases
+- The elevation data was cross-checked against Curiosity's own recorded elevations: the HiRISE-based grid differs
+  by at most 4.2 m at 8 stops (the earlier MOLA grid: up to 44 m).
+- The HiRISE GeoTIFF reader (`tools/hirise_dem.py`, AI-written TIFF + LZW decoder) was checked by reading the rover's
+  stop locations and comparing with the rover's recorded elevations (within 0.5 m for the tested points).
+- The route code has **17 automated unit tests** (`node --test tests`), including the edge cases
   start = goal, goal on a blocked cell, no possible route, click outside the map.
 - The app was click-tested in a browser: every layer, the route, buddy mode, Arabic, HUD, Ask Darb online and offline.
 - The local model's code review was read by the lead (Claude) before anything was changed:
@@ -70,7 +73,7 @@ wait for a cloud AI on Earth. Ask Darb runs on the astronaut's own device with O
 **How it is grounded (to stop it from making things up):**
 1. Before every question, the app writes a short list of **facts in plain English**: the current route
    (distance, time, O₂ reserve, slopes, sand, safety score and reasons), start/middle/goal and every
-   Curiosity waypoint with elevation and slope (MOLA), ground type (THEMIS) and mineral signals (CRISM),
+   Curiosity waypoint with elevation and slope (HiRISE DEM), ground type (THEMIS) and mineral signals (CRISM),
    plus weather (REMS) and radiation (RAD).
 2. The model is told to use **only** those facts, to name the data layer for each fact, and to answer
    **"I don't know"** when the facts do not cover the question. Test: "What is the gravity at the goal?"

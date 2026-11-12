@@ -17,7 +17,7 @@
 Darb ("path" in Arabic) is an interactive map that helps a suited astronaut plan a **safe walk** on Mars.
 We chose lower Mount Sharp in Gale Crater, where NASA's Curiosity rover studied **boxwork** ridges in 2025, and
 set a science goal: walk there and collect samples. Darb layers real NASA data — CTX and Viking imagery from
-Mars Trek, MOLA elevation, THEMIS night-time infrared (a proxy for loose sand vs. rock), CRISM mineral maps,
+Mars Trek, 1-metre HiRISE elevation, THEMIS night-time infrared (a proxy for loose sand vs. rock), CRISM mineral maps,
 Curiosity's REMS weather and RAD radiation, and real rover Navcam photos. The astronaut clicks a start and a goal;
 an A* path-finder picks the lowest-cost route, avoiding steep slopes and loose sand, and shows distance, walking
 time, oxygen reserve, radiation dose and a 🟢/🟡/🔴 safety score. A helmet-visor **HUD mode** simulates the walk
@@ -34,7 +34,7 @@ device (Ollama), answering only from the map's data and saying "I don't know" ot
 ## Project details
 
 ### What it does
-- Shows a Mars map of lower Mount Sharp with **5 toggleable layers**: terrain slope (MOLA), thermal-inertia proxy
+- Shows a Mars map of lower Mount Sharp with **5 toggleable layers**: terrain slope (HiRISE 1 m DEM, 25 m cells), thermal-inertia proxy
   (THEMIS night IR), minerals (CRISM, 4 mineral maps + true colour), elevation hillshade (MOLA), and Curiosity's
   real traverse with 8 stops from its 2025 boxwork campaign.
 - **Route planner:** click START and GOAL → the safest walking route is drawn as a dotted trail.
@@ -46,26 +46,35 @@ device (Ollama), answering only from the map's data and saying "I don't know" ot
 - **HUD mode:** helmet-visor view with compass, distance to goal, O₂ timer, slope, Earth light-delay, and warnings
   ("steep slope ahead", "loose sand ahead", "keep O₂ reserve for return").
 - **Buddy mode:** route for two astronauts who must stay within X metres of each other.
+- **Snap to safe ground:** a START or GOAL clicked on too-steep ground moves to the nearest walkable spot
+  within 150 m, with a message in English or Arabic.
 - **Ask Darb:** offline AI assistant (local model via Ollama). Example questions: "Is this route safe?",
   "What minerals are near waypoint 3?", "Explain the rock photo at waypoint 6" (uses a vision model on the real photo).
 - Works fully without internet in the study area: map tiles for Mount Sharp are saved on the device, and all
   data, routing and the AI run locally. If the AI is not running, the map still works and shows "Ask Darb is offline".
 
 ### How it works
-1. A Python script (standard library only) downloads the real data: only the needed rows of the MOLA elevation
-   file (HTTP range request, ~0.8 MB instead of 130 MB), THEMIS tiles, CRISM browse images, REMS weather and
-   Curiosity positions/photos. It builds a 120 × 131 grid of ~107 m cells with elevation, slope and a thermal value.
+1. A Python script (standard library only) prepares the real data. Elevation comes from the USGS **1 m HiRISE
+   DEM of Gale Crater** (a 3.87 GB GeoTIFF), read with our own plain-Python TIFF reader and LZW decoder; MOLA is
+   kept as an automatic gap-filler (not needed in our area). It also takes THEMIS tiles, CRISM browse images,
+   REMS weather and Curiosity positions/photos, and builds a **515 × 560 grid of ~25 m cells** with elevation,
+   slope and a thermal value (about 34 s).
 2. Each cell gets a cost: steeper = more expensive, loose sand = more expensive, steeper than 20° = blocked.
-3. **A\*** finds the lowest-cost path (≈1 ms in the browser on our 120 × 131 grid).
+   A point clicked on blocked ground is moved to the nearest walkable cell within 150 m.
+3. **A\*** finds the lowest-cost path (2–3 ms for the demo, ~82 ms for a 20 km route across the grid).
+   Buddy mode widens blocked areas with fast prefix sums (1000 m gap ≈ 4 ms).
 4. Walking time uses a Tobler-style hiking formula scaled so flat ground = 2 km/h (suited astronaut).
 5. Ask Darb receives the current facts in plain English (route numbers, data at each waypoint, weather) and a
    strict rule to use only those facts.
 
 ### Tested results (our demo)
-Demo route from Curiosity's sol-4300 site to its sol-4660 boxwork stop: **2.19 km, 1 h 11 min one way,
-2 h 16 min round trip, 72 % O₂ reserve (8 h budget), max slope 7.8°, 🟢 Safe**. A* time ≈ 1 ms.
-Ask Darb (qwen3.5:9b on an RTX 5060 Ti 16 GB) answered in about **1.5–6 s**. MOLA elevation matched
-Curiosity's own recorded elevation within about 40 m at its 2025 stops. 14 automated unit tests pass.
+Demo route from Curiosity's sol-4300 site to its sol-4660 boxwork stop: **2.73 km, 1 h 38 min one way,
+3 h 05 min round trip, 61 % O₂ reserve (8 h budget), max slope 10.5° (mean 5.4°), 🟡 Caution** ("some slopes
+over 10°"). A* time 2–3 ms. With **buddy mode at 100 m**, the goal moves 50 m to safe ground and the route becomes
+a **5.29 km detour, 🔴 Danger** (slopes over 15°, 14 % O₂ reserve): two astronauts side by side cannot fit through
+the narrow safe gaps near the boxwork. Ask Darb (qwen3.5:9b on an RTX 5060 Ti 16 GB) answered in about **1.5–6 s**.
+Our grid elevation matched Curiosity's own recorded elevation within **4.2 m** at its 8 stops in 2025 (the older
+MOLA data was up to 44 m off). 17 automated unit tests pass.
 
 ### Benefits and intended impact
 - Puts the safety-critical layers (slope, ground hardness, radiation, weather, time/O₂) into **one** hyper-local
@@ -95,7 +104,8 @@ Curiosity's own recorded elevation within about 40 m at its 2025 stops. 14 autom
 | MRO CTX Gale Crater mosaic (Mars Trek WMTS) | detailed base map | https://trek.nasa.gov/mars/ |
 | MGS MOLA colour hillshade (Mars Trek WMTS) | elevation layer | https://trek.nasa.gov/mars/ |
 | Mars Odyssey THEMIS night IR mosaic v2 (Mars Trek WMTS) | thermal-inertia proxy layer + sand cost | https://trek.nasa.gov/mars/ |
-| MGS MOLA MEGDR 128 pixels/degree (PDS Geosciences) | elevation & slope grid for routing | https://pds-geosciences.wustl.edu/mgs/mgs-m-mola-5-megdr-l3-v1/mgsl_300x/meg128/ |
+| MSL Gale DEM Mosaic 1m v3 — HiRISE stereo (USGS Astrogeology; NASA/JPL/UArizona) | elevation & slope grid for routing (25 m cells) | https://planetarymaps.usgs.gov/mosaic/Mars/MSL/MSL_Gale_DEM_Mosaic_1m_v3.tif |
+| MGS MOLA MEGDR 128 pixels/degree (PDS Geosciences) | automatic gap-filler for the elevation grid | https://pds-geosciences.wustl.edu/mgs/mgs-m-mola-5-megdr-l3-v1/mgsl_300x/meg128/ |
 | MRO CRISM MTRDR FRT0000B6F1 browse products (PDS Geosciences) | mineral layers | https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/browse/2008/2008_191/frt0000b6f1/ |
 | MSL Curiosity waypoints (MMGIS) | rover traverse and 2025 stops | https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints.json |
 | MSL raw images (Navcam / Mastcam) | waypoint photos | https://mars.nasa.gov/msl/multimedia/raw-images/ |
@@ -123,7 +133,7 @@ computed by our own algorithm, not by the AI. Full details: `AI-USAGE.md`.
 
 ## Tags
 `#Mars` `#GaleCrater` `#MountSharp` `#Curiosity` `#Boxwork` `#EVA` `#RoutePlanning` `#Astar` `#Leaflet`
-`#MarsTrek` `#MOLA` `#THEMIS` `#CRISM` `#OfflineAI` `#Ollama` `#HUD` `#Arabic` `#HumanExploration`
+`#MarsTrek` `#HiRISE` `#MOLA` `#THEMIS` `#CRISM` `#OfflineAI` `#Ollama` `#HUD` `#Arabic` `#HumanExploration`
 
 ## References
 See `SOURCES.md` in the repository for every data source, link and licence/credit line.

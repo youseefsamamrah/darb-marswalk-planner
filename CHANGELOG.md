@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## Round 2 — HiRISE 1 m elevation: 25 m route grid (2026-11-12)
+**Why:** validity. MOLA (463 m pixels) smoothed the terrain; slopes and elevations were too rough for a walk.
+**What changed**
+- Downloaded the USGS "MSL Gale DEM Mosaic 1m v3" (HiRISE stereo, 3.87 GB) to `raw/hirise_dem/` (git-ignored) — approved by the team.
+- New `tools/hirise_dem.py`: reads that GeoTIFF with the Python standard library only (TIFF tags + LZW decoder);
+  can also read just the needed rows over HTTP range requests, so teammates don't need the 3.9 GB file.
+- `build_grid()` now samples HiRISE (3×3 per cell) into a **515 × 560 grid of ~25 m cells** (was 120 × 131, ~107 m);
+  MOLA fills any HiRISE gaps (0 cells needed). Build time 34 s.
+- `route.js`: buddy-mode check rewritten with prefix sums (1000 m gap: 4 ms instead of ~480 M checks);
+  new "snap" — a START/GOAL on blocked ground moves to the nearest walkable cell within 150 m, with a message (EN/AR).
+- `app.js`: walk simulation lasts ~20 s for any route length; labels/attribution/Ask Darb facts now say "HiRISE DEM".
+- `index.html`: `?v=3` version tags so browsers don't use stale cached JS (found when the snap message showed a raw key).
+- CSS: no sideways scroll on narrow screens; top bar wraps.
+- Docs agent updated README, SOURCES, TEAM-GUIDE, AI-USAGE, SUBMISSION, PITCH, DEMO-VIDEO with the new numbers.
+**Tested**
+- Grid vs Curiosity's own recorded elevation at 8 stops: max difference **4.2 m** (MOLA: 44 m).
+- Slopes: median 10.6°, 15.6 % of cells > 20° (blocked) — real ridges and scarps now visible.
+- `node --test tests` → **17/17** (new: fast buddy check = brute force on random grids; 2 snapping tests).
+- Browser: demo 2.73 km, 1 h 38 min, 🟡 Caution (max 10.5°), A* 2–3 ms; 20 km route 82 ms; buddy 100 m → goal snapped 50 m,
+  5.29 km 🔴 Danger; buddy 300 m → "no safe route"; Arabic snap message; narrow layout OK.
+
 ## Round 1 — offline map tiles + pitch documents (2026-11-12)
 **Why:** the core pitch is "works on Mars with no internet", but the map imagery still came from the internet (MVP gap).
 **What changed**

@@ -12,11 +12,12 @@ runs **on the device** with no internet, because a message to Earth takes 4–24
 ## What it does
 - 🗺️ **Mars map** of lower Mount Sharp: NASA Mars Trek tiles (Viking + sharp MRO CTX mosaic).
 - 🧩 **Data layers** you can switch on/off:
-  terrain slope (MOLA) · thermal inertia proxy (THEMIS night IR) · minerals (CRISM, 4 mineral maps + true colour) ·
+  terrain slope (HiRISE 1 m elevation, 25 m cells) · thermal inertia proxy (THEMIS night IR) · minerals (CRISM, 4 mineral maps + true colour) ·
   elevation hillshade (MOLA) · Curiosity traverse with 8 real 2025 stops.
 - 🌡️ **Weather & radiation panel**: latest Curiosity REMS weather + RAD surface dose.
 - 🧭 **Route planner**: click START and GOAL → the **A\*** algorithm finds the lowest-cost walk
   (steep = expensive, > 20° = blocked, loose sand = extra cost) and draws a dotted trail.
+  A point clicked on too-steep ground moves to the nearest safe spot within 150 m.
 - 📋 **Route card**: distance, walking time, round trip, O₂ reserve, climb, max slope, sand, radiation dose,
   and a safety score 🟢 Safe / 🟡 Caution / 🔴 Danger with reasons.
 - 📷 **Waypoints**: click a numbered stop (or the route) to see a real Curiosity Navcam photo from that spot and what to look for.
@@ -51,10 +52,12 @@ runs **on the device** with no internet, because a message to Earth takes 4–24
 4. Reload the app — the Ask Darb dot turns green. Without Ollama the app still works and says "Ask Darb is offline".
 
 ## Rebuild the data (optional)
-All data files are already in `data/`. To download them again from NASA (≈ 5 MB, Python standard library only):
+All data files are already in `data/`. To download them again from NASA (Python standard library only):
 ```bash
 python tools/build_data.py
 ```
+The elevation grid uses the USGS HiRISE 1 m DEM of Gale (3.87 GB). If `raw/hirise_dem/MSL_Gale_DEM_Mosaic_1m_v3.tif`
+exists it is read locally (~34 s); otherwise only the needed rows are fetched over the internet (slower, no big download).
 
 ## Run the tests
 ```bash
@@ -71,8 +74,9 @@ node --test tests
 | `js/i18n.js`, `js/config.js` | English/Arabic text; settings and tile URLs |
 | `data/` | real NASA data prepared for offline use |
 | `tools/build_data.py` | rebuilds `data/` from NASA servers |
+| `tools/hirise_dem.py` | reads the HiRISE 1 m elevation GeoTIFF (plain Python TIFF + LZW reader) |
 | `tools/local_agent.py` | sends simple tasks (review, summaries) to a local model |
-| `tests/route.test.js` | unit tests |
+| `tests/route.test.js` | 17 unit tests |
 
 ## Documents
 - [PLAN.md](PLAN.md) — plan, tasks, definition of done
@@ -83,8 +87,9 @@ node --test tests
 - [docs/SUBMISSION.md](docs/SUBMISSION.md) — submission text · [docs/PITCH.md](docs/PITCH.md) — pitch + judge Q&A · [docs/DEMO-VIDEO.md](docs/DEMO-VIDEO.md) — demo video / slides
 
 ## Honest limits
-- Slopes come from MOLA (~463 m pixels), so they are smoothed: real small slopes can be steeper.
-  Next step: a HiRISE 1 m DTM of Gale (exists on Mars Trek / USGS).
+- Slopes come from the HiRISE 1 m DEM averaged into 25 m cells (within 4.2 m of Curiosity's own recorded elevation).
+  Obstacles smaller than a cell — boulders and the 1–2 m boxwork ridges — are not in the slope.
+  Next step: per-cell roughness from the 1 m data, or rock detection in HiRISE images.
 - THEMIS night IR is a *relative* proxy for thermal inertia; CRISM browse colours are qualitative.
 - Map tiles are saved offline only for the study area (`tiles/`, ~11 MB); outside it they load from Mars Trek online.
   All data layers, routing and Ask Darb work offline.
