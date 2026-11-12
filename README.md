@@ -86,7 +86,8 @@ node --test tests
 - Slopes come from MOLA (~463 m pixels), so they are smoothed: real small slopes can be steeper.
   Next step: a HiRISE 1 m DTM of Gale (exists on Mars Trek / USGS).
 - THEMIS night IR is a *relative* proxy for thermal inertia; CRISM browse colours are qualitative.
-- Map imagery tiles need internet; all data layers, routing and Ask Darb work offline.
+- Map tiles are saved offline only for the study area (`tiles/`, ~11 MB); outside it they load from Mars Trek online.
+  All data layers, routing and Ask Darb work offline.
 - Safety thresholds, walking speed and the 8 h O₂ budget are our own assumptions (listed in SOURCES.md).
 
 Data: NASA / JPL-Caltech / MSSS / ASU / GSFC / USGS, Centro de Astrobiología (REMS). Not an official NASA product.

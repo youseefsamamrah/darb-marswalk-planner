@@ -46,7 +46,7 @@ start.bat             starts a local web server on Windows
 | 7 | Click-test every feature + edge cases, bug list | QA/Tester | done (round 0) |
 | 8 | Code review: bugs, comments, rule check | Reviewer | done (local model first pass + Lead) |
 | 9 | Extras: waypoints + rover photos, HUD, buddy mode | Map/UI + Algorithm | done |
-| 10 | README, TEAM-GUIDE, AI-USAGE, submission text, pitch, video script | Pitch | README/AI-USAGE/SOURCES done; rest in progress |
+| 10 | README, TEAM-GUIDE, AI-USAGE, submission text, pitch, video script | Pitch | done (round 1) |
 
 Agents never edit the same file at once; the Lead merges.
 

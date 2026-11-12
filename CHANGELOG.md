@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## Round 1 — offline map tiles + pitch documents (2026-11-12)
+**Why:** the core pitch is "works on Mars with no internet", but the map imagery still came from the internet (MVP gap).
+**What changed**
+- `tools/build_data.py tiles` saves the Mars Trek tiles covering the study area (Viking, CTX, THEMIS, MOLA:
+  194 tiles, 10.9 MB) to `tiles/` + `tiles/index.json`.
+- `js/app.js`: new `LocalFirstTiles` layer — uses the saved tile when it exists, otherwise Mars Trek online
+  (the index avoids 404 errors).
+- CRISM legend shortened to one line with a fold-out "what do the colours mean?" (polish).
+- Pitch agent wrote `docs/SUBMISSION.md`, `docs/PITCH.md`, `docs/DEMO-VIDEO.md`, `TEAM-GUIDE.md`; Lead checked them
+  and updated the "tiles need internet" statements.
+**Tested:** demo view at zoom 12 → 13/13 tiles from the device, 0 from the internet; route still 2.19 km 🟢;
+`node --test tests` 14/14; no new console errors.
+
 ## Round 0 — MVP (2026-11-12)
 **What changed**
 - Laptop check: i7-14700F, 32 GB RAM, RTX 5060 Ti 16 GB VRAM, 650 GB free. Ollama 0.40.13 and suitable

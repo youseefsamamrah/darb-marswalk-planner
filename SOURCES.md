@@ -4,7 +4,7 @@ All data is public and free. Every link below was tested (HTTP 200) on 2026-11-1
 **No SAMPLE DATA is shown in the app**: every layer and number comes from these sources.
 Things that are *our own assumptions* (not data) are listed at the bottom.
 
-## Map tiles (shown live, need internet)
+## Map tiles (saved offline in `tiles/` for the study area; elsewhere loaded live from Mars Trek)
 | Layer in app | Source | Link |
 |---|---|---|
 | Base map (global) | Viking MDIM 2.1 colour mosaic, NASA/USGS, via **NASA Mars Trek** WMTS | https://trek.nasa.gov/tiles/Mars/EQ/Mars_Viking_MDIM21_ClrMosaic_global_232m/1.0.0/WMTSCapabilities.xml |

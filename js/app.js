@@ -33,6 +33,12 @@
         loadJSON("data/waypoints.json"), loadJSON("data/crism/products.json")
       ]);
       Darb.grid = all[0]; Darb.env = all[1]; Darb.wp = all[2]; Darb.crism = all[3];
+      // List of map tiles saved on this device (optional — without it, tiles come from the internet)
+      Darb.tileIndex = {};
+      try {
+        var idx = await loadJSON("tiles/index.json");
+        for (var layer in idx) Darb.tileIndex[layer] = new Set(idx[layer]);
+      } catch (e2) { /* no offline tiles: fine */ }
     } catch (e) {
       $("routeMsg").textContent = "Could not load data files. Start the app with start.bat (a local web server), " +
         "not by double-clicking index.html. (" + e.message + ")";
@@ -54,12 +60,23 @@
     var map = Darb.map = L.map("map", { crs: L.CRS.EPSG4326, center: cfg.center, zoom: cfg.zoom,
       minZoom: 3, maxZoom: 15, worldCopyJump: false });
 
+    // A tile layer that uses the tile saved on this device when we have it (tiles/…),
+    // and only asks NASA Mars Trek over the internet when we don't. Works with no internet in our area.
+    var LocalFirstTiles = L.TileLayer.extend({
+      getTileUrl: function (coords) {
+        var z = this._getZoomForUrl(), key = z + "/" + coords.y + "/" + coords.x;
+        var have = Darb.tileIndex[this.options.layerId];
+        if (have && have.has(key)) return "tiles/" + this.options.layerId + "/" + key + "." + this.options.ext;
+        return L.TileLayer.prototype.getTileUrl.call(this, coords);
+      }
+    });
+
     function trek(key, extra) {
       var l = cfg.layers[key];
-      var opts = { maxNativeZoom: l.maxNative, maxZoom: 15, tileSize: 256, noWrap: true,
+      var opts = { maxNativeZoom: l.maxNative, maxZoom: 15, tileSize: 256, noWrap: true, layerId: l.id, ext: l.ext,
                    attribution: l.credit + ' · <a href="https://trek.nasa.gov/mars/" target="_blank">NASA Mars Trek</a>' };
       for (var k in extra || {}) opts[k] = extra[k];
-      return L.tileLayer(cfg.trekTile(l.id, l.ext), opts);
+      return new LocalFirstTiles(cfg.trekTile(l.id, l.ext), opts);
     }
     // Base map: Viking colour mosaic everywhere + sharp CTX mosaic over Gale Crater
     var viking = trek("viking").addTo(map);
@@ -137,8 +154,14 @@
   }
 
   function refreshCrismLegend() {
+    // Short line + a fold-out with the official PDS explanation of the colours
     var p = Darb.crism.products.find(function (x) { return x.code === $("crismSelect").value; });
-    $("crismLegend").textContent = (p.bandsRGB ? "R/G/B = " + p.bandsRGB.join(" / ") + ". " : "") + (p.pdsDescription || "");
+    var box = $("crismLegend");
+    box.textContent = "";
+    var det = document.createElement("details"), sum = document.createElement("summary"), body = document.createElement("p");
+    sum.textContent = (p.bandsRGB ? "R/G/B = " + p.bandsRGB.join(" / ") : p.name) + " — what do the colours mean?";
+    body.textContent = (p.pdsDescription || "") + " (Source: PDS label, CRISM " + Darb.crism.observation + ")";
+    det.appendChild(sum); det.appendChild(body); box.appendChild(det);
   }
 
   // Read the colour of a CRISM image at a lat/lon (for hover and for Ask Darb).

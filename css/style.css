@@ -43,6 +43,8 @@ a { color: var(--blue); }
 .toggle { display: flex; gap: 8px; align-items: center; margin: 6px 0 2px; cursor: pointer; }
 .legend { margin: 0 0 6px 24px; font-size: 11px; color: var(--muted); }
 [dir="rtl"] .legend { margin: 0 24px 6px 0; }
+.legend details summary { cursor: pointer; color: var(--blue); }
+.legend details p { margin: 4px 0 0; }
 .opacity { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); margin-top: 8px; }
 .opacity input { flex: 1; accent-color: var(--mars); }
 .select { width: 100%; margin: 4px 0; padding: 6px; background: var(--bg); color: var(--text);

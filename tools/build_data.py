@@ -383,12 +383,63 @@ def build_waypoints():
                    "traverse": traverse, "waypoints": out}, f, indent=1)
 
 
+# ---------------------------------------------------------------------------
+# 8. Offline map tiles: save the Mars Trek tiles that cover our study area, so the
+#    map imagery also works with NO internet (like on Mars). Only a few MB.
+# ---------------------------------------------------------------------------
+TILE_SETS = [
+    # (layer id, file extension, min zoom, max zoom, padding in degrees around the box)
+    ("Mars_Viking_MDIM21_ClrMosaic_global_232m", "jpg", 3, 7, 3.0),
+    ("Gale_CTX_BlockAdj_dd", "png", 8, 12, 0.05),
+    ("THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018", "png", 8, 9, 0.05),
+    ("Mars_MGS_MOLA_ClrShade_merge_global_463m", "jpg", 3, 7, 3.0),
+]
+
+
+def build_tiles():
+    root = os.path.join(HERE, "..", "tiles")
+    total, count = 0, 0
+    for layer, ext, z0, z1, pad in TILE_SETS:
+        for z in range(z0, z1 + 1):
+            n_lon, n_lat = 2 ** (z + 1), 2 ** z
+            x0 = int((LON_W - pad + 180) / 360 * n_lon)
+            x1 = int((LON_E + pad + 180) / 360 * n_lon)
+            y0 = int((90 - (LAT_N + pad)) / 180 * n_lat)
+            y1 = int((90 - (LAT_S - pad)) / 180 * n_lat)
+            for x in range(x0, x1 + 1):
+                for y in range(y0, y1 + 1):
+                    out = os.path.join(root, layer, str(z), str(y), "%d.%s" % (x, ext))
+                    if os.path.exists(out):
+                        continue
+                    try:
+                        data = fetch(TREK.replace(".png", "." + ext) % (layer, z, y, x))
+                    except Exception:
+                        continue          # tile does not exist (outside the mosaic) - skip it
+                    os.makedirs(os.path.dirname(out), exist_ok=True)
+                    with open(out, "wb") as f:
+                        f.write(data)
+                    total += len(data)
+                    count += 1
+    print("tiles: %d new tiles, %.1f MB" % (count, total / 1e6))
+    # index of every saved tile, so the app knows which tiles exist locally (no 404 errors)
+    index = {}
+    for layer, ext, _, _, _ in TILE_SETS:
+        base = os.path.join(root, layer)
+        keys = []
+        for dirpath, _, files in os.walk(base):
+            rel = os.path.relpath(dirpath, base).replace("\\", "/")      # "z/y"
+            keys += ["%s/%s" % (rel, f.split(".")[0]) for f in files]   # "z/y/x"
+        index[layer] = sorted(keys)
+    with open(os.path.join(root, "index.json"), "w") as f:
+        json.dump(index, f, separators=(",", ":"))
+
+
 if __name__ == "__main__":
     import sys
     os.makedirs(os.path.join(DATA, "crism"), exist_ok=True)
     os.makedirs(os.path.join(DATA, "images"), exist_ok=True)
     # Run everything, or only some parts:  python tools/build_data.py waypoints environment
-    parts = sys.argv[1:] or ["grid", "crism", "environment", "waypoints"]
+    parts = sys.argv[1:] or ["grid", "crism", "environment", "waypoints", "tiles"]
     if "grid" in parts:
         build_grid()
     if "crism" in parts:
@@ -397,4 +448,6 @@ if __name__ == "__main__":
         build_environment()
     if "waypoints" in parts:
         build_waypoints()
+    if "tiles" in parts:
+        build_tiles()
     print("done")
