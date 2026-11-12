@@ -83,6 +83,10 @@ wait for a cloud AI on Earth. Ask Darb runs on the astronaut's own device with O
    the place was Venus. Converting the facts to short plain English fixed this — see CHANGELOG.md.)
 4. Photo questions attach the real Navcam image; the model must describe what it sees, then link it to the facts.
 5. Every answer shows the model name and the **response time** (and time to first words).
+6. **Measured, not guessed:** a fixed 18-question test set (`js/eval.js`, results in `docs/ASK-DARB-EVAL.md`) checks
+   12 fact questions against the app's real data and 6 questions whose answer is *not* in the data (it must say
+   "I don't know"). qwen3.5:9b scored 54/54 over 3 runs (1.9 s per answer); gpt-oss:20b also 54/54 (2.8 s).
+   Reading the answers by hand found 3 invented details in the first version, which we fixed (see that file).
 
 **Limits (please read):**
 - A 9-billion-parameter model can still make mistakes or mix up numbers. **Ask Darb is advice, not a

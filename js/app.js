@@ -506,6 +506,18 @@
       ") [THEMIS]; minerals: " + mineralWords(lat, lon) + " [CRISM].";
   }
 
+  // Where on the route is the steepest cell, and how far along the route (metres from the start)?
+  function steepestPoint() {
+    var g = Darb.grid, pts = routeLatLngs(), best = 0, walked = 0, bestAt = 0;
+    Darb.route.forEach(function (c, i) {
+      if (i > 0) walked += marsDistance(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
+      var sl = g.slope[c.r * g.cols + c.c];
+      if (sl > g.slope[Darb.route[best].r * g.cols + Darb.route[best].c]) { best = i; bestAt = walked; }
+    });
+    var cell = Darb.route[best];
+    return { slope: g.slope[cell.r * g.cols + cell.c], lat: pts[best][0], lon: pts[best][1], fromStartM: bestAt };
+  }
+
   function buildContext() {
     var L1 = [], o = DARB_CONFIG.routeOptions, w0 = Darb.env.rems.recentSols[0], rad = Darb.env.rad;
     L1.push("PLACE: Planet MARS. Lower Mount Sharp, Gale Crater (Curiosity rover area). Goal of the EVA: reach the boxwork ridges and collect rock samples.");
@@ -518,11 +530,14 @@
     if (Darb.route && Darb.stats) {
       var s = Darb.stats, pts = routeLatLngs();
       L1.push("CURRENT ROUTE: app safety score = " + s.safety.toUpperCase() + (s.reasons.length ? " because " + s.reasons.join(", ") : "") +
-        ". Distance " + (s.distanceM / 1000).toFixed(2) + " km; walk out " + fmtHours(s.hoursOut) + "; round trip " + fmtHours(s.hoursRoundTrip) +
+        ". Distance ONE WAY (start to goal) " + (s.distanceM / 1000).toFixed(2) + " km; walk out " + fmtHours(s.hoursOut) + "; round trip " + fmtHours(s.hoursRoundTrip) +
         "; O2 reserve after return " + Math.round(s.o2ReservePct) + "%; climb " + Math.round(s.elevationGainM) + " m, descent " +
         Math.round(s.elevationLossM) + " m; max slope " + s.maxSlope.toFixed(1) + "°, mean " + s.meanSlope.toFixed(1) + "°; loose sand on " +
         Math.round(s.sandFraction * 100) + "% of the route; very rough ground (rocks/small ridges) on " +
         Math.round((s.roughFraction || 0) * 100) + "% of the route" + (routeOptions().buddyMeters ? "; buddy mode " + routeOptions().buddyMeters + " m" : "") + ".");
+      var st = steepestPoint();
+      L1.push("STEEPEST POINT OF THE ROUTE: " + st.slope.toFixed(1) + "° at " + st.lat.toFixed(4) + "°, " + st.lon.toFixed(4) +
+        "°E, " + Math.round(st.fromStartM) + " m from the start (of " + Math.round(s.distanceM) + " m) [HiRISE DEM].");
       L1.push(pointLine("ROUTE START", pts[0][0], pts[0][1]));
       var mid = Math.floor(pts.length / 2);
       L1.push(pointLine("ROUTE MIDDLE", pts[mid][0], pts[mid][1]));
@@ -639,6 +654,13 @@
     });
     preloadCrism();
   }
+
+  // Shared with js/eval.js (the Ask Darb test set) so the tests use exactly the same facts as the app
+  Darb.buildContext = buildContext;
+  Darb.cellInfo = cellInfo;
+  Darb.mineralWords = mineralWords;
+  Darb.demoRoute = demoRoute;
+  Darb.steepestPoint = steepestPoint;
 
   document.addEventListener("DOMContentLoaded", init);
 })();

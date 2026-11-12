@@ -144,6 +144,10 @@ speeds, find the distance between them today, and convert: 1 AU = 8.317 light-mi
 - **Photos:** if a question mentions a photo and a waypoint number, the local Navcam image is sent to a vision model
   (qwen3.5:9b), which first describes what it sees, then links it to the data.
 - The app shows the model name and response time for every answer.
+- **Test set (`js/eval.js`).** Open `http://localhost:8000/?eval` to ask 18 fixed questions. The right answers are read
+  from the app's own data (not typed by hand), and the checker looks for the right number/word, or for "I don't know"
+  when the data has no answer. Score: 54/54 over 3 runs. How to explain it: "We don't just hope the AI is right —
+  we test it like a student taking an exam, and we also test that it admits when it doesn't know."
 
 ## 10. Known limits (say these honestly)
 - Slopes are computed at 25 m. Anything smaller than a cell — boulders, and the 1–2 m tall boxwork ridges

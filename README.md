@@ -63,6 +63,8 @@ exists it is read locally (~34 s); otherwise only the needed rows are fetched ov
 ```bash
 node --test tests
 ```
+Test Ask Darb's answers (Ollama running): open http://localhost:8000/?eval=qwen3.5:9b&runs=3 — results in
+[docs/ASK-DARB-EVAL.md](docs/ASK-DARB-EVAL.md) (54/54 correct over 3 runs, 1.9 s per answer).
 
 ## Project structure
 | Path | What |

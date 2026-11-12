@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## Round 4 — measured Ask Darb accuracy (2026-11-12)
+**Why:** judging criterion "validity". "The AI seems right" is not evidence; a score is.
+**What changed**
+- New `js/eval.js` (runs only with `?eval`): 18 fixed questions — 12 facts (expected answers read from the app's real
+  data), 6 "unknown" questions (must say "I don't know"). `&runs=N` repeats the set.
+- Reading the first answers by hand found 3 invented details (steepest point "at waypoint 7", Arabic "2.73 km includes
+  the return", "within normal radiation limits"). Fixes: facts now say the distance is ONE WAY and give the steepest
+  point's position; system prompt forbids judgements not in the facts; 3 trap questions added.
+- Checker normalises special hyphens, thin spaces and curly apostrophes (it had failed correct gpt-oss answers).
+- `docs/ASK-DARB-EVAL.md` with method, results and limits; linked from README, AI-USAGE, TEAM-GUIDE.
+**Tested**
+- qwen3.5:9b: **54/54 over 3 runs**, 1.9 s per answer. gpt-oss:20b: 54/54, 2.8 s (answered once in Spanish in an
+  earlier run). Default stays qwen3.5:9b (faster, vision).
+- `node --test tests` 19/19; normal app (without `?eval`) unchanged.
+
 ## Round 3 — metre-scale roughness from the 1 m HiRISE data (2026-11-12)
 **Why:** validity. The 25 m slope cannot see rocks or the 1–2 m boxwork ridges (our own "honest limit" from round 2).
 **What changed**
