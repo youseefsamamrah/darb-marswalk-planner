@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## Round 5 — guided tour for the pitch + offline audit (2026-11-12)
+**Why:** judging criterion "presentation" — a live demo must not depend on the presenter's memory or on Wi-Fi.
+**What changed**
+- New `js/tour.js` + "▶ Tour" button: 10 steps (EN/AR) matching the pitch script; each step sets the map up from a
+  clean state; captions use live numbers; keys → / Space / ← / Esc.
+- Offline audit of the full tour: first run found 6 map tiles at zoom 9 just outside the cache → wider tile margin at
+  zoom 8–10 (322 tiles, 18 MB total). Second run still requested them: the browser used a stale `tiles/index.json`
+  → all data now loads with `cache: "no-cache"`. Final audit: **108 requests, 0 to the internet**.
+- Narrow screens: the tour box was covered by Leaflet's attribution bar (Next not clickable) → moved above Leaflet's
+  controls and to the top of the map on small screens.
+- Step 7 wording: "NASA expects pairs" → "the challenge suggests astronauts may work in pairs" (matches the source).
+- PITCH.md: tour instructions + demo-day checklist (Wi-Fi off, warm up the AI, step through once).
+**Tested:** all 10 steps (layers, popup, buddy, HUD, Ask Darb) in English and Arabic; Next clickable at 268 px width;
+`node --test tests` 19/19.
+
 ## Round 4 — measured Ask Darb accuracy (2026-11-12)
 **Why:** judging criterion "validity". "The AI seems right" is not evidence; a score is.
 **What changed**

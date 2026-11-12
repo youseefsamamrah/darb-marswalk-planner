@@ -129,12 +129,26 @@ a { color: var(--blue); }
 body.hud-on .panel { display: none; }
 body.hud-on .hover { display: none; }
 
+/* ---------- Guided tour (js/tour.js) ---------- */
+.tour { position: absolute; z-index: 1100; /* above Leaflet's controls (800-1000) */ left: 50%; bottom: 44px; transform: translateX(-50%);
+  width: min(560px, calc(100% - 32px)); background: rgba(13, 18, 48, .96); border: 1px solid var(--blue);
+  border-radius: 14px; padding: 14px 16px; box-shadow: 0 0 24px rgba(143, 211, 255, .25); }
+.tour-head { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 12px; }
+.tour-close { background: none; border: 0; color: var(--muted); font-size: 16px; cursor: pointer; }
+.tour-title { margin: 4px 0 6px; color: var(--blue); font-size: 17px; }
+.tour-text { margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
+.tour-nav { display: flex; justify-content: space-between; }
+.tour-nav button:disabled { opacity: .35; cursor: default; }
+
 @media (max-width: 800px) {
   .layout { flex-direction: column-reverse; }
   .panel { width: 100%; min-width: 0; height: 45%; }
   .topbar { height: auto; min-height: 60px; flex-wrap: wrap; gap: 6px; padding: 6px 12px; }
   .layout { height: calc(100% - 72px); }
   .select { max-width: 100%; }
+  .tour { top: 8px; bottom: auto; max-height: calc(100% - 16px); overflow-y: auto; padding: 10px 12px; }
+  .tour-title { font-size: 15px; }
+  .tour-text { font-size: 13px; margin-bottom: 8px; }
   .map-wrap { height: 55%; flex: none; }
   .delay { display: none; }
 }

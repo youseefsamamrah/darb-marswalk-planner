@@ -50,7 +50,7 @@ area covered by the CRISM observation, so every layer covers the whole box.
 - **Waypoints.** Curiosity's real positions in our box; 8 evenly spaced stops between sols 4480 and 4800, each with a
   full-frame Navcam photo looking at the terrain ahead (saved locally) and a Mastcam link.
 - **Offline map tiles.** `build_tiles()` saves the Mars Trek tiles that cover our area (Viking, CTX, THEMIS, MOLA;
-  194 tiles, ~11 MB) into `tiles/` and writes `tiles/index.json`. In `app.js`, the `LocalFirstTiles` layer checks that
+  322 tiles, ~18 MB) into `tiles/` and writes `tiles/index.json`. In `app.js`, the `LocalFirstTiles` layer checks that
   index: if a tile is saved on the device it uses it, otherwise it asks Mars Trek over the internet.
 
 ## 3. The cost of a cell (`cellCost` in `js/route.js`)
@@ -131,6 +131,13 @@ O₂ time left, slope, and warnings (steep slope ahead, loose sand ahead, keep O
 astronaut marker along the route.
 **Earth delay:** we model Earth and Mars as planets on circles around the Sun (1 AU and 1.524 AU) moving at their average
 speeds, find the distance between them today, and convert: 1 AU = 8.317 light-minutes. It is an estimate (≈ ±1 min).
+
+**Guided tour (`js/tour.js`).** A list of 10 steps; each has an English and an Arabic caption and a small `go()` function
+that sets the map up from a clean state (which layers are on, plan the demo route, open the waypoint-6 photo, turn on
+buddy mode, start the HUD walk, ask Ask Darb). Because every step starts clean, "Back" always works. Numbers in the
+captions (km, time, O₂) are filled in from the app's live route statistics, never typed in.
+**Offline tiles:** the tour views are all covered by the saved tiles in `tiles/` — we measured 0 internet requests.
+`app.js` loads data with `cache: "no-cache"` so a rebuilt data file is never replaced by an old browser copy.
 
 ## 9. Ask Darb (`js/askdarb.js` + `buildContext` in `js/app.js`)
 - Talks to Ollama at `http://localhost:11434`. If it does not answer within 2.5 s, the app shows

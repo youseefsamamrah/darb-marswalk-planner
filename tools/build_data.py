@@ -451,8 +451,9 @@ def build_waypoints():
 TILE_SETS = [
     # (layer id, file extension, min zoom, max zoom, padding in degrees around the box)
     ("Mars_Viking_MDIM21_ClrMosaic_global_232m", "jpg", 3, 7, 3.0),
-    ("Gale_CTX_BlockAdj_dd", "png", 8, 12, 0.05),
-    ("THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018", "png", 8, 9, 0.05),
+    ("Gale_CTX_BlockAdj_dd", "png", 8, 10, 0.6),       # zoomed-out views reach further: wider margin
+    ("Gale_CTX_BlockAdj_dd", "png", 11, 12, 0.05),
+    ("THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018", "png", 8, 9, 0.6),
     ("Mars_MGS_MOLA_ClrShade_merge_global_463m", "jpg", 3, 7, 3.0),
 ]
 
@@ -484,7 +485,7 @@ def build_tiles():
     print("tiles: %d new tiles, %.1f MB" % (count, total / 1e6))
     # index of every saved tile, so the app knows which tiles exist locally (no 404 errors)
     index = {}
-    for layer, ext, _, _, _ in TILE_SETS:
+    for layer in sorted(set(t[0] for t in TILE_SETS)):
         base = os.path.join(root, layer)
         keys = []
         for dirpath, _, files in os.walk(base):

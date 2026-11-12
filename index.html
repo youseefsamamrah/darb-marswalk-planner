@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Darb — Marswalk Planner</title>
-  <!-- "?v=8" = version tag: change the number after editing a file so browsers load the new copy -->
+  <!-- "?v=12" = version tag: change the number after editing a file so browsers load the new copy -->
   <!-- Leaflet is stored locally in vendor/ so the app works without internet -->
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=8">
+  <link rel="stylesheet" href="css/style.css?v=12">
 </head>
 <body>
   <header class="topbar">
@@ -20,6 +20,7 @@
     </div>
     <div class="top-actions">
       <span class="delay" data-i18n="lightDelay"></span>
+      <button id="tourBtn" class="btn primary" data-i18n="tourBtn">▶ Tour</button>
       <button id="hudBtn" class="btn ghost" data-i18n="hudBtn">HUD mode</button>
       <button id="langBtn" class="btn ghost" data-i18n="langBtn">عربي</button>
     </div>
@@ -122,12 +123,14 @@
   </main>
 
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="js/config.js?v=8"></script>
-  <script src="js/i18n.js?v=8"></script>
-  <script src="js/route.js?v=8"></script>
-  <script src="js/askdarb.js?v=8"></script>
-  <script src="js/app.js?v=8"></script>
+  <script src="js/config.js?v=12"></script>
+  <script src="js/i18n.js?v=12"></script>
+  <script src="js/route.js?v=12"></script>
+  <script src="js/askdarb.js?v=12"></script>
+  <script src="js/app.js?v=12"></script>
+  <!-- Guided demo for the pitch ("▶ Tour" button) -->
+  <script src="js/tour.js?v=12"></script>
   <!-- Ask Darb test set: only runs when the address ends with ?eval -->
-  <script src="js/eval.js?v=8"></script>
+  <script src="js/eval.js?v=12"></script>
 </body>
 </html>

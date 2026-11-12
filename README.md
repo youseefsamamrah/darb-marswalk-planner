@@ -22,6 +22,8 @@ runs **on the device** with no internet, because a message to Earth takes 4–24
   and a safety score 🟢 Safe / 🟡 Caution / 🔴 Danger with reasons.
 - 📷 **Waypoints**: click a numbered stop (or the route) to see a real Curiosity Navcam photo from that spot and what to look for.
 - 🪖 **HUD mode**: helmet-visor view with compass, distance to goal, O₂ timer, slope, Earth delay and warnings; "Simulate walk" animates it.
+- ▶️ **Guided tour**: 10 steps for the live pitch (→ next, ← back, Esc close); each step sets the map up by itself.
+  Works fully offline — a full tour makes 0 internet requests.
 - 👩‍🚀👨‍🚀 **Buddy mode**: route for two astronauts walking side by side (needs a wider safe corridor).
 - 🤖 **Ask Darb**: offline AI (Ollama) grounded on the route and map data; says "I don't know" instead of guessing; shows response time; can look at rover photos.
 - 🌐 **English / العربية** toggle (right-to-left layout).
@@ -93,7 +95,7 @@ Test Ask Darb's answers (Ollama running): open http://localhost:8000/?eval=qwen3
   Obstacles smaller than a cell — boulders and the 1–2 m boxwork ridges — are not in the slope; a separate
   roughness layer (4 m steps in the 1 m data) flags such areas but not each rock. Next step: rock detection in HiRISE images.
 - THEMIS night IR is a *relative* proxy for thermal inertia; CRISM browse colours are qualitative.
-- Map tiles are saved offline only for the study area (`tiles/`, ~11 MB); outside it they load from Mars Trek online.
+- Map tiles are saved offline only for the study area (`tiles/`, ~18 MB); outside it they load from Mars Trek online.
   All data layers, routing and Ask Darb work offline.
 - Safety thresholds, walking speed and the 8 h O₂ budget are our own assumptions (listed in SOURCES.md).
 

@@ -21,7 +21,8 @@
 
   // ------------------------------------------------------------------ loading
   async function loadJSON(url) {
-    var r = await fetch(url);
+    // "no-cache" = always check with the server for a newer copy (cheap), so rebuilt data is never stale
+    var r = await fetch(url, { cache: "no-cache" });
     if (!r.ok) throw new Error(url + " → HTTP " + r.status);
     return r.json();
   }
@@ -661,6 +662,16 @@
   Darb.mineralWords = mineralWords;
   Darb.demoRoute = demoRoute;
   Darb.steepestPoint = steepestPoint;
+  // Also used by js/tour.js (the guided demo)
+  Darb.clearRoute = clearRoute;
+  Darb.askQuestion = askQuestion;
+  Darb.setHUD = function (on) {
+    var isOn = document.body.classList.contains("hud-on");
+    if (!on) stopSim();
+    if (on !== isOn) toggleHUD();
+  };
+  Darb.simulateWalk = simulateWalk;
+  Darb.earthDelayMinutes = earthDelayMinutes;
 
   document.addEventListener("DOMContentLoaded", init);
 })();

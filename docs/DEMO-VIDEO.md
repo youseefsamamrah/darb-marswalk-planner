@@ -12,7 +12,8 @@ So: **screen recording only**. No faces, no names, no webcam. For the voice use 
 
 ## Option A — 30-second video
 
-Record the browser at 1920×1080 (Windows: Win + G Game Bar, or OBS). Use the app's **Demo** button so it is repeatable.
+Record the browser at 1920×1080 (Windows: Win + G Game Bar, or OBS). Use the app's **▶ Tour** button (→ key for each
+step) or the **Demo** button so every take is the same. The tour captions can stay on screen as the video's text.
 
 | Time | Screen | Voice-over / caption |
 |---|---|---|

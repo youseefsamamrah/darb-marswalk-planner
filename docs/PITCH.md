@@ -4,6 +4,19 @@ Speak slowly. One person drives the laptop (the "driver"), one or two people spe
 Before you start: open http://localhost:8000, make sure Ollama is running (green dot in "Ask Darb"),
 and press **Clear** so the map is empty.
 
+**Easiest way to drive the demo: the ▶ Tour button.** It has 10 steps that match this script (map → slope → rough
+ground → minerals → route → rover photo → buddy mode → HUD → Ask Darb → close). Each step sets the map up by itself,
+so the driver only presses **→ (or Space)**; **←** goes back, **Esc** closes. If something goes wrong, press ← then →
+to rebuild that step. The click-by-click steps below are the backup if you prefer to drive by hand.
+
+### Demo-day checklist (do this 15 minutes before)
+1. Wi-Fi **off** (or not connected). Darb needs no internet: our audit of the whole tour made **0 internet requests**.
+2. Laptop on the charger; Windows "do not disturb" on; browser zoom 100 %, full screen (F11).
+3. Double-click `start.bat`; check the map and the coloured slope layer appear.
+4. Check Ollama: the Ask Darb dot is green. If not, run `ollama serve` in a terminal.
+5. Warm up the AI: ask "Is this route safe?" once (the first answer is slower while the model loads, ~5 s).
+6. Press **▶ Tour**, step through once, press Esc. Then **Clear**. You are ready.
+
 ---
 
 ## Script (3:00)
@@ -111,7 +124,7 @@ We multiply by the EVA's round-trip time.
 
 **11. Would this work on Mars without internet?**
 Yes, for our study area. The data layers, route planner, HUD and AI all run offline, and the NASA Mars Trek map tiles
-for Mount Sharp (194 tiles, ~11 MB) are saved on the device. Only zooming far outside the area needs internet.
+for Mount Sharp (322 tiles, ~18 MB) are saved on the device. Only zooming far outside the area needs internet.
 
 **12. What would you do with more time?**
 Surface roughness from the 1 m HiRISE data, rock-hazard detection from HiRISE images, route timing by time of day

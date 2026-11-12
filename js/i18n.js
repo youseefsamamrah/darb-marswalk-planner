@@ -6,7 +6,7 @@
 var DARB_TEXT = {
   en: {
     title: "Darb", subtitle: "Marswalk Planner · Mount Sharp, Gale Crater",
-    langBtn: "عربي", hudBtn: "HUD mode", hudExit: "Exit HUD",
+    langBtn: "عربي", hudBtn: "HUD mode", hudExit: "Exit HUD", tourBtn: "▶ Tour",
     layersTitle: "Data layers", layerSlope: "Terrain slope (HiRISE 1 m DEM, 25 m cells)", layerThermal: "Thermal inertia proxy (THEMIS night IR)",
     layerMinerals: "Minerals (CRISM)", layerMola: "Elevation hillshade (MOLA)", layerRover: "Curiosity traverse + 2025 stops",
     legendSlope: "Slope: green < 10° · yellow < 15° · orange < 20° · red = blocked",
@@ -44,7 +44,7 @@ var DARB_TEXT = {
   },
   ar: {
     title: "دَرْب", subtitle: "مخطط المشي على المريخ · جبل شارب، فوهة غيل",
-    langBtn: "English", hudBtn: "وضع الخوذة", hudExit: "خروج من الخوذة",
+    langBtn: "English", hudBtn: "وضع الخوذة", hudExit: "خروج من الخوذة", tourBtn: "▶ جولة",
     layersTitle: "طبقات البيانات", layerSlope: "انحدار التضاريس (HiRISE بدقة 1 م، خلايا 25 م)", layerThermal: "القصور الحراري (THEMIS ليلي)",
     layerMinerals: "المعادن (CRISM)", layerMola: "تظليل الارتفاع (MOLA)", layerRover: "مسار كيوريوسيتي ومحطات 2025",
     legendSlope: "الانحدار: أخضر < 10° · أصفر < 15° · برتقالي < 20° · أحمر = مغلق",
