@@ -7,7 +7,7 @@
   <!-- Version tags change with edited assets so browsers load the new copy. -->
   <!-- Leaflet is stored locally in vendor/ so the app works without internet -->
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=17">
+  <link rel="stylesheet" href="css/style.css?v=18">
   <link rel="stylesheet" href="css/themes.css?v=1">
 </head>
 <body>
@@ -65,6 +65,10 @@
           <button id="exportBtn" class="btn ghost" data-i18n="exportBtn">Export as image</button>
           <button id="shareBtn" class="btn ghost" data-i18n="shareBtn">Copy share link</button>
         </div>
+        <div class="row">
+          <button id="saveABtn" class="btn ghost" data-i18n="saveA">Save as A</button>
+          <button id="saveBBtn" class="btn ghost" data-i18n="saveB">Save as B</button>
+        </div>
         <label class="buddy"><input type="checkbox" id="buddyOn"> <span data-i18n="buddyLabel"></span>
           <input type="number" id="buddyM" value="100" min="20" max="1000" step="10"></label>
         <div id="routeMsg" class="msg" role="status"></div>
@@ -83,6 +87,10 @@
             <dt data-i18n="dose"></dt><dd id="stDose"></dd>
           </dl>
           <button id="simBtn" class="btn primary" data-i18n="simulateBtn">Simulate walk</button>
+        </div>
+        <div id="compareCard" class="compare-card hidden">
+          <h3 data-i18n="compareTitle">Compare route A vs B</h3>
+          <div id="cmpBody"></div>
         </div>
       </section>
 
@@ -141,10 +149,10 @@
 
   <script src="vendor/leaflet/leaflet.js"></script>
   <script src="js/config.js?v=15"></script>
-  <script src="js/i18n.js?v=20"></script>
+  <script src="js/i18n.js?v=21"></script>
   <script src="js/route.js?v=15"></script>
   <script src="js/askdarb.js?v=16"></script>
-  <script src="js/app.js?v=23"></script>
+  <script src="js/app.js?v=26"></script>
   <!-- Guided demo for the pitch ("▶ Tour" button) -->
   <script src="js/tour.js?v=16"></script>
   <!-- Ask Darb test set: only runs when the address ends with ?eval -->

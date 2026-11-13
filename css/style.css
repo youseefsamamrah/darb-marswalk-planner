@@ -163,6 +163,22 @@ body.hud-on .hover { display: none; }
 .tour-nav { display: flex; justify-content: space-between; }
 .tour-nav button:disabled { opacity: .35; cursor: default; }
 
+/* ---------- Compare route A vs B ---------- */
+.compare-card { margin-top: 10px; }
+.compare-card h3 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--blue); }
+.cmp-table { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+.cmp-table th, .cmp-table td { text-align: end; padding: 3px 6px; border-bottom: 1px solid var(--line); }
+.cmp-table th { color: var(--muted); font-weight: 400; }
+.cmp-table th:first-child, .cmp-table td:first-child { text-align: start; color: var(--muted); font-variant-numeric: auto; }
+.cmp-table .better { color: var(--safe); font-weight: 700; }
+.cmp-slot { display: inline-flex; align-items: center; gap: 6px; }
+.cmp-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.cmp-x { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 6px;
+  cursor: pointer; font: inherit; font-size: 11px; line-height: 1.4; padding: 1px 7px; margin-inline-start: 4px; }
+.cmp-x:hover { border-color: var(--danger); color: var(--danger); }
+.cmp-wait { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+.cmp-verdict { font-size: 13px; margin: 8px 0 0; line-height: 1.5; }
+
 @media (max-width: 800px) {
   .map-sources { max-width: calc(100vw - 70px); }
   .map-sources > summary { display: list-item; list-style: none; }

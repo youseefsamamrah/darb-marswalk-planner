@@ -16,6 +16,7 @@
   var Darb = window.Darb = {
     grid: null, env: null, wp: null, crism: null,
     map: null, layers: {}, start: null, goal: null, route: null, stats: null,
+    saved: { A: null, B: null }, savedLayers: {},
     costCache: {}, crismPixels: {}, sim: null, aiLog: [], aiHistory: []
   };
 
@@ -603,6 +604,127 @@
     });
   }
 
+  // ------------------------------------------------ save & compare two routes (A / B)
+  // A snapshot keeps a copy of the route's cells + stats + endpoints as plain numbers,
+  // so later re-planning never changes what is saved.
+  var SAVED_COLORS = { A: "#59b7ff", B: "#ff9a3d" };
+  var SAFETY_RANK = { safe: 0, caution: 1, danger: 2 };
+
+  function savedLatLngs(slot) {
+    var s = Darb.saved[slot];
+    if (!s) return null;
+    var pts = s.cells.map(function (c) { var ll = DarbRoute.cellToLatLon(Darb.grid, c); return [ll.lat, ll.lon]; });
+    pts[0] = [s.start.lat, s.start.lng];                 // start/end exactly at the saved points
+    pts[pts.length - 1] = [s.goal.lat, s.goal.lng];
+    return pts;
+  }
+
+  function drawSavedRoute(slot) {
+    if (Darb.savedLayers[slot]) Darb.map.removeLayer(Darb.savedLayers[slot]);
+    Darb.savedLayers[slot] = L.polyline(savedLatLngs(slot), {
+      pane: "routePane", color: SAVED_COLORS[slot], weight: 5, opacity: 0.95,
+      dashArray: "10 8", lineCap: "round", lineJoin: "round"
+    }).addTo(Darb.map);
+  }
+
+  function saveRoute(slot) {
+    if (!Darb.route || !Darb.stats) { $("routeMsg").textContent = T("needRoute"); return; }
+    Darb.saved[slot] = {
+      cells: Darb.route.map(function (c) { return { r: c.r, c: c.c }; }),
+      stats: Object.assign({}, Darb.stats, { reasons: Darb.stats.reasons.slice() }),
+      start: { lat: Darb.start.lat, lng: Darb.start.lng },
+      goal: { lat: Darb.goal.lat, lng: Darb.goal.lng }
+    };
+    drawSavedRoute(slot);
+    renderCompare();
+    $("routeMsg").textContent = T("cmpSaved").replace("{slot}", slot);
+  }
+
+  function clearSavedRoute(slot) {
+    Darb.saved[slot] = null;
+    if (Darb.savedLayers[slot]) { Darb.map.removeLayer(Darb.savedLayers[slot]); Darb.savedLayers[slot] = null; }
+    renderCompare();
+  }
+
+  function slotLabel(slot) { return iso(T(slot === "A" ? "routeA" : "routeB")); }
+  function doseOf(s) {
+    return (Darb.env.rad.surfaceDoseEquivalent_mSv_per_day * s.hoursRoundTrip / 24).toFixed(3) + " mSv";
+  }
+
+  // One table row; a cell gets ".better" (green) when it is the clearly better value
+  function cmpRow(label, aHtml, bHtml, aWins, bWins) {
+    return "<tr><th>" + esc(label) + "</th>" +
+      "<td" + (aWins ? ' class="better"' : "") + ">" + aHtml + "</td>" +
+      "<td" + (bWins ? ' class="better"' : "") + ">" + bHtml + "</td></tr>";
+  }
+
+  function cmpRowX(aHas, bHas) {
+    return "<tr><th></th>" +
+      (aHas ? "<th class='cmp-slot'><span class='cmp-dot' style='background:" + SAVED_COLORS.A + "'></span>" + esc(T("routeA")) +
+        "<button class='cmp-x' data-slot='A' aria-label='" + esc(T("cmpClear") + " A") + "'>×</button></th>"
+           : "<th class='cmp-slot'></th>") +
+      (bHas ? "<th class='cmp-slot'><span class='cmp-dot' style='background:" + SAVED_COLORS.B + "'></span>" + esc(T("routeB")) +
+        "<button class='cmp-x' data-slot='B' aria-label='" + esc(T("cmpClear") + " B") + "'>×</button></th>"
+           : "<th class='cmp-slot'></th>") +
+      "</tr>";
+  }
+
+  function compareTable(a, b) {
+    var both = !!(a && b);
+    var A = a ? a.stats : null, B = b ? b.stats : null;
+    var dash = "—";
+    function lower(av, bv) { if (!both || av === bv) return [false, false]; return av < bv ? [true, false] : [false, true]; }
+    var rS, rD, rO, rR, rM, rF, rG, rV;
+    if (both) {
+      rS = lower(SAFETY_RANK[A.safety], SAFETY_RANK[B.safety]);
+      rD = lower(A.distanceM, B.distanceM);
+      rO = lower(A.hoursOut, B.hoursOut);
+      rR = lower(A.hoursRoundTrip, B.hoursRoundTrip);
+      rM = lower(A.maxSlope, B.maxSlope);
+      rF = lower(A.sandFraction, B.sandFraction);
+      rG = lower(A.roughFraction || 0, B.roughFraction || 0);
+      rV = lower(doseOf(A), doseOf(B));
+    } else { rS = rD = rO = rR = rM = rF = rG = rV = [false, false]; }
+    // (dose compared as strings is fine: all values have the same "###.### mSv" shape when equal precision)
+    return "<table class='cmp-table'>" + cmpRowX(!!a, !!b) +
+      cmpRow(T("safetyWord"), a ? esc(T(A.safety)) : dash, b ? esc(T(B.safety)) : dash, rS[0], rS[1]) +
+      cmpRow(T("distance"), a ? iso((A.distanceM / 1000).toFixed(2) + " km") : dash, b ? iso((B.distanceM / 1000).toFixed(2) + " km") : dash, rD[0], rD[1]) +
+      cmpRow(T("timeOut"), a ? timeHtml(A.hoursOut) : dash, b ? timeHtml(B.hoursOut) : dash, rO[0], rO[1]) +
+      cmpRow(T("roundTrip"), a ? timeHtml(A.hoursRoundTrip) : dash, b ? timeHtml(B.hoursRoundTrip) : dash, rR[0], rR[1]) +
+      cmpRow(T("maxSlope"), a ? iso(A.maxSlope.toFixed(1) + "°") : dash, b ? iso(B.maxSlope.toFixed(1) + "°") : dash, rM[0], rM[1]) +
+      cmpRow(T("sand"), a ? iso(Math.round(A.sandFraction * 100) + "%") : dash, b ? iso(Math.round(B.sandFraction * 100) + "%") : dash, rF[0], rF[1]) +
+      cmpRow(T("rough"), a ? iso(Math.round((A.roughFraction || 0) * 100) + "%") : dash, b ? iso(Math.round((B.roughFraction || 0) * 100) + "%") : dash, rG[0], rG[1]) +
+      cmpRow(T("dose"), a ? iso(doseOf(A)) : dash, b ? iso(doseOf(B)) : dash, rV[0], rV[1]) +
+      "</table>";
+  }
+
+  function verdict(a, b) {
+    var parts = [];
+    var rA = SAFETY_RANK[a.stats.safety], rB = SAFETY_RANK[b.stats.safety];
+    if (rA !== rB) parts.push(esc(T("vSafer")).replace("{r}", slotLabel(rA < rB ? "A" : "B")));
+    else parts.push(esc(T("vSameSafety")));
+    var dDiff = Math.abs(a.stats.distanceM - b.stats.distanceM) / 1000;
+    if (dDiff < 0.005) parts.push(esc(T("vSameLength")));
+    else parts.push(esc(T("vShorter")).replace("{r}", slotLabel(a.stats.distanceM < b.stats.distanceM ? "A" : "B"))
+      .replace("{p}", iso(dDiff.toFixed(2) + " km")));
+    var tDiffMin = Math.round(Math.abs(a.stats.hoursRoundTrip - b.stats.hoursRoundTrip) * 60);
+    if (tDiffMin < 1) parts.push(esc(T("vSameTime")));
+    else parts.push(esc(T("vFaster")).replace("{r}", slotLabel(a.stats.hoursRoundTrip < b.stats.hoursRoundTrip ? "A" : "B"))
+      .replace("{t}", timeHtml(tDiffMin / 60)));
+    // " · " between the clauses — plain text, safe inside the innerHTML paragraph
+    return parts.join(" · ");
+  }
+
+  function renderCompare() {
+    var a = Darb.saved.A, b = Darb.saved.B;
+    var card = $("compareCard"), body = $("cmpBody");
+    if (!a && !b) { card.classList.add("hidden"); body.innerHTML = ""; return; }
+    card.classList.remove("hidden");
+    body.innerHTML = compareTable(a, b) +
+      (a && b ? "<p class='cmp-verdict'>" + verdict(a, b) + "</p>"
+             : "<p class='cmp-wait'>" + esc(T("cmpWaiting")) + "</p>");
+  }
+
   function demoRoute() {
     clearRoute();
     // START: where Curiosity was around sol 4300 (2024).
@@ -960,7 +1082,14 @@
     $("shareBtn").addEventListener("click", copyShareLink);
     $("demoBtn").addEventListener("click", demoRoute);
     $("clearBtn").addEventListener("click", clearRoute);
+    $("saveABtn").addEventListener("click", function () { saveRoute("A"); });
+    $("saveBBtn").addEventListener("click", function () { saveRoute("B"); });
     $("simBtn").addEventListener("click", simulateWalk);
+    // The × buttons inside the comparison table are rebuilt on every render, so delegate:
+    $("compareCard").addEventListener("click", function (e) {
+      var x = e.target.closest ? e.target.closest(".cmp-x") : null;
+      if (x && x.dataset.slot) clearSavedRoute(x.dataset.slot);
+    });
     $("hudBtn").addEventListener("click", function () { if (document.body.classList.contains("hud-on")) stopSim(); toggleHUD(); });
     ["buddyOn", "buddyM"].forEach(function (id) {
       $(id).addEventListener("change", function () { if (Darb.start && Darb.goal) planRoute(); });
@@ -970,6 +1099,7 @@
       DarbI18n.apply(); buildEnvironment(); renderAIStatus(); refreshCrismOptions(); refreshCrismLegend();
       // re-plan (takes a few ms) so the route message and card are rebuilt in the new language
       if (Darb.start && Darb.goal) planRoute(); else renderRouteCard();
+      renderCompare();                                      // comparison card text and verdict follow the language too
       if (window.DarbTour) DarbTour.refresh();          // tour captions follow the language too
     });
     $("aiModel").addEventListener("change", function () { AskDarb.state.model = this.value; });
@@ -1013,6 +1143,9 @@
   Darb.roverMaxDiff = roverMaxDiff;
   // Also used by js/tour.js (the guided demo)
   Darb.clearRoute = clearRoute;
+  Darb.saveRoute = saveRoute;
+  Darb.clearSavedRoute = clearSavedRoute;
+  Darb.renderCompare = renderCompare;
   Darb.askQuestion = askQuestion;
   Darb.setHUD = function (on) {
     var isOn = document.body.classList.contains("hud-on");
