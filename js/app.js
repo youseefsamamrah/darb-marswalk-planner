@@ -59,6 +59,7 @@
     DarbI18n.apply();
     refreshCrismLegend();
     pollAI();
+    applyShareLink();
   }
 
   // ------------------------------------------------------------------ map
@@ -472,6 +473,136 @@
     $("stDose").innerHTML = iso((rad * s.hoursRoundTrip / 24).toFixed(3) + " mSv");
   }
 
+  // ------------------------------------------------ export & share
+  // Draw the current route on a canvas ourselves (no screenshot library) and save it as a PNG
+  function exportRouteImage() {
+    if (!Darb.route || !Darb.stats) { $("routeMsg").textContent = T("needRoute"); return; }
+    var s = Darb.stats, W = 1400, H = 900;
+    var cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    var ctx = cv.getContext("2d");
+    var font = "'Segoe UI', Tahoma, Arial, sans-serif";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = "#1a110b"; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#f5e9d8"; ctx.font = "700 40px " + font;
+    ctx.fillText("DARB — Marswalk Planner", 40, 24);
+    ctx.font = "17px " + font; ctx.fillStyle = "#c9b7a0";
+    ctx.fillText(new Date().toISOString().slice(0, 16).replace("T", " UTC") + "  ·  Mount Sharp, Gale Crater  ·  NASA Space Apps 2026", 40, 78);
+    // Map area: equirectangular, centred on our data box with 12% padding
+    var mx = 40, my = 120, mw = 820, mh = 700;
+    ctx.fillStyle = "#120c08"; ctx.fillRect(mx, my, mw, mh);
+    var b = Darb.grid.bounds;
+    var wLat = b.north - b.south, wLon = (b.east - b.west) * Math.cos((b.north + b.south) / 2 * Math.PI / 180);
+    var pad = 0.12, latMin = b.south - wLat * pad, latMax = b.north + wLat * pad;
+    var lonMin = b.west - wLon * pad, lonMax = b.east + wLon * pad;
+    var cosc = Math.cos((latMin + latMax) / 2 * Math.PI / 180);
+    var k = Math.min(mw / ((lonMax - lonMin) * cosc), mh / (latMax - latMin));
+    var ox = (mw - (lonMax - lonMin) * cosc * k) / 2, oy = (mh - (latMax - latMin) * k) / 2;
+    function P(lat, lon) { return [mx + ox + (lon - lonMin) * cosc * k, my + oy + (latMax - lat) * k]; }
+    // Dashed box = area with grid data
+    var q1 = P(b.south, b.west), q2 = P(b.north, b.east);
+    ctx.strokeStyle = "#8fd3ff"; ctx.lineWidth = 1; ctx.setLineDash([6, 6]);
+    ctx.strokeRect(q1[0], q1[1], q2[0] - q1[0], q2[1] - q1[1]); ctx.setLineDash([]);
+    // Curiosity traverse + stops
+    ctx.strokeStyle = "#8a94a6"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); Darb.wp.traverse.forEach(function (p, i) { var q = P(p[0], p[1]); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.stroke();
+    ctx.fillStyle = "#ffd23f";
+    Darb.wp.waypoints.forEach(function (w) { var q = P(w.lat, w.lon); ctx.beginPath(); ctx.arc(q[0], q[1], 4, 0, 7); ctx.fill(); });
+    // The route
+    var pts = routeLatLngs(), colors = { safe: "#3ddc84", caution: "#ffd23f", danger: "#ff4d4d" };
+    [10, 5, 2].forEach(function (lw, i) {
+      ctx.strokeStyle = i === 0 ? "#05070f" : (i === 1 ? colors[s.safety] : "#ffffff");
+      ctx.lineWidth = lw; ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.setLineDash(i === 2 ? [2, 9] : []);
+      ctx.beginPath(); pts.forEach(function (p, j) { var q = P(p[0], p[1]); j ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    [[Darb.start, "#3ddc84", "START"], [Darb.goal, "#8fd3ff", "GOAL"]].forEach(function (pg) {
+      var q = P(pg[0].lat, pg[0].lng);
+      ctx.fillStyle = pg[1]; ctx.beginPath(); ctx.arc(q[0], q[1], 8, 0, 7); ctx.fill();
+      ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2; ctx.stroke();
+      ctx.font = "700 14px " + font; ctx.fillStyle = "#ffffff"; ctx.fillText(pg[2], q[0] + 12, q[1] - 7);
+    });
+    ctx.font = "13px " + font; ctx.fillStyle = "#8a94a6";
+    ctx.fillText("Data box (dashed): USGS HiRISE DEM · Curiosity stops: NASA MMGIS · Route: DARB A*", mx + 8, my + mh - 22);
+    // Stats panel
+    var px0 = 900, y = 120, px1 = 1360;
+    ctx.fillStyle = "#241a12"; ctx.fillRect(px0 - 12, 108, px1 - px0 + 24, 724);
+    ctx.fillStyle = "#f5e9d8"; ctx.font = "700 24px " + font; ctx.fillText(T("routeTitle"), px0, y); y += 40;
+    ctx.fillStyle = colors[s.safety]; ctx.font = "700 26px " + font; ctx.fillText(T(s.safety), px0, y); y += 34;
+    ctx.fillStyle = "#c9b7a0"; ctx.font = "15px " + font;
+    var reasons = s.reasons.map(function (r) { return T("why." + r); });
+    reasons.forEach(function (r) {
+      var words = r.split(" "), line = "";
+      words.forEach(function (w) {
+        if (line && ctx.measureText(line + " " + w).width > px1 - px0 - 10) { ctx.fillText(line, px0, y); y += 19; line = w; }
+        else line = line ? line + " " + w : w;
+      });
+      if (line) { ctx.fillText(line, px0, y); y += 19; }
+    });
+    y += 10;
+    var rad = Darb.env.rad.surfaceDoseEquivalent_mSv_per_day;
+    var rows = [
+      [T("distance"), (s.distanceM / 1000).toFixed(2) + " km"],
+      [T("timeOut"), fmtHours(s.hoursOut)],
+      [T("roundTrip"), fmtHours(s.hoursRoundTrip)],
+      [T("o2"), T("o2Of").replace("{p}", Math.round(s.o2ReservePct) + "%").replace("{h}", DARB_CONFIG.routeOptions.evaBudgetHours + " h")],
+      [T("gain"), "+" + Math.round(s.elevationGainM) + " m / −" + Math.round(s.elevationLossM) + " m"],
+      [T("maxSlope"), s.maxSlope.toFixed(1) + "° (mean " + s.meanSlope.toFixed(1) + "°)"],
+      [T("sand"), Math.round(s.sandFraction * 100) + "%"], [T("rough"), Math.round((s.roughFraction || 0) * 100) + "%"],
+      [T("dose"), (rad * s.hoursRoundTrip / 24).toFixed(3) + " mSv"]
+    ];
+    rows.forEach(function (row) {
+      ctx.font = "15px " + font; ctx.fillStyle = "#c9b7a0"; ctx.fillText(row[0], px0, y);
+      ctx.font = "700 15px " + font; ctx.fillStyle = "#f5e9d8"; ctx.fillText(row[1], px1 - ctx.measureText(row[1]).width, y);
+      y += 30;
+    });
+    y += 6;
+    ctx.font = "13px " + font; ctx.fillStyle = "#8a94a6";
+    var note = T("sampleNote");
+    note.split(" ").reduce(function (out, w) {
+      if (out && ctx.measureText(out + " " + w).width > px1 - px0 - 10) { ctx.fillText(out, px0, y); y += 18; return w; }
+      return out ? out + " " + w : w;
+    }, "");
+    ctx.fillText("darb · Space Apps 2026", px0, 812);
+    // Save as PNG
+    var name = "darb-route-" + new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19) + ".png";
+    cv.toBlob(function (blob) {
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+      $("routeMsg").textContent = T("exportSaved");
+    }, "image/png");
+  }
+
+  // A short link that re-plans the same route when opened: #s=lat,lon&g=lat,lon
+  function shareUrl() {
+    return location.origin + location.pathname + "#s=" + Darb.start.lat.toFixed(5) + "," + Darb.start.lng.toFixed(5) +
+      "&g=" + Darb.goal.lat.toFixed(5) + "," + Darb.goal.lng.toFixed(5);
+  }
+  function copyShareLink() {
+    if (!Darb.start || !Darb.goal) { $("routeMsg").textContent = T("needRoute"); return; }
+    var url = shareUrl();
+    function done() { $("routeMsg").textContent = T("shareCopied"); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, done);
+    else {
+      var t = document.createElement("textarea"); t.value = url; t.style.position = "fixed"; t.style.opacity = "0";
+      document.body.appendChild(t); t.select();
+      try { document.execCommand("copy"); } catch (e) { /* clipboard refused; message below says so */ }
+      t.remove(); done();
+    }
+  }
+  // On startup: a share link auto-plans the shared route
+  function applyShareLink() {
+    var m = /#s=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)&g=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/.exec(location.hash);
+    if (!m) return;
+    setPoint("start", L.latLng(parseFloat(m[1]), parseFloat(m[2])));
+    setPoint("goal", L.latLng(parseFloat(m[3]), parseFloat(m[4])));
+    planRoute().then(function () {
+      if (Darb.start && Darb.goal) Darb.map.fitBounds(L.latLngBounds([Darb.start, Darb.goal]).pad(0.6));
+    });
+  }
+
   function demoRoute() {
     clearRoute();
     // START: where Curiosity was around sol 4300 (2024).
@@ -825,6 +956,8 @@
       this.dataset.i18n = open ? "srcHide" : "srcShow";
       this.textContent = T(open ? "srcHide" : "srcShow");
     });
+    $("exportBtn").addEventListener("click", exportRouteImage);
+    $("shareBtn").addEventListener("click", copyShareLink);
     $("demoBtn").addEventListener("click", demoRoute);
     $("clearBtn").addEventListener("click", clearRoute);
     $("simBtn").addEventListener("click", simulateWalk);
