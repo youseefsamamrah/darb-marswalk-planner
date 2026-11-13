@@ -67,11 +67,12 @@
 - A drop mid-answer keeps the partial reply and explains the loss; reconnection is automatic and verified live
 - Offline questions are answered from the session's recent answers kept on this device (last 5), with an "offline cache" meta (EN + AR)
 
-#### 10. **Add Performance Budget**
+#### 10. ~~**Add Performance Budget**~~ ✅ **DONE 2026-11-13**
 - **Why**: Judges may run on lower-end devices (simulating Mars hardware constraints)
 - **Action**: Add Chrome DevTools Performance tab testing
 - Targets: Route planning <50ms, layer toggle <200ms
 - Optimize: Bundle minification, lazy load AI model
+- Done as live in-app budgets: every A* plan and every layer toggle is timed with `performance.now()` and the result is shown under the route card ("A* planning: 3.6 ms — within the 50 ms budget") and under the layers card, with an over-budget variant of the message; timings also live in `Darb.perf` for the console (EN + AR)
 
 #### 11. ~~**Add "Show Data Sources" Toggle**~~ ✅ **DONE 2026-11-13**
 - One "Show data sources" button in the layers card expands a citation line under every layer (EN + AR)
