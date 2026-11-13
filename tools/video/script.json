@@ -1,0 +1,34 @@
+{
+  "_comment": "Narration script for the demo video. One entry per scene. Each phrase is synthesised separately so the pauses between complete thoughts are exact. 'say' is what the TTS engine reads (pronunciation only); 'text' is what is written in the captions. 'lead' and 'tail' are the seconds of silence before and after the narration inside each scene. 'voice' is the narration of the video in docs/video: engine 'file' (one ElevenLabs take cut into phrases), 'elevenlabs' (API; needs ELEVENLABS_API_KEY), 'piper' (local) or 'sapi' (Windows). 'voice_elevenlabs_api' and 'voice_piper_first_version' are ready alternatives.",
+  "voice": {
+      "engine": "file",
+      "source": "docs/video/narration-elevenlabs-george.mp3",
+      "describe": "ElevenLabs text-to-speech, stock voice George (model Eleven Multilingual v2)",
+      "voice_name": "George - Warm, Captivating Storyteller",
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "model": "eleven_multilingual_v2",
+      "settings": "ElevenLabs web app defaults: speed 1.0, stability 50 %, similarity 75 %, style 0; MP3 44.1 kHz 128 kb/s; first of two generations",
+      "splitAt": [
+          2.21,
+          4.04,
+          8.17,
+          9.91,
+          12.35,
+          15.15,
+          17.11,
+          19.13,
+          21.02
+      ]
+  },
+  "voice_elevenlabs_api": {"engine": "elevenlabs", "voice_name": "George", "voice_id": "JBFqnCBsd6RMkjVDRZzb", "model": "eleven_multilingual_v2", "stability": 0.5, "similarity_boost": 0.8, "style": 0.1, "speed": 0.92, "seed": 2026, "candidates": [{"voice_name": "George", "voice_id": "JBFqnCBsd6RMkjVDRZzb"}, {"voice_name": "Brian", "voice_id": "nPczCjzI2devNBz1zQrb"}, {"voice_name": "Bill", "voice_id": "pqHfZKP75CvOlQylNhV4"}]},
+  "voice_piper_first_version": {"engine": "piper", "model": "en_US-john-medium", "length_scale": 0.97, "noise_scale": 0.6, "noise_w": 0.8},
+  "scenes": [
+    {"id": 1, "lead": 0.45, "tail": 0.45, "name": "Opening", "phrases": [{"text": "On Mars, every step matters."}]},
+    {"id": 2, "lead": 0.3, "tail": 0.9, "name": "Distance from Earth", "phrases": [{"text": "Earth is minutes away."}]},
+    {"id": 3, "lead": 0.25, "tail": 0.95, "name": "Understand the terrain", "phrases": [{"text": "Darb brings NASA terrain, heat and mineral data together.", "caption": "Darb brings NASA terrain, heat\nand mineral data together."}]},
+    {"id": 4, "lead": 0.3, "tail": 1.0, "name": "The route", "phrases": [{"text": "Choose your destination.", "pauseAfter": 0.45}, {"text": "Check your path and oxygen reserve."}]},
+    {"id": 5, "lead": 0.3, "tail": 0.75, "name": "See the destination", "phrases": [{"text": "See the ground through Curiosity's eyes.", "caption": "See the ground through Curiosity’s eyes."}]},
+    {"id": 6, "lead": 0.3, "tail": 0.9, "name": "Enter the walk", "phrases": [{"text": "Walk with a helmet display."}]},
+    {"id": 7, "lead": 0.3, "tail": 0.85, "name": "On-device intelligence", "phrases": [{"text": "Ask Darb about your route.", "pauseAfter": 0.5}, {"text": "Intelligence on your device.", "pauseAfter": 0.6}, {"text": "Darb: the path.", "say": "Darb. The path."}]}
+  ]
+}

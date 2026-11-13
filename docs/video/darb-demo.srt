@@ -1,0 +1,40 @@
+1
+00:00:00,350 --> 00:00:02,818
+On Mars, every step matters.
+
+2
+00:00:03,067 --> 00:00:04,877
+Earth is minutes away.
+
+3
+00:00:05,517 --> 00:00:09,573
+Darb brings NASA terrain, heat
+and mineral data together.
+
+4
+00:00:10,333 --> 00:00:12,006
+Choose your destination.
+
+5
+00:00:12,046 --> 00:00:14,510
+Check your path and oxygen reserve.
+
+6
+00:00:15,300 --> 00:00:18,039
+See the ground through Curiosity’s eyes.
+
+7
+00:00:18,600 --> 00:00:20,555
+Walk with a helmet display.
+
+8
+00:00:21,267 --> 00:00:23,278
+Ask Darb about your route.
+
+9
+00:00:23,318 --> 00:00:25,315
+Intelligence on your device.
+
+10
+00:00:25,415 --> 00:00:27,867
+Darb: the path.

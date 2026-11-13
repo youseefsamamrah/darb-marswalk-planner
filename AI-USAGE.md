@@ -30,9 +30,28 @@ have already been completed. The application and initial documentation were deve
 |---|---|---|
 | Claude Code (desktop app) | Claude Opus 5.5 (Anthropic) | Acted as "lead developer": wrote the plan, found and tested the NASA data URLs, wrote the data-build script, the A* route module and its unit tests, the web app (HTML/CSS/JS), the Ask Darb client, and first drafts of the documents (README, SOURCES, TEAM-GUIDE, submission text, pitch and video scripts). |
 
-### Presentation video
-The team reports using AI to help create the presentation video. The specific video tool and production steps
-have not been recorded. This use is in addition to the AI-assisted application development described above.
+### Presentation video (AI-assisted video · AI voice)
+The demo video `docs/video/darb-demo.mp4` (27.9 s) is **genuine screen footage of the working app, assembled with
+AI assistance and narrated by an AI text-to-speech voice**. The app footage itself is not AI-generated. The label
+"AI-assisted video · AI voice (TTS)" is on screen for the whole video and the same disclosure is written in the
+file's metadata and in `docs/video/DESCRIPTION.txt`. This use is in addition to the AI-assisted application
+development described above. Full details: `docs/video/PRODUCTION.md`.
+
+| Tool | Model / version | Used for |
+|---|---|---|
+| Claude Code (desktop app) | Claude Fable 5.2 (Anthropic) | Wrote the recording and editing scripts (`tools/video/`), chose framing and timing, drew the captions, titles and source labels, reviewed stills from the final file, wrote the video notes and description. |
+| ElevenLabs text-to-speech (cloud service, elevenlabs.io) | stock voice "George - Warm, Captivating Storyteller", model Eleven Multilingual v2 | **AI narration voice.** Not a human recording; a ready-made stock voice, no voice was cloned by us. The 320 characters of narration text were sent to ElevenLabs once (through its web app, in a team member's account) and the audio file is kept in `docs/video/`. The narration text was given in the task; the AI only set timing and pauses. A first version of the video used a local voice (Piper, `en_US-john-medium`); the team rejected how it sounded. |
+| Google Chrome 157 (headless) | — | Recording the real app page, driven by the app's own guided tour. Not AI. |
+| FFmpeg 9.0.2 | — | Cutting, captions, encoding. Not AI. |
+| Ollama 0.40 | `qwen3.5:9b` | The Ask Darb answer shown in the video, generated live inside the app while recording (question, answer and timing are logged in `docs/video/PRODUCTION.md`). |
+
+What is **not** AI-made in the video: the map, layers, route, numbers, Curiosity photo and HUD (all recorded from
+the running app). No music, no AI-generated images, no faces or voices of people.
+
+How the video was checked: length measured with `ffprobe` (27.867 s, limit 30.0 s); one still per scene and every
+cut inspected; the numbers on screen compared with the app's data in the same session; audio measured for timing,
+loudness and clipping. The AI cannot listen: a team member listened to the final video on 13 Nov 2026 and approved
+the narration voice (after rejecting the first, local voice).
 
 ### Local AI (on our own laptop, no cloud)
 | Tool | Model | Size | Used for |

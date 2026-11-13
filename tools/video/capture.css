@@ -1,0 +1,41 @@
+/*
+ * capture.css — TEMPORARY styles injected only while recording the demo video (tools/video/capture.cjs).
+ * It is never loaded by the app itself. It only changes sizes, spacing and visibility so the real
+ * interface is readable in a 1080p video. It does not change any value, text or calculation.
+ */
+
+/* English-only video: hide the Arabic-letter logo and the Arabic language button. Hide the tour's own
+   instruction panel (the video has its own captions) — the tour still sets up every scene. */
+.logo, #langBtn, .tour { display: none !important; }
+
+/* Earth-delay line in the top bar: larger so it can be read in the video */
+.delay { font-size: 16px; }
+.brand h1 { font-size: 22px; }
+
+/* Side panel: a little wider, larger text */
+.panel { width: 400px; min-width: 400px; scroll-behavior: auto !important; }
+/* empty space under the last card, so the Ask Darb card can be scrolled to the top of the panel */
+.panel { padding-bottom: 560px; overflow-anchor: none; }
+.card h2 { font-size: 15px; }
+.toggle { font-size: 15px; }
+.stats { font-size: 17px; gap: 5px 10px; }
+.safety { font-size: 22px; }
+.reasons { font-size: 15px; }
+#routeMsg { font-size: 14px; }
+
+/* Ask Darb: readable question, answer and on-device status */
+.ask-status { font-size: 15px; }
+.chat { max-height: 380px; }
+.bubble { font-size: 18px; line-height: 1.4; }
+.bubble .meta { font-size: 13.5px; margin-top: 8px; }
+
+/* Rover photo popup: larger photo, and tall enough to show the title, the whole photo and its credit line */
+.leaflet-popup .leaflet-popup-content { width: 340px !important; height: 418px !important; font-size: 15px; }
+.leaflet-popup-content small { font-size: 12px; }
+
+/* Helmet HUD: larger readings */
+.hud-top { top: 14px; gap: 14px; }
+.hud-box { min-width: 120px; padding: 7px 12px; }
+.hud-box small { font-size: 12px; }
+.hud-box b { font-size: 24px; }
+.hud-warn { font-size: 22px; bottom: 34px; }

@@ -5,3 +5,6 @@ Thumbs.db
 node_modules/
 .claude/settings.local.json
 raw/
+
+# Demo-video working files (recordings, frames, narration clips, logs): rebuilt by tools/video/*
+docs/video/work/

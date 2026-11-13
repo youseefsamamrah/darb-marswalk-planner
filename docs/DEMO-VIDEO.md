@@ -20,6 +20,11 @@ likeness), so **the team decides**: put names on slide 1, or only the team name.
 ---
 
 ## Option A — video, 30 seconds or less
+> ✅ **Made (13 Nov 2026):** `docs/video/darb-demo.mp4`, 27.9 s, with English captions, an AI narrator voice (ElevenLabs, stock voice "George") and the
+> label "AI-assisted video · AI voice (TTS)". Description to paste: `docs/video/DESCRIPTION.txt`. How it was made and
+> checked: `docs/video/PRODUCTION.md`. The final narration is shorter than the first plan in the table below, and the
+> team is shown as "Team Darb · Ramallah" (no member names). A team member listened to it and approved the narration
+> voice (13 Nov 2026).
 Record the browser at 1920×1080 (Windows: Win + G Game Bar, or OBS). Use the **▶ Tour** button (→ key for each step):
 every take is the same and the tour captions can stay on screen as on-screen text.
 The guide's suggested order is: who you are → the challenge → project name/tagline → how it works with NASA data →

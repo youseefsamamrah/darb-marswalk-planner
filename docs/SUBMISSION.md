@@ -96,8 +96,13 @@ We used a cloud AI coding assistant (Claude Code by Anthropic) to help write the
 data-processing scripts and first drafts of the documentation, and local open models (gpt-oss:20b, qwen3.5:9b via Ollama)
 for first-pass code review. We tested and reviewed all AI-generated work: 20 unit tests, click-testing every feature,
 checking every data link, and comparing our elevation data with Curiosity's own measurements. Inside the product, "Ask Darb" uses a local open model (qwen3.5:9b) with no internet; it
-answers only from the map's data, says "I don't know" otherwise, and scored 54/54 on our test set. No SI-generated images,
-video or audio are used.
+answers only from the map's data, says "I don't know" otherwise, and scored 54/54 on our test set.
+Demo video: it is genuine screen footage of our working app, assembled with AI assistance (Claude Code wrote the
+recording and editing scripts and added the captions and titles) and narrated by an AI text-to-speech voice (ElevenLabs,
+stock voice "George", model Eleven Multilingual v2; not a human recording, and no voice was cloned for it). The
+label "AI-assisted video · AI voice (TTS)" is visible for the whole video. The app footage itself is not AI-generated;
+the Ask Darb answer in the video was produced live by our local model while recording. No SI-generated images or music
+are used.
 
 ## NASA Data
 - **MSL Gale DEM Mosaic 1m v3** (HiRISE stereo; USGS Astrogeology, NASA/JPL/University of Arizona) — elevation, slope and
@@ -133,8 +138,12 @@ Hope mission data, but its Science Data Center requires an account, so it is not
 - Ollama (MIT) — runs local AI models. https://ollama.com
 - qwen3.5:9b (Qwen, open weights) and gpt-oss:20b (OpenAI, open weights) via the Ollama library. https://ollama.com/library
 - Python 3 standard library; Node.js test runner.
-- Claude Code (Anthropic) — AI coding assistant used during development (see Use of SI).
+- Claude Code (Anthropic) — AI coding assistant used during development and to assemble the demo video (see Use of SI).
+- ElevenLabs text-to-speech (cloud service) with its stock voice "George" (model Eleven Multilingual v2) — AI narration
+  of the demo video; non-commercial use. https://elevenlabs.io
+- FFmpeg (video editing and encoding) and Google Chrome (screen recording of the app) — demo video tools.
 - Viviano-Beck et al. (2014), CRISM browse product definitions (cited in the PDS labels).
 - Rover image credits: NASA/JPL-Caltech (Navcam), NASA/JPL-Caltech/MSSS (Mastcam).
 - Full list with every link: SOURCES.md in the repository.
-- No copyrighted material is used without permission; no images, video or audio of people.
+- No copyrighted material is used without permission; no images, video or audio of people (the video's narrator is a
+  synthetic text-to-speech voice); no music.
