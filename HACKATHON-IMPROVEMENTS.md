@@ -98,10 +98,11 @@
   - "Weather updated for sol 5072" → toast
 - Seven toasts wired in EN + AR: route calculated (ms), weather loaded (sol), route saved as A/B, route cleared, map image exported, share link copied, CRISM mineral layer on. Verified live: all appear correctly, Arabic after language flip, zero console errors.
 
-#### 15. **Add History/Undo Feature**
+#### 15. ~~**Add History/Undo Feature**~~ ✅ **DONE 2026-11-13**
 - **Why**: Users make wrong clicks, want to go back
 - **Action**: Show recent layer changes as dropdown
-- "Slope", "Roughness", "Thermal" — restore previous state
+- Every toggle of any of the six layers is recorded (layer + its state before the toggle, last 10 changes); a dropdown in the layers card lists them newest-first and picking one restores the previous state — checkbox flips back, layer added/removed on the map, "Restored …" toast, and the performance-budget line shows the restore timing with its own measurement
+- Dropdown and options follow the active language (EN + AR); verified live in the browser (Slope off → "Terrain slope … was on", Rough on → second entry, pick Slope → restored checkbox + layer + toast, Arabic flip renders Arabic options), 20/20 tests green
 
 #### 16. **Add Easter Egg / Fun Elements**
 - **Why**: Shows personality and attention to detail
