@@ -1,36 +1,25 @@
 # AI-USAGE.md — how AI was used in Darb
 
-The Space Apps 2026 rules require every team to describe how AI tools were used.
-(The 2026 Participant FAQ calls these tools "Super Intelligence (SI)"; it means the same thing.)
-We try to be honest: not hiding AI help, and not exaggerating it.
-
-**What the official 2026 Project Submission Guide asks (checked 12 Nov 2026)** and what we did:
-| Rule | What we did |
-|---|---|
-| SI must not be used to come up with the idea | ______________________________ (team to complete; see section 1). |
-| Code and data: acknowledge SI in descriptive text **and metadata** | Every code file starts with an "AI notice" line; every generated data file in `data/` has an `aiNotice` field; this file + README. |
-| Images and video: visible watermark if SI-generated | We use no SI-generated images or video. Screenshots are of our app; rover photos are real NASA images. |
-| Audio: acknowledge SI generation | Only if the team uses a text-to-speech voice-over in the demo video — then say so in the video description, file metadata and the "Use of SI" field. |
-| No NASA branding in generated content | No NASA logos or insignia are used anywhere. |
-| The "Use of SI" answer is not shown to judges | So the markers above (inside the project) are what judges see. |
-
 ---
 
-## 1. What the TEAM did  ✍️ (filled in by the team — please write this yourselves)
+## 1. Team responsibilities ✍️
 
-> Write in your own words. Examples of things you might list: who chose the challenge and the idea,
-> who picked Mount Sharp and the boxwork science goal, who checked the datasets, which design
-> decisions you made, how you tested the app, what feedback you gave each round, who prepared and
-> will give the pitch.
+The roles below assign review, testing and presentation responsibilities. They do not claim that these tasks
+have already been completed. The application and initial documentation were developed with substantial AI assistance.
 
-- Choosing the challenge and the idea: ______________________________________
-- Choosing the location and science goal: ______________________________________
-- Choosing and checking the datasets: ______________________________________
-- Design decisions (look, features, safety rules): ______________________________________
-- Testing the app (what we clicked, what broke): ______________________________________
-- Feedback we gave the AI each round: ______________________________________
-- Preparing and giving the pitch / video: ______________________________________
-- Anything else: ______________________________________
+| Area | Assigned responsibility |
+|---|---|
+| Challenge and concept review | All five members — Youseef, Lujain, Masa, Mahmoud, Milad: understand the challenge and review how the AI-assisted proposal addresses it. |
+| Location and science goal | Milad: review Mount Sharp, Gale Crater and the boxwork science goal, and prepare their explanation. |
+| Data sources | Milad: review the NASA/ESA sources and explain what each data layer measures and its limits. |
+| Interface and Arabic | Lujain: review the interface, Arabic translations and right-to-left layout. |
+| Mobile usability | Lujain: test the map, dropdowns, waypoint popups and Sources toggle on mobile. |
+| Code and integration review | Youseef: review how the map, route planner and local AI assistant connect. |
+| Route testing | Youseef: run the route tests and check demo routes, buddy mode and error cases. |
+| Feedback and follow-up | All five members: report issues in their assigned areas and review AI-assisted revisions. |
+| Presentation video | Mahmoud: coordinate the AI-assisted presentation video and review its explanation against the actual app. |
+| Documentation and submission text | Masa: review the README, SOURCES and submission text for accuracy and clear wording, and check that they match the app. |
+| Live demo and pitch | Mahmoud: prepare the demo sequence; each member explains their assigned area. |
 
 ---
 
@@ -40,6 +29,10 @@ We try to be honest: not hiding AI help, and not exaggerating it.
 | Tool | Model | Used for |
 |---|---|---|
 | Claude Code (desktop app) | Claude Opus 5.5 (Anthropic) | Acted as "lead developer": wrote the plan, found and tested the NASA data URLs, wrote the data-build script, the A* route module and its unit tests, the web app (HTML/CSS/JS), the Ask Darb client, and first drafts of the documents (README, SOURCES, TEAM-GUIDE, submission text, pitch and video scripts). |
+
+### Presentation video
+The team reports using AI to help create the presentation video. The specific video tool and production steps
+have not been recorded. This use is in addition to the AI-assisted application development described above.
 
 ### Local AI (on our own laptop, no cloud)
 | Tool | Model | Size | Used for |
@@ -67,7 +60,10 @@ Why these models (laptop: Intel i7-14700F, 32 GB RAM, NVIDIA RTX 5060 Ti 16 GB V
 - The local model's code review was read by the lead (Claude) before anything was changed:
   1 suggestion was used (skip zero-length steps in `routeStats`), 7 were judged not needed because our
   grid data never contains missing values (reasons in CHANGELOG.md).
-- The team checked: ______________________________ (fill in)
+- Human review assignments: Lujain — Arabic/interface/mobile; Milad — sources and science; Youseef —
+  code integration and route tests; Masa — documentation and submission text; Mahmoud —
+  video, pitch and demo. Completed human checks have not yet been recorded; the technical
+  checks above describe project validation, not individual team-member contributions.
 
 ---
 
