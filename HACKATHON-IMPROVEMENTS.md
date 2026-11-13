@@ -90,12 +90,13 @@
 
 ### 🥉 LOW IMPACT (Nice-to-have polish)
 
-#### 14. **Add Toast Notifications**
+#### 14. ~~**Add Toast Notifications**~~ ✅ **DONE 2026-11-13**
 - **Why**: Feedback when actions complete
 - **Actions**:
   - "Route calculated in 2.3 ms" → small toast
   - "CRISM data loaded from cache" → toast
   - "Weather updated for sol 5072" → toast
+- Seven toasts wired in EN + AR: route calculated (ms), weather loaded (sol), route saved as A/B, route cleared, map image exported, share link copied, CRISM mineral layer on. Verified live: all appear correctly, Arabic after language flip, zero console errors.
 
 #### 15. **Add History/Undo Feature**
 - **Why**: Users make wrong clicks, want to go back
