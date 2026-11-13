@@ -438,7 +438,12 @@
   // A number with a Latin unit ("2.73 km", "61%", "-71 … -5 °C") wrapped in <bdi>, so right-to-left Arabic text
   // around it cannot scramble its order (bdi = "bidirectional isolate").
   function iso(s) { return '<bdi dir="ltr">' + esc(s) + "</bdi>"; }
-  function timeHtml(h) { return iso(fmtHours(h)); }
+  function timeHtml(h) {
+    var m = Math.round(h * 60), mins = m % 60;
+    // Isolate each number/unit pair, then keep hours before minutes even with Arabic unit letters.
+    return '<bdi dir="ltr">' + iso(Math.floor(m / 60) + " " + T("unitH")) +
+      (mins ? " " + iso(String(mins).padStart(2, "0") + " " + T("unitMin")) : "") + "</bdi>";
+  }
   // Translate a word from the data (e.g. REMS "Sunny") if i18n.js knows it, otherwise keep it as it is
   function tr(prefix, word) { var k = prefix + word, t = T(k); return t === k ? word : t; }
 
@@ -552,7 +557,7 @@
     var o2Left = o.evaBudgetHours - done;
     var c = Darb.route[step], idx = c.r * g.cols + c.c;
     $("hudDist").textContent = (left / 1000).toFixed(2) + " km";
-    $("hudO2").textContent = fmtHours(o2Left);
+    $("hudO2").innerHTML = timeHtml(o2Left);
     $("hudSlope").textContent = g.slope[idx].toFixed(1) + "°";
     var next = pts[Math.min(step + 3, pts.length - 1)];
     $("compassNeedle").style.transform = "rotate(" + bearing(pts[step], next) + "deg)";

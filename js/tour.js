@@ -111,6 +111,15 @@
     panel.querySelector(".tour-step").textContent = (idx + 1) + " / " + steps.length;
     panel.querySelector(".tour-title").textContent = t[0];
     panel.querySelector(".tour-text").textContent = fill(t[1]);
+    // Latin-unit durations must keep their order within Arabic captions too.
+    var caption = panel.querySelector(".tour-text"), text = caption.textContent;
+    caption.textContent = "";
+    text.split(/(\d+ h \d+ min)/).forEach(function (part, i) {
+      if (i % 2) {
+        var value = document.createElement("bdi"); value.dir = "ltr"; value.textContent = part;
+        caption.appendChild(value);
+      } else caption.appendChild(document.createTextNode(part));
+    });
     panel.querySelector(".tour-back").disabled = idx === 0;
     panel.querySelector(".tour-next").textContent = idx === steps.length - 1 ? (ar() ? "إنهاء" : "Finish") : (ar() ? "التالي ←" : "Next →");
     panel.querySelector(".tour-close").setAttribute("aria-label", ar() ? "إغلاق" : "Close");

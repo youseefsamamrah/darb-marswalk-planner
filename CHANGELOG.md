@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## QA verification follow-up (2026-11-12)
+- Isolated each hour/minute pair and the whole duration, including the HUD, so Arabic unit letters cannot reorder
+  the time components. Tour durations with Latin units also use `<bdi dir="ltr">`.
+- Re-tested in Chromium at 1440×900 and 375×812, 375×667 and 375×568: English/Arabic, all six layer toggles,
+  all five CRISM options, opacity, demo route and pane order, buddy mode, HUD, clear, and all ten tour steps in each language.
+- All eight waypoint popups scrolled within the map; a deliberately delayed photo triggered `popup.update()`;
+  an open popup resized to fit the mobile map. Sources expanded/collapsed by mouse and keyboard, retained live
+  credits, translated with the language, and expanded again on desktop. No browser JavaScript errors.
+- Verified Arabic hours appear before minutes, Data Check labels distinguish signed mean bias from median absolute
+  difference, and team contribution fields remain blank without unsupported idea-origin claims.
+- `node --test tests`: 20/20 passed. All app JavaScript syntax checks and `git diff --check` passed.
+- Ask Darb's offline message passed. Live AI answer evaluation could not run: Ollama was not listening on port 11434.
+
 ## Round 8 — manual QA report + fresh-eyes code review (2026-11-12)
 **Why:** a manual QA test and a Reviewer agent (fresh, read-only) each produced a ranked list of problems.
 
