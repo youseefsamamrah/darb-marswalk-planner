@@ -62,6 +62,7 @@
     refreshCrismLegend();
     pollAI();
     applyShareLink();
+    showToast(T("toastWeather").replace("{sol}", String(Darb.env.rems.recentSols[0].sol)));
   }
 
   // ------------------------------------------------------------------ map
@@ -369,6 +370,7 @@
     drawRoute();
     renderRouteCard();
     renderPerfPlan(ms);
+    showToast(T("toastRoute").replace("{ms}", ms.toFixed(0)));
   }
 
   function routeLatLngs() {
@@ -477,6 +479,23 @@
     $("stSand").innerHTML = iso(Math.round(s.sandFraction * 100) + "%");
     $("stRough").innerHTML = iso(Math.round((s.roughFraction || 0) * 100) + "%");
     $("stDose").innerHTML = iso((rad * s.hoursRoundTrip / 24).toFixed(3) + " mSv");
+  }
+
+  // ------------------------------------------------ toasts
+  // Short transient notices shown at the bottom of the screen (route done, saved, cleared…).
+  // Plain text only (textContent), no HTML inside toasts.
+  function showToast(text) {
+    var box = $("toasts");
+    if (!box) return;
+    var el = document.createElement("div");
+    el.className = "toast";
+    el.textContent = text;
+    box.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add("show"); });
+    setTimeout(function () {
+      el.classList.remove("show");
+      setTimeout(function () { el.remove(); }, 400);   // fade out, then drop from the DOM
+    }, 4000);
   }
 
   // ------------------------------------------------ performance budget lines
@@ -596,6 +615,7 @@
       document.body.appendChild(a); a.click();
       setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
       $("routeMsg").textContent = T("exportSaved");
+      showToast(T("toastExported"));
     }, "image/png");
   }
 
@@ -607,7 +627,7 @@
   function copyShareLink() {
     if (!Darb.start || !Darb.goal) { $("routeMsg").textContent = T("needRoute"); return; }
     var url = shareUrl();
-    function done() { $("routeMsg").textContent = T("shareCopied"); }
+    function done() { $("routeMsg").textContent = T("shareCopied"); showToast(T("toastCopied")); }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, done);
     else {
       var t = document.createElement("textarea"); t.value = url; t.style.position = "fixed"; t.style.opacity = "0";
@@ -661,6 +681,7 @@
     drawSavedRoute(slot);
     renderCompare();
     $("routeMsg").textContent = T("cmpSaved").replace("{slot}", slot);
+    showToast(T("toastSaved").replace("{slot}", slot));
   }
 
   function clearSavedRoute(slot) {
@@ -1081,6 +1102,7 @@
         if (this.checked) Darb.layers[key].addTo(map); else map.removeLayer(Darb.layers[key]);
         Darb.perf.lastLayer = { key: key, ms: performance.now() - t0 };
         renderPerfLayer();
+        if (key === "minerals" && this.checked) showToast(T("toastCrism").replace("{layer}", T("crism." + $("crismSelect").value)));
       });
     }
     toggleLayer("lySlope", "slope"); toggleLayer("lyRough", "rough"); toggleLayer("lyThermal", "thermal"); toggleLayer("lyMinerals", "minerals");
@@ -1107,7 +1129,11 @@
     $("exportBtn").addEventListener("click", exportRouteImage);
     $("shareBtn").addEventListener("click", copyShareLink);
     $("demoBtn").addEventListener("click", demoRoute);
-    $("clearBtn").addEventListener("click", clearRoute);
+    $("clearBtn").addEventListener("click", function () {
+      var had = !!Darb.route;        // toast only when there was actually a route to clear
+      clearRoute();
+      if (had) showToast(T("toastCleared"));
+    });
     $("saveABtn").addEventListener("click", function () { saveRoute("A"); });
     $("saveBBtn").addEventListener("click", function () { saveRoute("B"); });
     $("simBtn").addEventListener("click", simulateWalk);
