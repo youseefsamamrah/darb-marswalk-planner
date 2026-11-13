@@ -32,7 +32,11 @@ runs **on the device** with no internet, because a message to Earth takes 4–24
 
 ## How to run it on Windows
 1. Install **Python 3** from https://www.python.org (tick "Add Python to PATH").
-2. Download this project (Code → Download ZIP, then unzip) or `git clone` it.
+2. Download this project from https://github.com/youseefsamamrah/darb-marswalk-planner
+   (green **Code** button → **Download ZIP**, then unzip), or clone it:
+   ```bash
+   git clone https://github.com/youseefsamamrah/darb-marswalk-planner.git
+   ```
 3. Double-click **`start.bat`**. It starts a small web server and opens http://localhost:8000.
    (Do not open `index.html` directly — browsers block loading the data files that way.)
    Or, in a terminal inside the folder:

@@ -31,7 +31,8 @@ because the first Mars walkers will need mission-control-quality planning withou
 `[PASTE: public link to the 30-second-or-less video OR the up-to-7-slide deck — see docs/DEMO-VIDEO.md. Test it in a private browser window: no login, no permission request.]`
 
 ## Link to Final Project
-`[PASTE: public GitHub repository URL — test it in a private browser window]`
+https://github.com/youseefsamamrah/darb-marswalk-planner
+(Public; checked without signing in on 12 Nov 2026 — the repository page, README, docs and files all open.)
 
 ## Detailed Project Description
 
