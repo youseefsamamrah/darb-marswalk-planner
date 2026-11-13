@@ -58,12 +58,11 @@
 - **Action**: Allow drawing multiple routes, show which is safer/shorter
 - Side-by-side comparison on the map
 
-#### 9. **Enhance Error Handling for Offline AI**
-- **Why**: Ollama can crash or disconnect during demo
-- **Actions**:
-  - Auto-reconnect with exponential backoff (30s → 60s → 120s)
-  - Fallback questions pre-computed and cached locally
-  - Graceful degradation: "AI temporarily offline, showing recent answers"
+#### 9. ~~**Enhance Error Handling for Offline AI**~~ ✅ **DONE 2026-11-13**
+- Auto-reconnect with exponential backoff (30 s → 60 s → 120 s cap) lives inside Ask Darb's checker; UI listens to status changes (no 15 s poll)
+- While offline, the status line shows a live countdown: "Ollama is down — reconnecting in N s" (EN + AR)
+- A drop mid-answer keeps the partial reply and explains the loss; reconnection is automatic and verified live
+- Offline questions are answered from the session's recent answers kept on this device (last 5), with an "offline cache" meta (EN + AR)
 
 #### 10. **Add Performance Budget**
 - **Why**: Judges may run on lower-end devices (simulating Mars hardware constraints)
