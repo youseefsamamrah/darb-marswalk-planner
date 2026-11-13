@@ -106,7 +106,7 @@ Test Ask Darb's answers (Ollama running): open http://localhost:8000/?eval=qwen3
 
 ## Development tools
 Parts of this project were written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed and tested
-by the team.
+by the team in their assigned areas (AI-USAGE.md); no AI-generated images, video or audio are used in the project.
 The in-app assistant "Ask Darb" is a local open model. Full details: [AI-USAGE.md](AI-USAGE.md).
 
 ## Documents

@@ -94,7 +94,11 @@ Ollama with local open models (qwen3.5:9b; gpt-oss:20b for comparison); Git. Dev
 "Use of Super Intelligence" field and in AI-USAGE.md in the repository.
 
 ## Use of Super Intelligence (SI)
-Yes. [Team contribution statement: ______________________________ — team to complete.]
+Yes. All five team members — Youseef, Lujain, Masa, Mahmoud and Milad — reviewed and verified the AI-assisted
+work in their assigned areas: Youseef (code integration and route tests), Lujain (interface, Arabic and mobile
+usability), Milad (location, science goal and data sources), Masa (documentation and submission text), Mahmoud
+(presentation video, pitch and live demo). Each member checked that the AI-assisted result matches the app and the
+cited sources before submission. Full details: AI-USAGE.md in the repository.
 We used a cloud AI coding assistant (Claude Code by Anthropic) to help write the code, the
 data-processing scripts and first drafts of the documentation, and local open models (gpt-oss:20b, qwen3.5:9b via Ollama)
 for first-pass code review. We tested and reviewed all AI-generated work: 20 unit tests, click-testing every feature,

@@ -41,6 +41,8 @@ Tile URL pattern: `https://trek.nasa.gov/tiles/Mars/EQ/{layer}/1.0.0/default/def
 ## Software
 - Leaflet 1.9.4 (BSD-2), copied into `vendor/leaflet/` from https://unpkg.com/leaflet@1.9.4/dist/
 - Ollama (MIT) + open-weight models (see AI-USAGE.md): https://ollama.com
+- AI coding assistant (Claude Code, Anthropic) used in development only — all output reviewed and tested by the team;
+  no AI-generated images, video or audio are used in the project.
 
 ## Our own assumptions (NOT NASA data — explained in TEAM-GUIDE.md)
 - Slope limits: < 10° easy, 10–15° caution, 15–20° danger, > 20° blocked.
