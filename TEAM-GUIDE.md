@@ -15,8 +15,12 @@ This guide explains every part of the code simply, so each of us can answer judg
 | `tools/build_data.py` | Downloads the real NASA data and builds the files in `data/` |
 | `tools/hirise_dem.py` | Reads the 1 m HiRISE elevation GeoTIFF with plain Python (own TIFF reader + LZW decoder) |
 | `tools/local_agent.py` | Sends simple jobs (first-pass review, test ideas, summaries) to a local model; output is a draft we check |
-| `tests/route.test.js` | 17 automatic tests for `route.js` (`node --test tests`) |
-| `data/` | `grid.json`, `environment.json`, `waypoints.json`, `crism/*.png`, `images/wp1-8.jpg` |
+| `js/tour.js` | The 10-step guided tour for the pitch (▶ Tour button) |
+| `js/eval.js` | The Ask Darb test set: 18 questions checked against the app's own data (open the app with `?eval`) |
+| `tools/hrsc_check.py` | Compares our elevation with an independent model using ESA Mars Express HRSC data |
+| `tests/route.test.js` | 20 automatic tests for `route.js` (`node --test tests`) |
+| `data/` | `grid.json`, `environment.json`, `waypoints.json`, `hrsc_check.json`, `crism/*.png`, `images/wp1-8.jpg` |
+| `tiles/` | Mars Trek map tiles for our area, saved so the map works with no internet |
 | `vendor/leaflet/` | The Leaflet map library, saved locally so it works offline |
 
 ## 2. How the data was built (`tools/build_data.py`)
@@ -29,8 +33,9 @@ area covered by the CRISM observation, so every layer covers the whole box.
   Python: it reads the file's TIFF "tags" (size, compression, where each row starts, map position) and has its own
   **LZW decoder** to unpack each compressed row. If the big file is not there, it fetches only the rows we need
   from the USGS server (HTTP *range requests*).
-- **Grid cells.** Our grid is 515 × 560 cells, each 0.00042° ≈ **25 m**. For each cell we take 9 HiRISE samples
-  (a 3 × 3 pattern inside the cell) and average them. Building the whole grid takes about 34 s.
+- **Grid cells.** Our grid is 515 × 560 cells, each 0.00042° ≈ **25 m**. For each cell we take 36 HiRISE samples
+  (a 6 × 6 pattern, 4 m apart, inside the cell) and average them; the same samples give the roughness value
+  (section 3). Building the whole grid takes about 67 s.
 - **MOLA as a backup.** Where HiRISE has no data, the cell gets MOLA elevation instead (MOLA = laser altimeter,
   ~463 m pixels; we read only the rows we need with a range request and blend the 4 nearest pixels). In our box
   HiRISE covers 100 % of the cells, so MOLA was not needed — but the code is there.
@@ -161,7 +166,8 @@ independent sources. (1) Curiosity's own recorded altitude at its 8 stops: withi
 that uses ESA's Mars Express HRSC camera (a Space Apps partner agency) blended with NASA's MOLA, at 200 m pixels. That
 file is 11.4 GB, but it is stored row by row without compression, so the script asks the server for only the ~65 rows
 ×70 pixels over our box (a few KB). For each 200 m pixel we average our 25 m cells inside it and subtract. Result over
-4,416 pixels: 3.7 m apart on average (median 12.1 m — bigger single differences are normal on steep slopes, because a
+4,416 pixels: an average **bias** of +3.7 m (ours slightly higher — the signed differences mostly cancel out), and a
+**typical difference** of 12.1 m (the median of the differences without their sign — bigger single differences are normal on steep slopes, because a
 200 m pixel smooths them). How to explain it: "Two different spacecraft, from two space agencies, give nearly the same
 height — and the rover standing on the ground agrees with us within 4 metres."
 

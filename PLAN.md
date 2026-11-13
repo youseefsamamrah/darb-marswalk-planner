@@ -24,12 +24,19 @@ js/i18n.js            English / Arabic strings
 js/route.js           cost grid + A* (works in browser AND Node for tests)
 js/askdarb.js         offline AI client for Ollama (localhost:11434)
 js/app.js             map, layers, clicks, route card, HUD, waypoints
+js/tour.js            guided 10-step tour for the pitch            (added round 5)
+js/eval.js            Ask Darb test set, runs with ?eval             (added round 4)
 vendor/leaflet/       Leaflet 1.9.4 (local copy so the app works offline)
-data/grid.json        elevation/slope/thermal grid built from real data
+tiles/                Mars Trek tiles for the study area (offline)  (added round 1)
+data/grid.json        elevation/slope/roughness/thermal grid (HiRISE 1 m DEM, 25 m cells)
+data/hrsc_check.json  elevation cross-check vs ESA Mars Express HRSC (added round 7)
 data/environment.json REMS weather + RAD radiation values
 data/waypoints.json   Curiosity positions + raw image links (2025 boxwork campaign)
 data/crism/*.png      CRISM browse images (real, from PDS)
 tools/build_data.py   rebuilds every file in data/ from NASA servers (Python stdlib only)
+tools/hirise_dem.py   reads the 3.9 GB HiRISE GeoTIFF (own TIFF + LZW reader)  (added round 2)
+tools/hrsc_check.py   ESA HRSC cross-check (reads a few KB of an 11.4 GB file) (added round 7)
+tools/local_agent.py  sends simple tasks to a local Ollama model
 tests/route.test.js   unit tests for the A* planner (node --test)
 start.bat             starts a local web server on Windows
 ```
@@ -39,7 +46,7 @@ start.bat             starts a local web server on Windows
 |---|---|---|---|
 | 1 | Laptop check, Ollama + model selection | Local AI | done (no download needed) |
 | 2 | Verify every data URL, build data/*.json, SOURCES.md | Data | done |
-| 3 | route.js: cost grid, A*, route stats + unit tests | Algorithm | done (19 tests after round 3) |
+| 3 | route.js: cost grid, A*, route stats + unit tests | Algorithm | done (20 tests after round 8) |
 | 4 | index.html, CSS, Leaflet map, layer toggles, route card, Arabic toggle | Map/UI | done |
 | 5 | Ask Darb (Ollama client, grounding, timing, offline state) | Local AI | done |
 | 6 | Integrate | Lead | done |

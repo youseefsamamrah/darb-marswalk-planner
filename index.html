@@ -5,10 +5,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Darb — Marswalk Planner</title>
-  <!-- "?v=14" = version tag: change the number after editing a file so browsers load the new copy -->
+  <!-- "?v=15" = version tag: change the number after editing a file so browsers load the new copy -->
   <!-- Leaflet is stored locally in vendor/ so the app works without internet -->
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=14">
+  <link rel="stylesheet" href="css/style.css?v=15">
 </head>
 <body>
   <header class="topbar">
@@ -44,7 +44,7 @@
         <p class="legend" id="crismLegend"></p>
         <label class="toggle"><input type="checkbox" id="lyMola"> <span data-i18n="layerMola"></span></label>
         <label class="toggle"><input type="checkbox" id="lyRover" checked> <span data-i18n="layerRover"></span></label>
-        <label class="opacity">Opacity <input type="range" id="opacity" min="0.1" max="1" step="0.05" value="0.55"></label>
+        <label class="opacity"><span data-i18n="opacity">Opacity</span> <input type="range" id="opacity" min="0.1" max="1" step="0.05" value="0.55"></label>
       </section>
 
       <!-- Route planner -->
@@ -107,7 +107,7 @@
       </section>
 
       <p class="source" data-i18n="sampleNote"></p>
-      <p class="source">Sources: <a href="SOURCES.md" target="_blank">SOURCES.md</a> · Map tiles: NASA Mars Trek</p>
+      <p class="source"><span data-i18n="sourcesLabel">Sources:</span> <a href="SOURCES.md" target="_blank">SOURCES.md</a> · NASA Mars Trek</p>
     </aside>
 
     <!-- ===== Map ===== -->
@@ -119,10 +119,10 @@
         <div class="visor"></div>
         <div class="hud-top">
           <div class="compass"><div id="compassNeedle" class="needle"></div><span>N</span></div>
-          <div class="hud-box"><small>GOAL</small><b id="hudDist">—</b></div>
-          <div class="hud-box"><small>O₂</small><b id="hudO2">—</b></div>
-          <div class="hud-box"><small>SLOPE</small><b id="hudSlope">—</b></div>
-          <div class="hud-box"><small>EARTH DELAY</small><b id="hudDelay">—</b></div>
+          <div class="hud-box"><small>GOAL</small><b id="hudDist" dir="ltr">—</b></div>
+          <div class="hud-box"><small>O₂</small><b id="hudO2" dir="ltr">—</b></div>
+          <div class="hud-box"><small>SLOPE</small><b id="hudSlope" dir="ltr">—</b></div>
+          <div class="hud-box"><small>EARTH DELAY</small><b id="hudDelay" dir="ltr">—</b></div>
         </div>
         <div id="hudWarn" class="hud-warn"></div>
       </div>
@@ -130,14 +130,14 @@
   </main>
 
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="js/config.js?v=14"></script>
-  <script src="js/i18n.js?v=14"></script>
-  <script src="js/route.js?v=14"></script>
-  <script src="js/askdarb.js?v=14"></script>
-  <script src="js/app.js?v=14"></script>
+  <script src="js/config.js?v=15"></script>
+  <script src="js/i18n.js?v=15"></script>
+  <script src="js/route.js?v=15"></script>
+  <script src="js/askdarb.js?v=15"></script>
+  <script src="js/app.js?v=15"></script>
   <!-- Guided demo for the pitch ("▶ Tour" button) -->
-  <script src="js/tour.js?v=14"></script>
+  <script src="js/tour.js?v=15"></script>
   <!-- Ask Darb test set: only runs when the address ends with ?eval -->
-  <script src="js/eval.js?v=14"></script>
+  <script src="js/eval.js?v=15"></script>
 </body>
 </html>

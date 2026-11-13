@@ -48,7 +48,8 @@ a { color: var(--blue); }
 .legend details p { margin: 4px 0 0; }
 .opacity { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); margin-top: 8px; }
 .opacity input { flex: 1; accent-color: var(--mars); }
-.select { width: 100%; margin: 4px 0; padding: 6px; background: var(--bg); color: var(--text);
+/* min-width:0 + ellipsis: a long option never pushes the box wider than the panel */
+.select { width: 100%; min-width: 0; text-overflow: ellipsis; font-size: 13px; margin: 4px 0; padding: 6px; background: var(--bg); color: var(--text);
   border: 1px solid var(--line); border-radius: 8px; }
 .help { color: var(--muted); margin: 0 0 8px; }
 .row { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -72,6 +73,8 @@ a { color: var(--blue); }
 .stats { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; margin: 8px 0; font-size: 13px; }
 .stats dt { color: var(--muted); }
 .stats dd { margin: 0; text-align: end; font-variant-numeric: tabular-nums; }
+/* <bdi> keeps "2.73 km" in left-to-right order even inside Arabic (right-to-left) text */
+bdi { unicode-bidi: isolate; direction: ltr; }
 .checks { margin: 0; padding-inline-start: 0; list-style: none; font-size: 12px; color: var(--muted); }
 .checks li { margin: 4px 0; }
 .source { font-size: 11px; color: var(--muted); margin: 4px 0; }
@@ -99,10 +102,15 @@ a { color: var(--blue); }
 .pixelated { image-rendering: pixelated; }
 .leaflet-container { background: #000; font: inherit; }
 .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--card); color: var(--text); border: 1px solid var(--line); }
-.leaflet-popup-content { margin: 10px 12px; width: 300px !important; }
-.leaflet-popup-content img { width: 100%; border-radius: 6px; margin: 6px 0; }
+.leaflet-popup-content { margin: 10px 12px; width: min(300px, calc(100vw - 76px)) !important; }
+/* width/height attributes on the photo + height:auto keep its square shape BEFORE it loads, so the popup is the right size */
+.leaflet-popup-content img { width: 100%; height: auto; aspect-ratio: 1 / 1; border-radius: 6px; margin: 6px 0; background: #000; }
+.leaflet-popup-scrolled { border-bottom: 0; border-top: 0; }
 .leaflet-control-attribution { background: rgba(7, 10, 28, .7) !important; color: var(--muted) !important; }
 .leaflet-control-attribution a { color: var(--blue) !important; }
+.map-sources { max-width: min(600px, calc(100vw - 20px)); }
+.map-sources > summary { display: none; cursor: pointer; padding: 4px 8px; color: var(--blue); background: var(--card); border: 1px solid var(--line); border-radius: 6px; }
+.map-sources .leaflet-control-attribution { margin: 0; float: none; }
 .leaflet-control-layers { background: var(--card); color: var(--text); border: 1px solid var(--line) !important; }
 .pin { width: 18px; height: 18px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 10px currentColor; }
 .pin.start { background: var(--safe); color: var(--safe); }
@@ -144,6 +152,9 @@ body.hud-on .hover { display: none; }
 .tour-nav button:disabled { opacity: .35; cursor: default; }
 
 @media (max-width: 800px) {
+  .map-sources { max-width: calc(100vw - 70px); }
+  .map-sources > summary { display: list-item; list-style: none; }
+  .map-sources[open] .leaflet-control-attribution { max-height: 100px; overflow-y: auto; }
   .layout { flex-direction: column-reverse; }
   .panel { width: 100%; min-width: 0; height: 45%; }
   .topbar { height: auto; min-height: 60px; flex-wrap: wrap; gap: 6px; padding: 6px 12px; }

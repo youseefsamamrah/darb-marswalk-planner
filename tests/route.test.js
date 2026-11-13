@@ -149,6 +149,17 @@ test("route avoids a very rough strip when a smooth detour is short", () => {
   assert.ok(st.reasons.includes("rough>15%"));
 });
 
+test("snap never moves a point further than snapMeters (also diagonally)", () => {
+  // Reviewer found a goal moved 180 m with snapMeters 150 (square corners are √2 further).
+  const g = flatGrid(9, 9);
+  for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) if (!(r === 0 && c === 0) && !(r === 8 && c === 8)) block(g, r, c);
+  g.slope[2 * 9 + 2] = 0;                                   // only free cell near the centre: diagonal, 2√2·100 ≈ 283 m away
+  const near = R.nearestWalkable(g, R.buildCostGrid(g), { r: 4, c: 4 }, 250);
+  assert.strictEqual(near, null, "283 m > 250 m: must not snap");
+  const ok = R.nearestWalkable(g, R.buildCostGrid(g), { r: 4, c: 4 }, 300);
+  assert.ok(ok && ok.movedM <= 300 && ok.r === 2 && ok.c === 2);
+});
+
 test("lat/lon <-> cell round trip", () => {
   const g = flatGrid(10, 10);
   const cell = { r: 3, c: 7 };

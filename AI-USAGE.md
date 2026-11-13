@@ -7,7 +7,7 @@ We try to be honest: not hiding AI help, and not exaggerating it.
 **What the official 2026 Project Submission Guide asks (checked 12 Nov 2026)** and what we did:
 | Rule | What we did |
 |---|---|
-| SI must not be used to come up with the idea | The team chose the challenge, idea, location and science goal (section 1). |
+| SI must not be used to come up with the idea | ______________________________ (team to complete; see section 1). |
 | Code and data: acknowledge SI in descriptive text **and metadata** | Every code file starts with an "AI notice" line; every generated data file in `data/` has an `aiNotice` field; this file + README. |
 | Images and video: visible watermark if SI-generated | We use no SI-generated images or video. Screenshots are of our app; rover photos are real NASA images. |
 | Audio: acknowledge SI generation | Only if the team uses a text-to-speech voice-over in the demo video — then say so in the video description, file metadata and the "Use of SI" field. |
@@ -49,7 +49,7 @@ We try to be honest: not hiding AI help, and not exaggerating it.
 
 Why these models (laptop: Intel i7-14700F, 32 GB RAM, NVIDIA RTX 5060 Ti 16 GB VRAM, 650 GB free disk):
 - `qwen3.5:9b` fits completely in the 16 GB of video memory, so it is fast (first words in ~0.4–5 s,
-  full answers in ~1.5–6 s in our tests) and it can **see images** (vision), which we need for rover photos.
+  full answers in ~1.5–6 s; 1.9 s on average over our 54-answer test set) and it can **see images** (vision), which we need for rover photos.
 - `gpt-oss:20b` (13 GB) is the strongest reasoning model that still fits fully in 16 GB VRAM — good for review.
 - `qwen3.6:27b` / `qwen3.8` (17 GB) were already installed but are slightly bigger than the GPU memory,
   so they run slower; we did not use them by default.
@@ -61,7 +61,7 @@ Why these models (laptop: Intel i7-14700F, 32 GB RAM, NVIDIA RTX 5060 Ti 16 GB V
   by at most 4.2 m at 8 stops (the earlier MOLA grid: up to 44 m).
 - The HiRISE GeoTIFF reader (`tools/hirise_dem.py`, AI-written TIFF + LZW decoder) was checked by reading the rover's
   stop locations and comparing with the rover's recorded elevations (within 0.5 m for the tested points).
-- The route code has **17 automated unit tests** (`node --test tests`), including the edge cases
+- The route code has **20 automated unit tests** (`node --test tests`), including the edge cases
   start = goal, goal on a blocked cell, no possible route, click outside the map.
 - The app was click-tested in a browser: every layer, the route, buddy mode, Arabic, HUD, Ask Darb online and offline.
 - The local model's code review was read by the lead (Claude) before anything was changed:

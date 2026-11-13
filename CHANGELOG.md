@@ -1,5 +1,48 @@
 # CHANGELOG
 
+## Round 8 — manual QA report + fresh-eyes code review (2026-11-12)
+**Why:** a manual QA test and a Reviewer agent (fresh, read-only) each produced a ranked list of problems.
+
+**QA report fixes (all 4)**
+1. *Arabic: numbers with units scrambled by RTL; English left in Arabic mode; CRISM drop-down clipped.* Every value with
+   a Latin unit is wrapped in `<bdi>` (route card, weather, popups, data check). Times use Arabic units in Arabic
+   ("1 س 38 د"). Translated: Opacity, Sources, CRISM options (now short names), "what do the colours mean?", the
+   A* route message, HUD warnings, popup labels, REMS words (Sunny/Moderate…), "mean", "per day".
+   Drop-down: `min-width:0` + ellipsis. → Tested: "2.73 km" renders left-to-right inside Arabic text; drop-down inside the panel.
+2. *Waypoint popup ~626 px tall, top cut off.* `maxHeight: 340` (content scrolls), the photo has width/height
+   attributes so the popup knows its size before loading, and `popup.update()` runs after the photo loads so
+   auto-pan works. → Tested with the stop near the top edge: popup 364 px, fully inside the map.
+3. *Route hard to see over the slope layer.* Dark 12 px halo + 6 px safety-colour line + white dotted centre, drawn
+   in its own pane above the Curiosity stop markers (start/goal pins and popups stay on top).
+4. *Data check "3.7 m apart on average (median 12.1 m)" confusing.* Now: "signed mean bias (ours − HRSC) +3.7 m
+   (ours slightly higher); median absolute difference 12.1 m" — also in Ask Darb's facts, SUBMISSION, SOURCES, TEAM-GUIDE.
+
+**Reviewer findings fixed (verified by the Lead)**
+- Scale bar used Earth's radius (≈1.9× wrong) → map CRS now uses the Mars radius; tested: "5 km" bar = 5,029 m.
+- Snap could move a point ~180–212 m though the message says 150 m → limit is now a real distance; new unit test.
+- Grid edges: overlays used the box, clicks used whole cells (up to ~12 m drift at S/E edges) → exact cell edges
+  used everywhere (and written by the build script from now on).
+- Tour didn't follow a language switch → captions refresh immediately; tour no longer resets the user's buddy distance;
+  step 9 asks Ask Darb only once per tour.
+- Repeated/duplicate Ollama requests → one question at a time; a connection lost mid-answer keeps the partial text and
+  shows a translated message.
+- HUD distance (2.71 km) vs card (2.73 km) used different methods → both use cell-to-cell metres.
+- CRISM images: "not loaded yet" no longer reported to the AI as "outside coverage"; image loaded only once.
+- Popup/weather values from data files are HTML-escaped.
+- Numbers typed into the tour/AI facts/eval (4.2 m, 20°, 2.7 km) are now computed live from the data.
+- Eval checker reads the Arabic decimal mark "٫". SOURCES "3 × 3 samples" → "6 × 6, 4 m apart". Outdated comments fixed;
+  thresholds read from `route.js` instead of typed in.
+**Found during re-testing:** the browser served a cached old `index.html` → new `tools/serve.py` (Python's server +
+`Cache-Control: no-cache`), used by `start.bat`.
+**Team edits included in this commit:** a collapsible "ⓘ Sources" box for the map credits on small screens,
+`{distance}`/`{algorithm}` placeholders in messages, popup width that fits narrow screens.
+
+**Tested:** `node --test tests` 20/20; browser (separate tab): demo 2.73 km 🟡; start = goal, outside, too-steep goal
+(snapped 50 m), south-east edge click; buddy; all 10 tour steps + language switch mid-tour; HUD; Arabic + English;
+Ask Darb **offline** path in both languages (Ollama was not running during this re-test).
+**Not re-verified this round:** the Ask Darb 18-question test set, because Ollama was stopped — re-run
+`http://localhost:8000/?eval=qwen3.5:9b&runs=2` once Ollama is running.
+
 ## Round 7 — Space Agency Partner data: ESA Mars Express HRSC elevation cross-check (2026-11-12)
 **Why:** the guide encourages 2026 Space Agency Partner data; an independent check also strengthens "validity".
 **What we looked at**

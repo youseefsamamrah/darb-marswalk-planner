@@ -10,7 +10,7 @@ Uses ONLY the Python standard library (no installs needed).
 Run from the project folder:   python tools/build_data.py
 
 Outputs (all in data/):
-  grid.json         elevation (HiRISE 1 m DEM, MOLA for gaps), slope, THEMIS night-IR brightness per ~25 m cell
+  grid.json         elevation (HiRISE 1 m DEM, MOLA for gaps), slope, roughness, THEMIS night-IR brightness per ~25 m cell
   environment.json  REMS weather (last 30 sols) + RAD radiation (published values)
   waypoints.json    Curiosity rover positions in the 2025 boxwork campaign + raw image links
   crism/*.png       CRISM browse images (mineral maps) + crism/products.json
@@ -280,7 +280,9 @@ def build_grid():
     grid = {
         "aiNotice": AI_DATA_NOTICE,
         "about": "Built by tools/build_data.py from real NASA data. See SOURCES.md.",
-        "bounds": {"north": LAT_N, "south": LAT_S, "west": LON_W, "east": LON_E},
+        # exact edges of the whole cells (a whole number of cells does not fill the box exactly)
+        "bounds": {"north": LAT_N, "south": round(LAT_N - n_rows * CELL_DEG, 7),
+                   "west": LON_W, "east": round(LON_W + n_cols * CELL_DEG, 7)},
         "cellDeg": CELL_DEG, "rows": n_rows, "cols": n_cols,
         "cellWidthM": round(cell_w, 2), "cellHeightM": round(cell_h, 2),
         "elevation": elev,

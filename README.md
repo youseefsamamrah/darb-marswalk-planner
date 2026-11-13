@@ -37,8 +37,10 @@ runs **on the device** with no internet, because a message to Earth takes 4–24
    (Do not open `index.html` directly — browsers block loading the data files that way.)
    Or, in a terminal inside the folder:
    ```bash
-   python -m http.server 8000
+   python tools/serve.py
    ```
+   (`tools/serve.py` is Python's built-in web server plus a "no-cache" header, so after an update the browser
+   always shows the newest version.)
 4. Click **Demo** in the Route planner, or click two points on the map.
 
 ### Optional: turn on Ask Darb (offline AI)
@@ -80,11 +82,16 @@ Test Ask Darb's answers (Ollama running): open http://localhost:8000/?eval=qwen3
 | `js/route.js` | cost grid + A* + route statistics (also used by the tests) |
 | `js/askdarb.js` | talks to the local Ollama server |
 | `js/i18n.js`, `js/config.js` | English/Arabic text; settings and tile URLs |
-| `data/` | real NASA data prepared for offline use |
+| `js/tour.js` | the 10-step guided tour for the pitch (▶ Tour button) |
+| `js/eval.js` | the Ask Darb test set (runs only when the address ends with `?eval`) |
+| `data/` | real NASA data prepared for offline use (grid, weather, waypoints + photos, CRISM, `hrsc_check.json`) |
+| `tiles/` | Mars Trek map tiles for the study area, saved for offline use |
 | `tools/build_data.py` | rebuilds `data/` from NASA servers |
 | `tools/hirise_dem.py` | reads the HiRISE 1 m elevation GeoTIFF (plain Python TIFF + LZW reader) |
+| `tools/hrsc_check.py` | cross-checks our elevation against ESA Mars Express HRSC data |
+| `tools/serve.py` | the local web server used by `start.bat` (adds "no-cache") |
 | `tools/local_agent.py` | sends simple tasks (review, summaries) to a local model |
-| `tests/route.test.js` | 19 unit tests |
+| `tests/route.test.js` | 20 unit tests |
 
 ## AI notice
 Parts of this project were written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed and tested

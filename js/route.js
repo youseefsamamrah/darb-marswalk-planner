@@ -143,13 +143,13 @@
     var cost = (opts && opts.costGrid) || buildCostGrid(grid, opts);
     // If a point is on blocked ground, optionally move it to the nearest walkable cell (opts.snapMeters)
     var snapped = { start: null, goal: null };
-    var snapCells = opts && opts.snapMeters ? Math.ceil(opts.snapMeters / Math.min(grid.cellWidthM, grid.cellHeightM)) : 0;
-    if (cost[start.r * C + start.c] === Infinity && snapCells) {
-      var ns = nearestWalkable(grid, cost, start, snapCells);
+    var snapM = (opts && opts.snapMeters) || 0;
+    if (cost[start.r * C + start.c] === Infinity && snapM) {
+      var ns = nearestWalkable(grid, cost, start, snapM);
       if (ns) { snapped.start = ns; start = ns; }
     }
-    if (cost[goal.r * C + goal.c] === Infinity && snapCells) {
-      var ng = nearestWalkable(grid, cost, goal, snapCells);
+    if (cost[goal.r * C + goal.c] === Infinity && snapM) {
+      var ng = nearestWalkable(grid, cost, goal, snapM);
       if (ng) { snapped.goal = ng; goal = ng; }
     }
     var s = start.r * C + start.c, g = goal.r * C + goal.c;
@@ -205,10 +205,11 @@
     return { ok: true, path: path, cost: gScore[g], snapped: snapped };
   }
 
-  // Closest walkable cell (in metres) within maxCells of `cell`, or null if there is none.
-  // We check growing square "rings" around the cell and keep the closest walkable one.
-  function nearestWalkable(grid, cost, cell, maxCells) {
+  // Closest walkable cell within maxMeters of `cell` (a real distance, so the promise "within 150 m" holds
+  // even diagonally), or null if there is none. We check growing square "rings" around the cell.
+  function nearestWalkable(grid, cost, cell, maxMeters) {
     var best = null, bestD = Infinity, w = grid.cellWidthM, h = grid.cellHeightM;
+    var maxCells = Math.ceil(maxMeters / Math.min(w, h));
     for (var k = 1; k <= maxCells; k++) {
       for (var dr = -k; dr <= k; dr++) {
         for (var dc = -k; dc <= k; dc++) {
@@ -217,11 +218,12 @@
           if (r < 0 || c < 0 || r >= grid.rows || c >= grid.cols) continue;
           if (cost[r * grid.cols + c] === Infinity) continue;
           var d = Math.sqrt(dr * dr * h * h + dc * dc * w * w);
+          if (d > maxMeters) continue;                        // too far: corners of the square are further away
           if (d < bestD) { bestD = d; best = { r: r, c: c, movedM: d }; }
         }
       }
-      // a cell in a later ring is at least k*min(w,h) away, so we can stop once we found one closer than that
-      if (best && bestD <= k * Math.min(w, h)) break;
+      // every cell in the NEXT ring is at least (k+1)*min(w,h) away, so if we already have one closer, stop
+      if (best && bestD <= (k + 1) * Math.min(w, h)) break;
     }
     return best;
   }

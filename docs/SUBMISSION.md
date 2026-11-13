@@ -69,9 +69,9 @@ because the first Mars walkers will need mission-control-quality planning withou
   max slope 10.5°, 🟡 Caution. With buddy mode at 100 m the two astronauts can't fit through the narrow safe gaps:
   a 5.29 km detour, 🔴 Danger.
 - Our elevation matched Curiosity's own recorded elevation within 4.2 m at its 8 stops in 2025, and an independent
-  model using ESA Mars Express HRSC data within 3.7 m on average.
+  model using ESA Mars Express HRSC data: average bias +3.7 m, typical (median absolute) difference 12.1 m.
 - Ask Darb test set: 18 questions (12 facts, 6 with no answer in the data) × 3 runs = 54/54 correct, 1.9 s per answer.
-- 19 automated unit tests for the route planner pass.
+- 20 automated unit tests for the route planner pass.
 
 **Benefits and what we hope to achieve**
 - One walking-scale view of the safety-critical data (slope, roughness, sand, oxygen time, radiation, weather) instead of
@@ -90,13 +90,13 @@ Ollama with local open models (qwen3.5:9b; gpt-oss:20b for comparison); Git. Dev
 ## Use of Super Intelligence (SI)
 > The guide says this answer is for data collection and is **not shown to judges**, but SI markers inside the project
 > (descriptive text and metadata) are. Our markers: an "AI notice" at the top of every code file, an `aiNotice` field in
-> every generated data file, and AI-USAGE.md. The guide also says SI must not be used to come up with the idea — the
-> team chose the challenge, the idea, the location and the science goal.
+> every generated data file, and AI-USAGE.md. The guide also says SI must not be used to come up with the idea.
+> The team must fill in its own contribution statement in AI-USAGE.md before submission.
 
-Yes. The team chose the challenge, the idea (a safe-walk planner with on-device AI), the location (Mount Sharp) and the
-science goal (boxwork). We then used a cloud AI coding assistant (Claude Code by Anthropic) to help write the code, the
+Yes. [Team contribution statement: ______________________________ — team to complete.]
+We used a cloud AI coding assistant (Claude Code by Anthropic) to help write the code, the
 data-processing scripts and first drafts of the documentation, and local open models (gpt-oss:20b, qwen3.5:9b via Ollama)
-for first-pass code review. We tested and reviewed all AI-generated work: 19 unit tests, click-testing every feature,
+for first-pass code review. We tested and reviewed all AI-generated work: 20 unit tests, click-testing every feature,
 checking every data link, and comparing our elevation data with Curiosity's own measurements. All code files and generated
 data files carry an AI notice. Inside the product, "Ask Darb" uses a local open model (qwen3.5:9b) with no internet; it
 answers only from the map's data, says "I don't know" otherwise, and scored 54/54 on our test set. No SI-generated images,
@@ -124,7 +124,7 @@ video or audio are used. `[If you use a text-to-speech voice in the demo video, 
 ## Space Agency Partner Data and Other References
 **Space Agency Partner data:** **ESA Mars Express HRSC** — we cross-check our elevation grid against the
 "Mars MGS MOLA – MEX HRSC Blended DEM Global 200m v2" (USGS Astrogeology; HRSC: ESA/DLR/FU Berlin; MOLA: NASA), which
-blends ESA's HRSC stereo elevation with NASA's MOLA. Over our study area the two agree within 3.7 m on average (median
+blends ESA's HRSC stereo elevation with NASA's MOLA. Over our study area our elevation has an average bias of +3.7 m (median absolute difference
 12.1 m over 4,416 pixels of 200 m); the app shows this in a "Data check" card and Ask Darb can explain it.
 https://planetarymaps.usgs.gov/mosaic/Mars/HRSC_MOLA_Blend/Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif
 (The REMS weather instrument was provided to Curiosity by Spain and its public feed is published by the Centro de

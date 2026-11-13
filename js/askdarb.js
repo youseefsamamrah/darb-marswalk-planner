@@ -69,7 +69,7 @@ var AskDarb = (function () {
 
   /**
    * Ask a question.
-   * context: plain object with the current app facts (built in app.js)
+   * context: the current app facts as plain-English text (built by buildContext() in app.js)
    * imageUrl: optional local image path for the vision model
    * onToken: called with the text so far (streaming), so the answer appears word by word
    * Returns {text, seconds, firstTokenSeconds, model, usedImage}

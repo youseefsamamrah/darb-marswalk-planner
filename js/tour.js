@@ -4,7 +4,8 @@
  * ------------------------------------------
  * Click "▶ Tour" in the top bar. Each step sets up the map BY ITSELF (layers, route, popups, HUD),
  * so the presenter only clicks "Next" and talks. "Back" works too, because every step starts from a clean state.
- * Numbers in the captions are read live from the app (route stats, RAD), never typed in.
+ * Numbers in the captions ({dist}, {o2}, {rover}, {maxSlope} …) are filled in live from the app's data.
+ * Only the Ask Darb test score (54/54) is a fixed result from docs/ASK-DARB-EVAL.md.
  * Keyboard: → or Space = next, ← = back, Esc = close.
  */
 (function () {
@@ -24,7 +25,8 @@
   }
   function buddy(on) {
     if ($("buddyOn").checked !== on || (on && $("buddyM").value !== "100")) {
-      $("buddyM").value = "100"; $("buddyOn").checked = on; $("buddyOn").dispatchEvent(new Event("change"));
+      if (on) $("buddyM").value = "100";        // only set the distance when WE turn buddy mode on
+      $("buddyOn").checked = on; $("buddyOn").dispatchEvent(new Event("change"));
     }
   }
   function reset() {
@@ -38,8 +40,8 @@
     { en: ["Darb — the path", "Planning a SAFE walk on Mars, on Mount Sharp in Gale Crater, to the boxwork ridges Curiosity studied in 2025. Earth is about {delay} light-minutes away today — so everything runs on this device."],
       ar: ["دَرْب — الطريق", "نخطط مشياً آمناً على المريخ، على جبل شارب في فوهة غيل، نحو حواف الصناديق التي درسها كيوريوسيتي عام 2025. الأرض على بعد نحو {delay} دقيقة ضوئية اليوم — لذلك كل شيء يعمل على هذا الجهاز."],
       go: function () { reset(); D().clearRoute(); onlyLayers([]); D().map.fitBounds(box()); } },
-    { en: ["Slope from 1-metre elevation", "NASA HiRISE stereo elevation, averaged into 25 m cells. Green = easy, yellow/orange = hard, red = too steep to walk (over 20°). It matches Curiosity's own recorded height within 4.2 m."],
-      ar: ["الانحدار من ارتفاعات بدقة متر", "ارتفاعات HiRISE المجسمة من ناسا، في خلايا 25 م. أخضر = سهل، أصفر/برتقالي = صعب، أحمر = شديد الانحدار (> 20°). تطابق ارتفاع كيوريوسيتي المسجل بفارق 4.2 م."],
+    { en: ["Slope from 1-metre elevation", "NASA HiRISE stereo elevation, averaged into 25 m cells. Green = easy, yellow/orange = hard, red = too steep to walk (over {maxSlope}°). It matches Curiosity's own recorded height within {rover} m."],
+      ar: ["الانحدار من ارتفاعات بدقة متر", "ارتفاعات HiRISE المجسمة من ناسا، في خلايا 25 م. أخضر = سهل، أصفر/برتقالي = صعب، أحمر = شديد الانحدار (> {maxSlope}°). تطابق ارتفاع كيوريوسيتي المسجل بفارق {rover} م."],
       go: function () { reset(); D().clearRoute(); onlyLayers(["lySlope"]); D().map.fitBounds(box()); } },
     { en: ["Rocks and small ridges", "The rough-ground layer looks at 4-metre steps inside each cell. Purple = very rough: rocks and ridges a suit could trip on. Notice how it traces the ridge lines in the orbital image."],
       ar: ["صخور وحواف صغيرة", "طبقة خشونة الأرض تقيس الدرجات على مسافة 4 م داخل كل خلية. البنفسجي = وعر جداً: صخور وحواف قد يتعثر بها رائد الفضاء."],
@@ -74,14 +76,14 @@
       go: function () {
         reset(); onlyLayers(["lySlope"]); D().demoRoute();
         var card = document.querySelector(".card.ask"); if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
-        D().askQuestion(DarbI18n.t("q1"));
+        if (!askedThisTour) { askedThisTour = true; D().askQuestion(DarbI18n.t("q1")); }   // ask once, not on every Back/Next
       } },
     { en: ["Darb — the path", "Real NASA data (HiRISE, CTX, MOLA, THEMIS, CRISM, Curiosity REMS, RAD, Navcam), safe routes in milliseconds, and an AI that works 4–24 light-minutes from Earth. All sources: SOURCES.md."],
       ar: ["دَرْب — الطريق", "بيانات ناسا الحقيقية، مسارات آمنة خلال أجزاء من الثانية، وذكاء اصطناعي يعمل على بعد 4–24 دقيقة ضوئية من الأرض. كل المصادر في SOURCES.md."],
       go: function () { reset(); onlyLayers(["lySlope"]); D().demoRoute(); D().map.fitBounds(box()); } }
   ];
 
-  var idx = -1, panel = null;
+  var idx = -1, panel = null, askedThisTour = false;
 
   function fill(text) {
     var s = D().stats;
@@ -90,22 +92,28 @@
       .replace("{dist}", s ? (s.distanceM / 1000).toFixed(2) : "?")
       .replace("{time}", s ? fmtH(s.hoursOut) : "?")
       .replace("{o2}", s ? Math.round(s.o2ReservePct) : "?")
-      .replace("{safety}", s ? DarbI18n.t(s.safety) : "?");
+      .replace("{safety}", s ? DarbI18n.t(s.safety) : "?")
+      .replace("{rover}", D().roverMaxDiff().toFixed(1))
+      .replace("{maxSlope}", DARB_CONFIG.routeOptions.maxSlope);
   }
 
   function show(i) {
     idx = Math.max(0, Math.min(steps.length - 1, i));
-    var st = steps[idx];
-    st.go();
+    steps[idx].go();
     // captions use numbers from the step we just set up, so wait a moment for the route to finish
-    setTimeout(function () {
-      var t = ar() ? st.ar : st.en;
-      panel.querySelector(".tour-step").textContent = (idx + 1) + " / " + steps.length;
-      panel.querySelector(".tour-title").textContent = t[0];
-      panel.querySelector(".tour-text").textContent = fill(t[1]);
-      panel.querySelector(".tour-back").disabled = idx === 0;
-      panel.querySelector(".tour-next").textContent = idx === steps.length - 1 ? (ar() ? "إنهاء" : "Finish") : (ar() ? "التالي ←" : "Next →");
-    }, 250);
+    setTimeout(refresh, 250);
+  }
+
+  // Write the caption + buttons of the current step in the current language (also called when the language changes)
+  function refresh() {
+    if (idx < 0 || !panel) return;
+    var st = steps[idx], t = ar() ? st.ar : st.en;
+    panel.querySelector(".tour-step").textContent = (idx + 1) + " / " + steps.length;
+    panel.querySelector(".tour-title").textContent = t[0];
+    panel.querySelector(".tour-text").textContent = fill(t[1]);
+    panel.querySelector(".tour-back").disabled = idx === 0;
+    panel.querySelector(".tour-next").textContent = idx === steps.length - 1 ? (ar() ? "إنهاء" : "Finish") : (ar() ? "التالي ←" : "Next →");
+    panel.querySelector(".tour-close").setAttribute("aria-label", ar() ? "إغلاق" : "Close");
   }
 
   function open() {
@@ -114,7 +122,7 @@
       panel = document.createElement("div");
       panel.className = "tour";
       panel.setAttribute("role", "dialog");
-      panel.innerHTML = '<div class="tour-head"><span class="tour-step"></span><button class="tour-close" aria-label="Close">✕</button></div>' +
+      panel.innerHTML = '<div class="tour-head"><span class="tour-step"></span><button class="tour-close">✕</button></div>' +
         '<h3 class="tour-title"></h3><p class="tour-text"></p>' +
         '<div class="tour-nav"><button class="btn ghost tour-back">←</button><button class="btn primary tour-next"></button></div>';
       document.querySelector(".map-wrap").appendChild(panel);
@@ -123,6 +131,7 @@
       panel.querySelector(".tour-next").onclick = function () { if (idx === steps.length - 1) close(); else show(idx + 1); };
     }
     panel.classList.remove("hidden");
+    askedThisTour = false;
     show(0);
   }
 
@@ -143,5 +152,5 @@
     var btn = $("tourBtn");
     if (btn) btn.addEventListener("click", open);
   });
-  window.DarbTour = { open: open, close: close, show: function (i) { show(i); }, count: steps.length };
+  window.DarbTour = { open: open, close: close, show: function (i) { show(i); }, count: steps.length, refresh: refresh };
 })();

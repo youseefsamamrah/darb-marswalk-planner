@@ -35,9 +35,14 @@
         loadJSON("data/waypoints.json"), loadJSON("data/crism/products.json")
       ]);
       Darb.grid = all[0]; Darb.env = all[1]; Darb.wp = all[2]; Darb.crism = all[3];
-      // List of map tiles saved on this device (optional — without it, tiles come from the internet)
+      // The grid has a whole number of cells, so its real south/east edges are north − rows×cell and west + cols×cell.
+      // Use those exact edges everywhere (overlays, dashed box, clicks) so nothing drifts at the edges.
+      var gb = Darb.grid.bounds;
+      gb.south = gb.north - Darb.grid.rows * Darb.grid.cellDeg;
+      gb.east = gb.west + Darb.grid.cols * Darb.grid.cellDeg;
       // Elevation cross-check against ESA Mars Express HRSC (optional file from tools/hrsc_check.py)
       try { Darb.hrsc = await loadJSON("data/hrsc_check.json"); } catch (e3) { Darb.hrsc = null; }
+      // List of map tiles saved on this device (optional — without it, tiles come from the internet)
       Darb.tileIndex = {};
       try {
         var idx = await loadJSON("tiles/index.json");
@@ -61,7 +66,10 @@
   function buildMap() {
     var cfg = DARB_CONFIG;
     // Mars Trek uses geographic tiles (EPSG:4326) — Leaflet supports this out of the box.
-    var map = Darb.map = L.map("map", { crs: L.CRS.EPSG4326, center: cfg.center, zoom: cfg.zoom,
+    // L.CRS.EPSG4326 measures distances with EARTH's radius; we copy it with the MARS radius (3,396,190 m)
+    // so the scale bar shows true Mars distances. The tiles are not affected.
+    var marsCRS = L.extend({}, L.CRS.EPSG4326, { R: 3396190 });
+    var map = Darb.map = L.map("map", { crs: marsCRS, center: cfg.center, zoom: cfg.zoom,
       minZoom: 3, maxZoom: 15, worldCopyJump: false });
 
     // A tile layer that uses the tile saved on this device when we have it (tiles/…),
@@ -101,9 +109,50 @@
     var b = Darb.grid.bounds;
     L.rectangle([[b.south, b.west], [b.north, b.east]],
       { color: "#8fd3ff", weight: 1, dashArray: "6 6", fill: false, interactive: false }).addTo(map);
-    L.control.scale({ imperial: false }).addTo(map);   // note: scale uses Earth radius; Mars ~0.53x
+    L.control.scale({ imperial: false }).addTo(map);   // uses the Mars radius set on the CRS above
+    buildSourcesControl(map);
+
+    // Drawing order (higher = on top): Curiosity stop markers 600 < our route 640 < start/goal pins 660 < popups 700
+    map.createPane("routePane").style.zIndex = 640;
+    map.createPane("pinPane").style.zIndex = 660;
+    Darb.routeRenderer = L.svg({ pane: "routePane" });
+
+    // A popup with a photo: when the photo finishes loading, re-measure the popup so it stays inside the map
+    map.on("popupopen", function (e) {
+      fitPopup(e.popup);
+      e.popup.getElement().querySelectorAll("img").forEach(function (img) {
+        if (!img.complete) img.addEventListener("load", function () { if (e.popup.isOpen()) fitPopup(e.popup); }, { once: true });
+      });
+    });
+    map.on("resize", function () { if (map._popup && map._popup.isOpen()) fitPopup(map._popup); });
     map.on("click", onMapClick);
     map.on("mousemove", onHover);
+  }
+
+  // Keep Leaflet's live layer credits, inside a keyboard-accessible disclosure on small screens.
+  function buildSourcesControl(map) {
+    var compact = window.matchMedia("(max-width: 800px)");
+    var control = L.control({ position: "bottomright" });
+    control.onAdd = function () {
+      var details = L.DomUtil.create("details", "map-sources");
+      var summary = L.DomUtil.create("summary", "", details);
+      summary.dataset.i18n = "sourcesToggle";
+      summary.textContent = T("sourcesToggle");
+      details.appendChild(map.attributionControl.getContainer());
+      function resize() { details.open = !compact.matches; }
+      resize();
+      compact.addEventListener("change", resize);
+      L.DomEvent.disableClickPropagation(details);
+      L.DomEvent.disableScrollPropagation(details);
+      return details;
+    };
+    control.addTo(map);
+  }
+
+  function fitPopup(popup) {
+    // Leave room for the wrapper, close button, tip and auto-pan margins, including on short mobile maps.
+    popup.options.maxHeight = Math.max(40, Math.min(340, Darb.map.getSize().y - 90));
+    popup.update();
   }
 
   // Slope layer: we colour every grid cell on a small canvas, then stretch it over the map.
@@ -152,8 +201,9 @@
     // CRISM select box
     var sel = $("crismSelect");
     Darb.crism.products.forEach(function (p) {
-      var o = document.createElement("option"); o.value = p.code; o.textContent = p.name; sel.appendChild(o);
+      var o = document.createElement("option"); o.value = p.code; sel.appendChild(o);
     });
+    refreshCrismOptions();
     sel.value = "phy";
     Darb.layers.minerals = makeCrismLayer("phy");
 
@@ -163,10 +213,18 @@
       { color: "#ffffff", weight: 2, opacity: 0.5 }).addTo(grp);
     Darb.wp.waypoints.forEach(function (w) {
       var m = L.marker([w.lat, w.lon], { icon: L.divIcon({ className: "", html: '<div class="wp-pin">' + w.id + "</div>", iconSize: [22, 22] }) });
-      m.bindPopup(function () { return waypointPopup(w); }, { maxWidth: 320 });
+      m.bindPopup(function () { return waypointPopup(w); }, POPUP_OPTS);
       m.addTo(grp);
     });
     Darb.layers.rover = grp.addTo(Darb.map);
+  }
+
+  // Popups: never taller than 340 px (scroll inside), and keep a margin from the map edge when auto-panning
+  var POPUP_OPTS = { maxWidth: 320, maxHeight: 340, autoPanPadding: [16, 16] };
+
+  // Short, translated names in the CRISM drop-down (the full PDS description is in the fold-out legend)
+  function refreshCrismOptions() {
+    Array.prototype.forEach.call($("crismSelect").options, function (o) { o.textContent = T("crism." + o.value); });
   }
 
   function makeCrismLayer(code) {
@@ -182,8 +240,8 @@
     var box = $("crismLegend");
     box.textContent = "";
     var det = document.createElement("details"), sum = document.createElement("summary"), body = document.createElement("p");
-    sum.textContent = (p.bandsRGB ? "R/G/B = " + p.bandsRGB.join(" / ") : p.name) + " — what do the colours mean?";
-    body.textContent = (p.pdsDescription || "") + " (Source: PDS label, CRISM " + Darb.crism.observation + ")";
+    sum.textContent = (p.bandsRGB ? "R/G/B = " + p.bandsRGB.join(" / ") + " — " : "") + T("crismMeaning");
+    body.textContent = (p.pdsDescription || "") + " (" + T("pdsSource") + ", CRISM " + Darb.crism.observation + ")";
     det.appendChild(sum); det.appendChild(body); box.appendChild(det);
   }
 
@@ -191,17 +249,18 @@
   function crismAt(code, lat, lon) {
     var p = Darb.crism.products.find(function (x) { return x.code === code; });
     var px = Darb.crismPixels[code];
-    if (!px) {           // load the image into a hidden canvas the first time
+    if (px === undefined) {      // first time: load the image into a hidden canvas (only once)
       var img = new Image();
       img.onload = function () {
         var cv = document.createElement("canvas"); cv.width = img.width; cv.height = img.height;
         var cx = cv.getContext("2d"); cx.drawImage(img, 0, 0);
         Darb.crismPixels[code] = { w: img.width, h: img.height, data: cx.getImageData(0, 0, img.width, img.height).data };
       };
+      img.onerror = function () { Darb.crismPixels[code] = "failed"; };
       img.src = p.file;
-      Darb.crismPixels[code] = null;
-      return null;
+      Darb.crismPixels[code] = "loading";
     }
+    if (typeof px !== "object" || px === null) return null;   // still loading, or failed
     var b = p.bounds;
     var x = Math.floor((lon - b.west) / (b.east - b.west) * px.w);
     var y = Math.floor((b.north - lat) / (b.north - b.south) * px.h);
@@ -244,7 +303,7 @@
   function setPoint(kind, latlng) {
     if (Darb[kind + "Marker"]) Darb.map.removeLayer(Darb[kind + "Marker"]);
     Darb[kind] = latlng;
-    var m = Darb[kind + "Marker"] = L.marker(latlng, { icon: pinIcon(kind), draggable: true }).addTo(Darb.map);
+    var m = Darb[kind + "Marker"] = L.marker(latlng, { icon: pinIcon(kind), draggable: true, pane: "pinPane" }).addTo(Darb.map);
     m.on("dragend", function () { Darb[kind] = m.getLatLng(); if (Darb.start && Darb.goal) planRoute(); });
   }
 
@@ -289,11 +348,12 @@
       var ll = DarbRoute.cellToLatLon(g, sn);
       Darb[kind] = L.latLng(ll.lat, ll.lon);
       Darb[kind + "Marker"].setLatLng(Darb[kind]);
-      notes.push(T(kind === "start" ? "snapStart" : "snapGoal").replace("{m}", Math.round(sn.movedM)));
+      notes.push(esc(T(kind === "start" ? "snapStart" : "snapGoal")).replace("{distance}", iso(Math.round(sn.movedM) + " m")));
     });
     Darb.route = res.path;
     Darb.stats = DarbRoute.routeStats(g, res.path, o);
-    $("routeMsg").textContent = "A* found the route in " + ms.toFixed(0) + " ms (" + res.path.length + " cells). " + notes.join(" ");
+    $("routeMsg").innerHTML = esc(T("routeFound")).replace("{algorithm}", iso("A*"))
+      .replace("{time}", iso(ms.toFixed(0) + " " + T("unitMs"))).replace("{n}", iso(res.path.length)) + " " + notes.join(" ");
     drawRoute();
     renderRouteCard();
   }
@@ -308,9 +368,12 @@
   function drawRoute() {
     var colors = { safe: "#3ddc84", caution: "#ffd23f", danger: "#ff4d4d" };
     var pts = routeLatLngs(), col = colors[Darb.stats.safety];
-    var glow = L.polyline(pts, { color: col, weight: 10, opacity: 0.18 });
-    var dots = L.polyline(pts, { color: "#8fd3ff", weight: 4, dashArray: "1 10", lineCap: "round" });
-    var line = L.polyline(pts, { color: col, weight: 2, opacity: 0.8, dashArray: "6 8" });
+    // Three lines on top of each other so the route stands out on ANY background:
+    // a dark halo, a thick line in the safety colour, and a white dotted trail in the middle.
+    var r = Darb.routeRenderer;
+    var glow = L.polyline(pts, { renderer: r, color: "#05070f", weight: 12, opacity: 0.85, lineCap: "round", lineJoin: "round" });
+    var line = L.polyline(pts, { renderer: r, color: col, weight: 6, opacity: 1, lineCap: "round", lineJoin: "round" });
+    var dots = L.polyline(pts, { renderer: r, color: "#ffffff", weight: 2.5, dashArray: "2 9", lineCap: "round" });
     Darb.routeLayer = L.layerGroup([glow, line, dots]).addTo(Darb.map);
     // Clicking the route: show data at that point + the nearest real Curiosity image
     [glow, line, dots].forEach(function (l) { l.on("click", onRouteClick); });
@@ -320,11 +383,13 @@
     L.DomEvent.stopPropagation(e);
     var info = cellInfo(e.latlng.lat, e.latlng.lng);
     var near = nearestWaypoint(e.latlng.lat, e.latlng.lng);
-    var html = "<b>Route point</b><br>" + e.latlng.lat.toFixed(4) + "°, " + e.latlng.lng.toFixed(4) + "°E";
-    if (info) html += "<br>Elevation " + Math.round(info.elevationM) + " m (HiRISE DEM) · slope " + info.slopeDeg.toFixed(1) +
-      "° · thermal " + (info.thermalRel === null ? "n/a" : info.thermalRel.toFixed(2)) + " (THEMIS)";
-    if (near) html += "<hr>Nearest Curiosity stop: <b>#" + near.w.id + "</b>, " + (near.d / 1000).toFixed(2) + " km away" + waypointPopup(near.w);
-    L.popup({ maxWidth: 320 }).setLatLng(e.latlng).setContent(html).openOn(Darb.map);
+    var html = "<b>" + esc(T("rpTitle")) + "</b><br>" + iso(e.latlng.lat.toFixed(4) + "°, " + e.latlng.lng.toFixed(4) + "°E");
+    if (info) html += "<br>" + esc(T("rpElev")) + " " + iso(Math.round(info.elevationM) + " m") + " (HiRISE) · " +
+      esc(T("rpSlope")) + " " + iso(info.slopeDeg.toFixed(1) + "°") + " · " + esc(T("rpThermal")) + " " +
+      iso(info.thermalRel === null ? "n/a" : info.thermalRel.toFixed(2)) + " (THEMIS)";
+    if (near) html += "<hr>" + esc(T("rpNear")) + " <b>#" + near.w.id + "</b> · " + iso((near.d / 1000).toFixed(2) + " km") +
+      waypointPopup(near.w);
+    L.popup(POPUP_OPTS).setLatLng(e.latlng).setContent(html).openOn(Darb.map);
   }
 
   // distance in metres between two lat/lon points on Mars (simple flat approximation, fine for < 50 km)
@@ -344,19 +409,38 @@
 
   function waypointPopup(w) {
     var date = w.images[0] ? w.images[0].date.slice(0, 10) : "";
-    var html = "<div><b>Curiosity stop #" + w.id + "</b> · sol " + w.sol + " (" + date + ")<br>" +
-      w.lat.toFixed(4) + "°, " + w.lon.toFixed(4) + "°E";
+    // Every value from the data files is escaped (esc) before it goes into HTML
+    var html = "<div><b>" + esc(T("wpStop")) + " #" + esc(w.id) + "</b> · " + iso("sol " + w.sol) + " (" + iso(date) + ")<br>" +
+      iso(w.lat.toFixed(4) + "°, " + w.lon.toFixed(4) + "°E");
     var local = w.images.find(function (i) { return i.local; });
-    if (local) html += '<img src="' + local.local + '" alt="Curiosity ' + local.camera + ' image, sol ' + w.sol + '">' +
-      '<small>' + local.camera + ' · ' + local.credit + ' · <a href="' + local.url + '" target="_blank">original</a></small>';
+    // width/height = the photo's real size (Navcam 1024×1024), so the popup knows its height before the photo loads
+    if (local) html += '<img src="' + esc(local.local) + '" width="1024" height="1024" alt="' +
+      esc("Curiosity " + local.camera + " image, sol " + w.sol) + '">' +
+      "<small>" + esc(local.camera + " · " + local.credit) + ' · <a href="' + esc(local.url) + '" target="_blank" rel="noopener">' +
+      esc(T("wpOriginal")) + "</a></small>";
     w.images.filter(function (i) { return !i.local; }).forEach(function (i) {
-      html += '<br><small><a href="' + i.url + '" target="_blank">' + i.camera + " image (online)</a></small>";
+      html += '<br><small><a href="' + esc(i.url) + '" target="_blank" rel="noopener">' + esc(i.camera + " — " + T("wpOnline")) + "</a></small>";
     });
-    html += "<p><b>" + T("wpLook") + ":</b> " + T("wpText") + "</p></div>";
+    html += "<p><b>" + esc(T("wpLook")) + ":</b> " + esc(T("wpText")) + "</p></div>";
     return html;
   }
 
-  function fmtHours(h) { var m = Math.round(h * 60); return Math.floor(m / 60) + " h " + String(m % 60).padStart(2, "0") + " min"; }
+  // "1 h 38 min" in English, "1 س 38 د" in Arabic (units come from i18n.js)
+  function fmtHours(h) {
+    var m = Math.round(h * 60), mins = m % 60;
+    return Math.floor(m / 60) + " " + T("unitH") + (mins ? " " + String(mins).padStart(2, "0") + " " + T("unitMin") : "");
+  }
+
+  // Safe text for innerHTML
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; });
+  }
+  // A number with a Latin unit ("2.73 km", "61%", "-71 … -5 °C") wrapped in <bdi>, so right-to-left Arabic text
+  // around it cannot scramble its order (bdi = "bidirectional isolate").
+  function iso(s) { return '<bdi dir="ltr">' + esc(s) + "</bdi>"; }
+  function timeHtml(h) { return iso(fmtHours(h)); }
+  // Translate a word from the data (e.g. REMS "Sunny") if i18n.js knows it, otherwise keep it as it is
+  function tr(prefix, word) { var k = prefix + word, t = T(k); return t === k ? word : t; }
 
   function renderRouteCard() {
     var s = Darb.stats; if (!s) return;
@@ -365,15 +449,16 @@
     $("safety").className = "safety " + s.safety;
     $("safety").textContent = T(s.safety);
     $("reasons").textContent = s.reasons.map(function (r) { return T("why." + r); }).join(" · ");
-    $("stDist").textContent = (s.distanceM / 1000).toFixed(2) + " km";
-    $("stTime").textContent = fmtHours(s.hoursOut);
-    $("stRound").textContent = fmtHours(s.hoursRoundTrip);
-    $("stO2").textContent = Math.round(s.o2ReservePct) + "% of " + DARB_CONFIG.routeOptions.evaBudgetHours + " h";
-    $("stGain").textContent = "+" + Math.round(s.elevationGainM) + " m / −" + Math.round(s.elevationLossM) + " m";
-    $("stSlope").textContent = s.maxSlope.toFixed(1) + "° (mean " + s.meanSlope.toFixed(1) + "°)";
-    $("stSand").textContent = Math.round(s.sandFraction * 100) + "%";
-    $("stRough").textContent = Math.round((s.roughFraction || 0) * 100) + "%";
-    $("stDose").textContent = (rad * s.hoursRoundTrip / 24).toFixed(3) + " mSv";
+    $("stDist").innerHTML = iso((s.distanceM / 1000).toFixed(2) + " km");
+    $("stTime").innerHTML = timeHtml(s.hoursOut);
+    $("stRound").innerHTML = timeHtml(s.hoursRoundTrip);
+    $("stO2").innerHTML = T("o2Of").replace("{p}", iso(Math.round(s.o2ReservePct) + "%"))
+      .replace("{h}", timeHtml(DARB_CONFIG.routeOptions.evaBudgetHours));
+    $("stGain").innerHTML = iso("+" + Math.round(s.elevationGainM) + " m") + " / " + iso("−" + Math.round(s.elevationLossM) + " m");
+    $("stSlope").innerHTML = iso(s.maxSlope.toFixed(1) + "°") + " (" + T("meanWord") + " " + iso(s.meanSlope.toFixed(1) + "°") + ")";
+    $("stSand").innerHTML = iso(Math.round(s.sandFraction * 100) + "%");
+    $("stRough").innerHTML = iso(Math.round((s.roughFraction || 0) * 100) + "%");
+    $("stDose").innerHTML = iso((rad * s.hoursRoundTrip / 24).toFixed(3) + " mSv");
   }
 
   function demoRoute() {
@@ -389,31 +474,45 @@
     Darb.map.fitBounds(L.latLngBounds([Darb.start, Darb.goal]).pad(0.6));
   }
 
+  // Largest difference (m) between our grid elevation and Curiosity's own recorded elevation at its stops.
+  // Computed live from the data files, so it stays correct if the data is rebuilt.
+  function roverMaxDiff() {
+    var max = 0;
+    Darb.wp.waypoints.forEach(function (w) {
+      var info = cellInfo(w.lat, w.lon);
+      if (info) max = Math.max(max, Math.abs(info.elevationM - w.elevM));
+    });
+    return max;
+  }
+
   // ------------------------------------------------------------------ environment panel
   function buildEnvironment() {
     var s = Darb.env.rems.recentSols[0], r = Darb.env.rad, rows = [
-      [T("envSol"), s.sol + " (" + s.earthDate + ")"],
-      [T("envAir"), s.minAirC + " … " + s.maxAirC + " °C"],
-      [T("envGround"), s.minGroundC + " … " + s.maxGroundC + " °C"],
-      [T("envPressure"), s.pressurePa + " Pa"],
-      [T("envUV"), s.uv], [T("envSky"), s.opacity],
-      [T("envSun"), s.sunrise + " / " + s.sunset],
-      [T("envRad"), r.surfaceDoseEquivalent_mSv_per_day + " ± " + r.surfaceDoseEquivalent_uncertainty + " mSv/day"]
+      [T("envSol"), iso(s.sol) + " (" + iso(s.earthDate) + ")"],
+      [T("envAir"), iso(s.minAirC + " … " + s.maxAirC + " °C")],
+      [T("envGround"), iso(s.minGroundC + " … " + s.maxGroundC + " °C")],
+      [T("envPressure"), iso(s.pressurePa + " Pa")],
+      [T("envUV"), esc(tr("val.", s.uv))], [T("envSky"), esc(tr("val.", s.opacity))],
+      [T("envSun"), iso(s.sunrise + " / " + s.sunset)],
+      [T("envRad"), iso(r.surfaceDoseEquivalent_mSv_per_day + " ± " + r.surfaceDoseEquivalent_uncertainty + " mSv") + " " + T("perDay")]
     ];
-    $("envStats").innerHTML = rows.map(function (x) { return "<dt>" + x[0] + "</dt><dd>" + x[1] + "</dd>"; }).join("");
+    $("envStats").innerHTML = rows.map(function (x) { return "<dt>" + esc(x[0]) + "</dt><dd>" + x[1] + "</dd>"; }).join("");
     $("envSource").innerHTML = 'REMS: Centro de Astrobiología / NASA (<a href="' + Darb.env.rems.source + '" target="_blank">feed</a>). ' +
       "RAD: " + r.source + ".";
     // Data check card: how well does our elevation agree with independent measurements?
     var q = $("dataCheck");
     if (q) {
-      var maxRover = 0;
-      Darb.wp.waypoints.forEach(function (w) {
-        var info = cellInfo(w.lat, w.lon);
-        if (info) maxRover = Math.max(maxRover, Math.abs(info.elevationM - w.elevM));
-      });
-      var html = "<li>" + T("checkRover").replace("{m}", maxRover.toFixed(1)) + "</li>";
-      if (Darb.hrsc) html += "<li>" + T("checkHrsc").replace("{m}", Darb.hrsc.meanDifferenceM)
-        .replace("{n}", Darb.hrsc.pixelsCompared.toLocaleString("en")).replace("{med}", Darb.hrsc.medianAbsDifferenceM) + "</li>";
+      var maxRover = roverMaxDiff();
+      var html = "<li>" + esc(T("checkRover")).replace("{m}", iso(maxRover.toFixed(1) + " m")) + "</li>";
+      if (Darb.hrsc) {
+        // meanDifferenceM = average of (ours − HRSC): a signed BIAS. medianAbsDifferenceM = typical size of the gap.
+        var bias = Darb.hrsc.meanDifferenceM;
+        html += "<li>" + esc(T("checkHrsc"))
+          .replace("{n}", iso(Darb.hrsc.pixelsCompared.toLocaleString("en")))
+          .replace("{bias}", iso((bias >= 0 ? "+" : "") + bias + " m"))
+          .replace("{dir}", esc(T(bias >= 0 ? "checkHigher" : "checkLower")))
+          .replace("{med}", iso(Darb.hrsc.medianAbsDifferenceM + " m")) + "</li>";
+      }
       q.innerHTML = html;
     }
   }
@@ -444,26 +543,26 @@
 
   // step = index along the route the astronaut has reached
   function updateHUD(step) {
-    if (!Darb.route) { $("hudDist").textContent = "—"; $("hudWarn").textContent = "SET A ROUTE FIRST"; return; }
-    var pts = routeLatLngs(), g = Darb.grid, o = DARB_CONFIG.routeOptions;
+    if (!Darb.route) { $("hudDist").textContent = "—"; $("hudWarn").textContent = T("hudNoRoute"); return; }
+    var pts = routeLatLngs(), g = Darb.grid, o = Object.assign({}, DarbRoute.DEFAULTS, DARB_CONFIG.routeOptions);
     step = Math.min(step, pts.length - 1);
-    var left = 0;
-    for (var i = step; i < pts.length - 1; i++) left += marsDistance(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1]);
+    var walked = cumulativeMetres();                           // same method as the route card's distance
+    var left = walked[walked.length - 1] - walked[step];
     var done = Darb.stats.hoursOut * (step / (pts.length - 1));
     var o2Left = o.evaBudgetHours - done;
     var c = Darb.route[step], idx = c.r * g.cols + c.c;
     $("hudDist").textContent = (left / 1000).toFixed(2) + " km";
-    $("hudO2").textContent = fmtHours(o2Left).replace(" min", "m");
+    $("hudO2").textContent = fmtHours(o2Left);
     $("hudSlope").textContent = g.slope[idx].toFixed(1) + "°";
     var next = pts[Math.min(step + 3, pts.length - 1)];
     $("compassNeedle").style.transform = "rotate(" + bearing(pts[step], next) + "deg)";
     var warn = "";
     var ahead = Darb.route.slice(step, step + 5).map(function (p) { return p.r * g.cols + p.c; });
-    if (ahead.some(function (k) { return g.slope[k] > o.cautionSlope; })) warn = "⚠ STEEP SLOPE AHEAD";
-    else if (ahead.some(function (k) { return g.roughness && g.roughness[k] > DarbRoute.DEFAULTS.roughHigh; })) warn = "⚠ ROUGH GROUND AHEAD — WATCH YOUR STEP";
-    else if (ahead.some(function (k) { return g.thermal[k] !== null && g.thermal[k] < 0.25; })) warn = "⚠ LOOSE SAND AHEAD";
-    if (o2Left < Darb.stats.hoursOut + 0.25 * o.evaBudgetHours) warn = "⚠ O₂: KEEP RESERVE FOR RETURN";
-    if (step === pts.length - 1) warn = "✔ GOAL REACHED — COLLECT SAMPLES";
+    if (ahead.some(function (k) { return g.slope[k] > o.cautionSlope; })) warn = T("hudSteep");
+    else if (ahead.some(function (k) { return g.roughness && g.roughness[k] > o.roughHigh; })) warn = T("hudRough");
+    else if (ahead.some(function (k) { return g.thermal[k] !== null && g.thermal[k] < o.sandThreshold; })) warn = T("hudSand");
+    if (o2Left < Darb.stats.hoursOut + 0.25 * o.evaBudgetHours) warn = T("hudO2Reserve");
+    if (step === pts.length - 1) warn = T("hudGoal");
     $("hudWarn").textContent = warn;
   }
 
@@ -476,7 +575,7 @@
     if (!Darb.route) return;
     if (!document.body.classList.contains("hud-on")) toggleHUD();
     var pts = routeLatLngs(), step = 0;
-    var marker = L.marker(pts[0], { icon: L.divIcon({ className: "", html: '<div class="pin astro"></div>', iconSize: [14, 14] }) }).addTo(Darb.map);
+    var marker = L.marker(pts[0], { pane: "pinPane", icon: L.divIcon({ className: "", html: '<div class="pin astro"></div>', iconSize: [14, 14] }) }).addTo(Darb.map);
     Darb.map.setView(pts[0], 14);
     // The whole walk plays in about 20 seconds, however many cells the route has
     var stride = Math.max(1, Math.round(pts.length / 60));
@@ -501,7 +600,11 @@
   function mineralWords(lat, lon) {
     var parts = [];
     var phy = crismAt("phy", lat, lon), hyd = crismAt("hyd", lat, lon), maf = crismAt("maf", lat, lon), fem = crismAt("fem", lat, lon);
-    if (!phy && !hyd && !maf && !fem) return "outside CRISM coverage";
+    if (!phy && !hyd && !maf && !fem) {
+      // Say WHY there is no value — never claim "outside coverage" when the images simply haven't loaded
+      var ready = ["phy", "hyd", "maf", "fem"].every(function (c) { return typeof Darb.crismPixels[c] === "object"; });
+      return ready ? "outside CRISM coverage" : "CRISM data not loaded yet (unknown)";
+    }
     function band(obj, i) { return obj ? obj[Object.keys(obj)[i]] : 0; }
     if (phy) parts.push("Fe/Mg clay signal " + level(band(phy, 0)) + ", Al/Si-OH signal " + level(band(phy, 1)));
     if (hyd) parts.push("polyhydrated sulfate signal " + level(Math.min(band(hyd, 0), band(hyd, 2))) +
@@ -514,25 +617,35 @@
   function pointLine(label, lat, lon) {
     var info = cellInfo(lat, lon);
     if (!info) return label + ": outside the data area.";
-    var t = info.thermalRel;
-    var ground = t === null ? "unknown" : t < 0.25 ? "probably loose sand/dust" : t > 0.6 ? "rocky / hard ground" : "mixed ground";
+    var t = info.thermalRel, o = DarbRoute.DEFAULTS;          // thresholds come from route.js (one place)
+    var ground = t === null ? "unknown" : t < o.sandThreshold ? "probably loose sand/dust" : t > 0.6 ? "rocky / hard ground" : "mixed ground";
     return label + " (" + lat.toFixed(4) + "°, " + lon.toFixed(4) + "°E): elevation " + Math.round(info.elevationM) +
       " m [HiRISE DEM]; slope " + info.slopeDeg.toFixed(1) + "° [HiRISE DEM]; " +
       (info.roughDeg === null ? "" : "metre-scale roughness " + Math.round(info.roughDeg) + "° (" +
-        (info.roughDeg > 40 ? "very rough: rocks or small ridges" : info.roughDeg > 25 ? "rough" : "normal") + ") [HiRISE DEM]; ") + ground + " (THEMIS " + (t === null ? "n/a" : t.toFixed(2)) +
+        (info.roughDeg > o.roughHigh ? "very rough: rocks or small ridges" : info.roughDeg > o.roughStart ? "rough" : "normal") +
+        ") [HiRISE DEM]; ") + ground + " (THEMIS " + (t === null ? "n/a" : t.toFixed(2)) +
       ") [THEMIS]; minerals: " + mineralWords(lat, lon) + " [CRISM].";
   }
 
   // Where on the route is the steepest cell, and how far along the route (metres from the start)?
+  // Metres walked from the start to each cell of the route, measured cell-to-cell exactly like
+  // routeStats() in route.js, so the HUD, the AI facts and the route card always agree.
+  function cumulativeMetres() {
+    var g = Darb.grid, out = [0];
+    for (var i = 1; i < Darb.route.length; i++) {
+      var dy = (Darb.route[i].r - Darb.route[i - 1].r) * g.cellHeightM, dx = (Darb.route[i].c - Darb.route[i - 1].c) * g.cellWidthM;
+      out.push(out[i - 1] + Math.sqrt(dx * dx + dy * dy));
+    }
+    return out;
+  }
+
   function steepestPoint() {
-    var g = Darb.grid, pts = routeLatLngs(), best = 0, walked = 0, bestAt = 0;
+    var g = Darb.grid, pts = routeLatLngs(), walked = cumulativeMetres(), best = 0;
     Darb.route.forEach(function (c, i) {
-      if (i > 0) walked += marsDistance(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
-      var sl = g.slope[c.r * g.cols + c.c];
-      if (sl > g.slope[Darb.route[best].r * g.cols + Darb.route[best].c]) { best = i; bestAt = walked; }
+      if (g.slope[c.r * g.cols + c.c] > g.slope[Darb.route[best].r * g.cols + Darb.route[best].c]) best = i;
     });
     var cell = Darb.route[best];
-    return { slope: g.slope[cell.r * g.cols + cell.c], lat: pts[best][0], lon: pts[best][1], fromStartM: bestAt };
+    return { slope: g.slope[cell.r * g.cols + cell.c], lat: pts[best][0], lon: pts[best][1], fromStartM: walked[best] };
   }
 
   function buildContext() {
@@ -544,9 +657,13 @@
     L1.push("WEATHER [REMS, sol " + w0.sol + "]: air " + w0.minAirC + " to " + w0.maxAirC + " °C, ground " + w0.minGroundC + " to " +
       w0.maxGroundC + " °C, pressure " + w0.pressurePa + " Pa, UV " + w0.uv + ", sky " + w0.opacity + ".");
     L1.push("RADIATION [RAD]: about " + rad.surfaceDoseEquivalent_mSv_per_day + " mSv per day on the surface.");
-    if (Darb.hrsc) L1.push("DATA CHECK: our HiRISE elevation agrees with an independent model using ESA Mars Express HRSC data " +
-      "within " + Darb.hrsc.meanDifferenceM + " m on average (median difference " + Darb.hrsc.medianAbsDifferenceM + " m over " +
-      Darb.hrsc.pixelsCompared + " pixels of 200 m) [HRSC/ESA], and with Curiosity's own recorded altitude within 4.2 m.");
+    if (Darb.hrsc) L1.push("DATA CHECK: compared with an independent elevation model using ESA Mars Express HRSC data, over " +
+      Darb.hrsc.pixelsCompared + " pixels of 200 m, our HiRISE elevation has an average bias of " +
+      (Darb.hrsc.meanDifferenceM >= 0 ? "+" : "") + Darb.hrsc.meanDifferenceM + " m (ours slightly " +
+      (Darb.hrsc.meanDifferenceM >= 0 ? "higher" : "lower") + ") and a typical (median absolute) difference of " +
+      Darb.hrsc.medianAbsDifferenceM + " m [HRSC/ESA].");
+    L1.push("DATA CHECK: our elevation is within " + roverMaxDiff().toFixed(1) + " m of Curiosity's own recorded altitude at its " +
+      Darb.wp.waypoints.length + " stops in 2025 [HiRISE DEM vs Curiosity].");
     if (Darb.route && Darb.stats) {
       var s = Darb.stats, pts = routeLatLngs();
       L1.push("CURRENT ROUTE: app safety score = " + s.safety.toUpperCase() + (s.reasons.length ? " because " + s.reasons.join(", ") : "") +
@@ -582,7 +699,12 @@
   }
 
   async function askQuestion(q) {
-    if (!q.trim()) return;
+    if (!q.trim() || Darb.aiBusy) return;     // one question at a time (no duplicate requests to Ollama)
+    Darb.aiBusy = true;
+    try { await askQuestionNow(q); } finally { Darb.aiBusy = false; }
+  }
+
+  async function askQuestionNow(q) {
     addBubble("user", q);
     if (!AskDarb.state.online) await AskDarb.checkStatus();
     renderAIStatus();
@@ -594,9 +716,9 @@
       var loc = w && w.images.find(function (i) { return i.local; });
       if (loc) image = loc.local;
     }
-    var bubble = addBubble("ai", T("askThinking"));
+    var bubble = addBubble("ai", T("askThinking")), partial = "";
     try {
-      var res = await AskDarb.ask(q, buildContext(), image, function (txt) { bubble.textContent = txt; });
+      var res = await AskDarb.ask(q, buildContext(), image, function (txt) { partial = txt; bubble.textContent = txt; });
       bubble.textContent = res.text || "(empty answer)";
       var meta = res.model + " · " + res.seconds.toFixed(1) + " s" +
         (res.firstTokenSeconds ? " (first words " + res.firstTokenSeconds.toFixed(1) + " s)" : "") +
@@ -605,7 +727,9 @@
       Darb.aiLog.push({ question: q, model: res.model, seconds: +res.seconds.toFixed(2), firstToken: res.firstTokenSeconds, image: res.usedImage });
       console.table(Darb.aiLog);
     } catch (e) {
-      bubble.textContent = e.message === "offline" ? T("askOffline") : "Error: " + e.message;
+      // "offline" = Ollama not running; TypeError = the connection broke in the middle of an answer
+      var lost = e.message === "offline" || e instanceof TypeError;
+      bubble.textContent = (partial ? partial + "\n\n" : "") + (lost ? T("askLost") : T("askError") + " " + e.message);
       AskDarb.state.online = false; renderAIStatus();
     }
   }
@@ -662,8 +786,10 @@
     });
     $("langBtn").addEventListener("click", function () {
       DarbI18n.lang = DarbI18n.lang === "en" ? "ar" : "en";
-      DarbI18n.apply(); buildEnvironment(); renderRouteCard(); renderAIStatus();
-      if ($("routeMsg").textContent.indexOf("⚠") === 0 && Darb.start && Darb.goal) planRoute();
+      DarbI18n.apply(); buildEnvironment(); renderAIStatus(); refreshCrismOptions(); refreshCrismLegend();
+      // re-plan (takes a few ms) so the route message and card are rebuilt in the new language
+      if (Darb.start && Darb.goal) planRoute(); else renderRouteCard();
+      if (window.DarbTour) DarbTour.refresh();          // tour captions follow the language too
     });
     $("aiModel").addEventListener("change", function () { AskDarb.state.model = this.value; });
     document.querySelectorAll(".chip").forEach(function (b) {
@@ -681,6 +807,7 @@
   Darb.mineralWords = mineralWords;
   Darb.demoRoute = demoRoute;
   Darb.steepestPoint = steepestPoint;
+  Darb.roverMaxDiff = roverMaxDiff;
   // Also used by js/tour.js (the guided demo)
   Darb.clearRoute = clearRoute;
   Darb.askQuestion = askQuestion;

@@ -29,7 +29,8 @@
   // "don’t" (curly apostrophe). Make them all plain before checking.
   function normalise(text) {
     return text.replace(/[‐-―−]/g, "-").replace(/[‘’ʼ]/g, "'")
-      .replace(/(\d)[\s   ](?=\d{3}\b)/g, "$1");
+      .replace(/(\d)[\s   ](?=\d{3}\b)/g, "$1")
+      .replace(/٫/g, ".");          // Arabic decimal mark "٫" -> "."
   }
 
   // Does the text contain this number (allowing different rounding, e.g. 2.73 → "2.7" or "2.73")?
@@ -68,7 +69,7 @@
       { q: "Is there loose sand on the route? Give the percentage.", kind: "number", expect: Math.round(s.sandFraction * 100), tol: 1 },
       { q: "ما طول المسار بالكيلومتر؟", kind: "number", expect: s.distanceM / 1000, tol: 0.06 },
       // Traps found in round 4 (the model used to invent these details):
-      { q: "Is the 2.7 km route distance one way or round trip?", kind: "word", expect: ["one way", "one-way"] },
+      { q: "Is the " + (s.distanceM / 1000).toFixed(1) + " km route distance one way or round trip?", kind: "word", expect: ["one way", "one-way"] },
       { q: "How far from the start is the steepest point of the route, in metres?", kind: "number",
         expect: Math.round(Darb.steepestPoint().fromStartM), tol: 3 },
       { q: "What is the official safe daily radiation limit for astronauts?", kind: "unknown" },
