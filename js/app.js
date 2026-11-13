@@ -17,7 +17,8 @@
     grid: null, env: null, wp: null, crism: null,
     map: null, layers: {}, start: null, goal: null, route: null, stats: null,
     saved: { A: null, B: null }, savedLayers: {},
-    costCache: {}, crismPixels: {}, sim: null, aiLog: [], aiHistory: []
+    costCache: {}, crismPixels: {}, sim: null, aiLog: [], aiHistory: [],
+    perf: { planMs: null, lastLayer: null }   // live numbers for the performance budget lines
   };
 
   // ------------------------------------------------------------------ loading
@@ -316,6 +317,7 @@
     Darb.planSeq = (Darb.planSeq || 0) + 1;            // invalidate any planning in flight
     $("routeCard").classList.add("hidden");
     $("routeMsg").textContent = "";
+    $("perfPlan").classList.add("hidden");
   }
 
   function routeOptions() {
@@ -346,6 +348,7 @@
       Darb.route = Darb.stats = null;
       $("routeCard").classList.add("hidden");
       $("routeMsg").textContent = "⚠ " + T("err." + res.error);
+      $("perfPlan").classList.add("hidden");
       return;
     }
     // Move a pin that was snapped to safe ground, and explain why
@@ -360,10 +363,12 @@
     });
     Darb.route = res.path;
     Darb.stats = DarbRoute.routeStats(g, res.path, o);
+    Darb.perf.planMs = ms;
     $("routeMsg").innerHTML = esc(T("routeFound")).replace("{algorithm}", iso("A*"))
       .replace("{time}", iso(ms.toFixed(0) + " " + T("unitMs"))).replace("{n}", iso(res.path.length)) + " " + notes.join(" ");
     drawRoute();
     renderRouteCard();
+    renderPerfPlan(ms);
   }
 
   function routeLatLngs() {
@@ -472,6 +477,24 @@
     $("stSand").innerHTML = iso(Math.round(s.sandFraction * 100) + "%");
     $("stRough").innerHTML = iso(Math.round((s.roughFraction || 0) * 100) + "%");
     $("stDose").innerHTML = iso((rad * s.hoursRoundTrip / 24).toFixed(3) + " mSv");
+  }
+
+  // ------------------------------------------------ performance budget lines
+  // The app shows its own live timings against the budgets we committed to
+  // (A* planning < 50 ms, layer toggle < 200 ms on a normal laptop)
+  function renderPerfPlan(ms) {
+    var el = $("perfPlan");
+    el.classList.remove("hidden");
+    el.textContent = T(ms < 50 ? "perfPlanOk" : "perfPlanOver").replace("{ms}", ms.toFixed(1));
+  }
+
+  function renderPerfLayer() {
+    var el = $("perfLayer"), p = Darb.perf.lastLayer;
+    if (!p) { el.classList.add("hidden"); return; }
+    el.classList.remove("hidden");
+    var name = T("layer" + p.key.charAt(0).toUpperCase() + p.key.slice(1));
+    el.textContent = T(p.ms < 200 ? "perfLayerOk" : "perfLayerOver")
+      .replace("{ms}", p.ms.toFixed(1)).replace("{layer}", name);
   }
 
   // ------------------------------------------------ export & share
@@ -1054,7 +1077,10 @@
     var map = Darb.map;
     function toggleLayer(id, key) {
       $(id).addEventListener("change", function () {
+        var t0 = performance.now();
         if (this.checked) Darb.layers[key].addTo(map); else map.removeLayer(Darb.layers[key]);
+        Darb.perf.lastLayer = { key: key, ms: performance.now() - t0 };
+        renderPerfLayer();
       });
     }
     toggleLayer("lySlope", "slope"); toggleLayer("lyRough", "rough"); toggleLayer("lyThermal", "thermal"); toggleLayer("lyMinerals", "minerals");
@@ -1100,6 +1126,7 @@
       // re-plan (takes a few ms) so the route message and card are rebuilt in the new language
       if (Darb.start && Darb.goal) planRoute(); else renderRouteCard();
       renderCompare();                                      // comparison card text and verdict follow the language too
+      renderPerfLayer();                                    // last layer-timing line follows the language too
       if (window.DarbTour) DarbTour.refresh();          // tour captions follow the language too
     });
     $("aiModel").addEventListener("change", function () { AskDarb.state.model = this.value; });
