@@ -182,13 +182,15 @@ height — and the rover standing on the ground agrees with us within 4 metres."
 - Slope limits, 2 km/h and the 8 h budget are our assumptions.
 - The AI can still be wrong; it explains but does not decide the safety score.
 
-## 11. Who explains what (fill in)
+## 11. Who explains what
+Assigned from the role table in AI-USAGE.md (section 1); the others help with follow-up questions in their own area.
+
 | Topic | Team member |
 |---|---|
-| The idea, location and science goal (boxwork) | ________ |
-| NASA data and how we built it | ________ |
-| Cost function and A* | ________ |
-| Walking time, O₂, safety score, buddy mode | ________ |
-| Map, layers, HUD, Arabic | ________ |
-| Ask Darb (offline AI) and its limits | ________ |
-| Demo driver | ________ |
+| The idea, location and science goal (boxwork) | Milad |
+| NASA data and how we built it | Milad |
+| Cost function and A* | Youseef |
+| Walking time, O₂, safety score, buddy mode | Youseef |
+| Map, layers, HUD, Arabic | Lujain |
+| Ask Darb (offline AI) and its limits | Youseef |
+| Demo driver | Mahmoud |
