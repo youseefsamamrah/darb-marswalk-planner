@@ -1,0 +1,39 @@
+/* Darb — alternate themes (AI-assisted)
+   Light: for bright environments / eye strain. High contrast: for weak vision.
+   Toggle in the top bar cycles dark → light → high contrast. */
+
+:root.theme-light {
+  --bg: #f4f6fb;
+  --panel: #ffffff;
+  --card: #e9edf8;
+  --line: #b9c3de;
+  --text: #101638;
+  --muted: #4a557a;
+  --mars: #b33418;
+  --blue: #0a5f9e;
+}
+
+:root.theme-hc {
+  --bg: #000000;
+  --panel: #000000;
+  --card: #0a0a0a;
+  --line: #ffffff;
+  --text: #ffffff;
+  --muted: #ffffff;
+  --mars: #ff9d00;
+  --blue: #ffe600;
+  --safe: #00e000;
+  --caution: #ffff00;
+  --danger: #ff2020;
+}
+
+/* Keyboard focus: Tab must always show a clear outline (accessibility) */
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+.theme-hc :focus-visible { outline: 4px solid var(--blue); outline-offset: 3px; }
+
+/* High contrast: remove soft glows and raise weight so text is crisp */
+:root.theme-hc .logo { box-shadow: none; }
+:root.theme-hc .topbar { background: var(--bg); }
+:root.theme-hc .btn { border-width: 2px; }
+:root.theme-hc .card, :root.theme-hc .route-card { border-width: 2px; }
+:root.theme-hc * { font-weight: 500; }

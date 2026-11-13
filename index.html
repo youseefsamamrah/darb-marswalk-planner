@@ -8,6 +8,7 @@
   <!-- Leaflet is stored locally in vendor/ so the app works without internet -->
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
   <link rel="stylesheet" href="css/style.css?v=15">
+  <link rel="stylesheet" href="css/themes.css?v=1">
 </head>
 <body>
   <header class="topbar">
@@ -20,6 +21,7 @@
     </div>
     <div class="top-actions">
       <span class="delay" data-i18n="lightDelay"></span>
+      <button id="themeBtn" class="btn ghost" aria-label="Switch colour theme: dark, light, high contrast" data-i18n="themeBtn">🌙</button>
       <button id="tourBtn" class="btn primary" data-i18n="tourBtn">▶ Tour</button>
       <button id="hudBtn" class="btn ghost" data-i18n="hudBtn">HUD mode</button>
       <button id="langBtn" class="btn ghost" data-i18n="langBtn">عربي</button>
@@ -111,7 +113,7 @@
 
     <!-- ===== Map ===== -->
     <section class="map-wrap">
-      <div id="map"></div>
+      <div id="map" role="application" aria-label="Mars map of Gale Crater — click to set start and goal of a route"></div>
       <div id="hover" class="hover" data-i18n="hover"></div>
       <!-- HUD (helmet visor) overlay, shown only in HUD mode -->
       <div id="hud" class="hud hidden" aria-hidden="true">
@@ -130,10 +132,10 @@
 
   <script src="vendor/leaflet/leaflet.js"></script>
   <script src="js/config.js?v=15"></script>
-  <script src="js/i18n.js?v=15"></script>
+  <script src="js/i18n.js?v=16"></script>
   <script src="js/route.js?v=15"></script>
   <script src="js/askdarb.js?v=15"></script>
-  <script src="js/app.js?v=16"></script>
+  <script src="js/app.js?v=18"></script>
   <!-- Guided demo for the pitch ("▶ Tour" button) -->
   <script src="js/tour.js?v=16"></script>
   <!-- Ask Darb test set: only runs when the address ends with ?eval -->

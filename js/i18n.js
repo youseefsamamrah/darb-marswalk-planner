@@ -59,6 +59,7 @@ var DARB_TEXT = {
     hover: "Move over the map to read the data", wpLook: "What to look for",
     wpText: "Boxwork: criss-crossing ridges about 1–2 m tall with sandy hollows between them. Groundwater once left minerals in fractures; those parts resisted wind erosion (NASA/JPL, 2026). Look for a thin central fracture along ridge tops, layered sulfate-rich bedrock, and loose sand in the hollows.",
     lightDelay: "Earth is 4–24 light-minutes away: Darb's AI runs on this device.",
+    themeBtn: "🌙 Dark", themeLight: "☀️ Light", themeHC: "◐ High contrast",
     sampleNote: "No SAMPLE DATA is used: every layer comes from NASA data (see SOURCES.md)."
   },
   ar: {
@@ -115,6 +116,7 @@ var DARB_TEXT = {
     hover: "مرّر فوق الخريطة لقراءة البيانات", wpLook: "ماذا تبحث عنه",
     wpText: "الصناديق: حواف متقاطعة بارتفاع 1–2 م تقريباً بينها تجاويف رملية. ترسبت معادن من المياه الجوفية في الشقوق فقاومت تعرية الرياح (ناسا/JPL، 2026). ابحث عن شق رفيع في قمة الحافة، وصخور طبقية غنية بالكبريتات، ورمل مفكك في التجاويف.",
     lightDelay: "الأرض على بعد 4–24 دقيقة ضوئية: ذكاء دَرْب يعمل على هذا الجهاز.",
+    themeBtn: "🌙 داكن", themeLight: "☀️ فاتح", themeHC: "◐ تباين عالٍ",
     sampleNote: "لا توجد بيانات تجريبية: كل الطبقات من بيانات ناسا (انظر SOURCES.md)."
   }
 };

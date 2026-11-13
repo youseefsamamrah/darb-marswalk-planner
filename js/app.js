@@ -796,6 +796,28 @@
       if (window.DarbTour) DarbTour.refresh();          // tour captions follow the language too
     });
     $("aiModel").addEventListener("change", function () { AskDarb.state.model = this.value; });
+    // Colour theme: cycles dark → light → high contrast; remembered between visits (accessibility)
+    (function () {
+      var themes = ["dark", "light", "hc"];
+      var keys = { dark: "themeBtn", light: "themeLight", hc: "themeHC" };
+      var root = document.documentElement;
+      function apply(name) {
+        saved = name;
+        root.classList.remove("theme-light", "theme-hc");
+        if (name === "light") root.classList.add("theme-light");
+        if (name === "hc") root.classList.add("theme-hc");
+        try { localStorage.setItem("darbTheme", name); } catch (e) {}
+        $("themeBtn").textContent = T(keys[name]);
+      }
+      var saved = "dark";
+      try { saved = localStorage.getItem("darbTheme") || "dark"; } catch (e) {}
+      if (themes.indexOf(saved) < 0) saved = "dark";
+      $("themeBtn").addEventListener("click", function () {
+        apply(themes[(themes.indexOf(saved) + 1) % themes.length]);
+      });
+      Darb.theme = function (name) { if (themes.indexOf(name) >= 0) { saved = name; apply(name); } };
+      apply(saved);
+    })();
     document.querySelectorAll(".chip").forEach(function (b) {
       b.addEventListener("click", function () { askQuestion(T(b.dataset.q)); });
     });
