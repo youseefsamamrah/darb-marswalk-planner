@@ -1,0 +1,141 @@
+{
+  "devices": [
+    {
+      "device": "iPhone SE 375x667",
+      "issues": [],
+      "checks": {
+        "horizontalOverflow": "ok",
+        "demoRoute": {
+          "distance": "2.73 km",
+          "safety": "🟡 Caution"
+        },
+        "touchTargets": [
+          {
+            "sel": "#tourBtn",
+            "visible": true,
+            "w": 69,
+            "h": 36
+          },
+          {
+            "sel": "#hudBtn",
+            "visible": true,
+            "w": 95,
+            "h": 36
+          },
+          {
+            "sel": "#langBtn",
+            "visible": true,
+            "w": 56,
+            "h": 36
+          },
+          {
+            "sel": "#demoBtn",
+            "visible": true,
+            "w": 319,
+            "h": 36
+          },
+          {
+            "sel": "#clearBtn",
+            "visible": true,
+            "w": 57,
+            "h": 36
+          },
+          {
+            "sel": "#simBtn",
+            "visible": true,
+            "w": 111,
+            "h": 36
+          }
+        ],
+        "popup": {
+          "markers": 10,
+          "popup": true,
+          "fitsViewport": true,
+          "rect": {
+            "l": 10,
+            "t": 27,
+            "r": 337,
+            "b": 288
+          }
+        },
+        "arabicRTL": true,
+        "panelTitle": "طبقات البيانات",
+        "panelScrollable": {
+          "askVisible": true,
+          "scrollHeight": 1753,
+          "clientHeight": 268
+        }
+      }
+    },
+    {
+      "device": "Pixel 5 393x851",
+      "issues": [],
+      "checks": {
+        "horizontalOverflow": "ok",
+        "demoRoute": {
+          "distance": "2.73 km",
+          "safety": "🟡 Caution"
+        },
+        "touchTargets": [
+          {
+            "sel": "#tourBtn",
+            "visible": true,
+            "w": 69,
+            "h": 36
+          },
+          {
+            "sel": "#hudBtn",
+            "visible": true,
+            "w": 95,
+            "h": 36
+          },
+          {
+            "sel": "#langBtn",
+            "visible": true,
+            "w": 56,
+            "h": 36
+          },
+          {
+            "sel": "#demoBtn",
+            "visible": true,
+            "w": 319,
+            "h": 36
+          },
+          {
+            "sel": "#clearBtn",
+            "visible": true,
+            "w": 57,
+            "h": 36
+          },
+          {
+            "sel": "#simBtn",
+            "visible": true,
+            "w": 111,
+            "h": 36
+          }
+        ],
+        "popup": {
+          "markers": 10,
+          "popup": true,
+          "fitsViewport": true,
+          "rect": {
+            "l": 15,
+            "t": 48,
+            "r": 343,
+            "b": 410
+          }
+        },
+        "arabicRTL": true,
+        "panelTitle": "طبقات البيانات",
+        "panelScrollable": {
+          "askVisible": true,
+          "scrollHeight": 1712,
+          "clientHeight": 351
+        }
+      }
+    }
+  ],
+  "startedAt": "2026-11-13T20:18:36.729Z",
+  "endedAt": "2026-11-13T20:18:38.990Z",
+  "allClean": true
+}
