@@ -818,6 +818,13 @@
       Darb.layers.slope.setOpacity(v * 0.8); Darb.layers.rough.setOpacity(v); Darb.layers.minerals.setOpacity(v);
       Darb.layers.thermal.setOpacity(v); Darb.layers.mola.setOpacity(v);
     });
+    // One toggle in the layers card: show/hide the citation line under every layer
+    $("srcBtn").addEventListener("click", function () {
+      var card = this.closest(".card");
+      var open = card.classList.toggle("srcs-open");
+      this.dataset.i18n = open ? "srcHide" : "srcShow";
+      this.textContent = T(open ? "srcHide" : "srcShow");
+    });
     $("demoBtn").addEventListener("click", demoRoute);
     $("clearBtn").addEventListener("click", clearRoute);
     $("simBtn").addEventListener("click", simulateWalk);

@@ -45,6 +45,11 @@ a { color: var(--blue); }
 [dir="rtl"] .legend { margin: 0 24px 6px 0; }
 .legend details summary { cursor: pointer; color: var(--blue); }
 .legend details p { margin: 4px 0 0; }
+.src { display: none; margin: 0 0 6px 24px; font-size: 11px; line-height: 1.5; color: var(--muted); }
+[dir="rtl"] .src { margin: 0 24px 6px 0; }
+.card.srcs-open .src { display: block; }
+.src-link { color: var(--blue); }
+.src-btn { margin-top: 8px; font-size: 11px; padding: 4px 8px; }
 .opacity { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); margin-top: 8px; }
 .opacity input { flex: 1; accent-color: var(--mars); }
 /* min-width:0 + ellipsis: a long option never pushes the box wider than the panel */

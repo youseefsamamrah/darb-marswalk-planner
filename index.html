@@ -7,7 +7,7 @@
   <!-- Version tags change with edited assets so browsers load the new copy. -->
   <!-- Leaflet is stored locally in vendor/ so the app works without internet -->
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=16">
+  <link rel="stylesheet" href="css/style.css?v=17">
   <link rel="stylesheet" href="css/themes.css?v=1">
 </head>
 <body>
@@ -36,16 +36,23 @@
         <h2 data-i18n="layersTitle">Data layers</h2>
         <label class="toggle"><input type="checkbox" id="lySlope" checked> <span data-i18n="layerSlope"></span></label>
         <p class="legend slope-legend" data-i18n="legendSlope"></p>
+        <div class="src"><span data-i18n="srcSlope"></span> <a class="src-link" href="https://planetarymaps.usgs.gov/mosaic/Mars/MSL/MSL_Gale_DEM_Mosaic_1m_v3.tif" target="_blank" rel="noopener" data-i18n="srcDem"></a></div>
         <label class="toggle"><input type="checkbox" id="lyRough"> <span data-i18n="layerRough"></span></label>
         <p class="legend" data-i18n="legendRough"></p>
+        <div class="src"><span data-i18n="srcRough"></span></div>
         <label class="toggle"><input type="checkbox" id="lyThermal"> <span data-i18n="layerThermal"></span></label>
         <p class="legend" data-i18n="legendThermal"></p>
+        <div class="src"><span data-i18n="srcThermal"></span> <a class="src-link" href="https://trek.nasa.gov/mars/" target="_blank" rel="noopener" data-i18n="srcTrek"></a></div>
         <label class="toggle"><input type="checkbox" id="lyMinerals"> <span data-i18n="layerMinerals"></span></label>
         <select id="crismSelect" class="select"></select>
         <p class="legend" id="crismLegend"></p>
+        <div class="src"><span data-i18n="srcMinerals"></span> <a class="src-link" href="https://pds-geosciences.wustl.edu/mro/mro-m-crism-5-rdr-mptargeted-v1/mrocr_4001/browse/2008/2008_191/frt0000b6f1/" target="_blank" rel="noopener" data-i18n="srcPds"></a></div>
         <label class="toggle"><input type="checkbox" id="lyMola"> <span data-i18n="layerMola"></span></label>
+        <div class="src"><span data-i18n="srcMola"></span> <a class="src-link" href="https://trek.nasa.gov/mars/" target="_blank" rel="noopener" data-i18n="srcTrek"></a> · <a class="src-link" href="https://pds-geosciences.wustl.edu/mgs/mgs-m-mola-5-megdr-l3-v1/mgsl_300x/meg128/megt00n090hb.img" target="_blank" rel="noopener" data-i18n="srcMegdr"></a></div>
         <label class="toggle"><input type="checkbox" id="lyRover" checked> <span data-i18n="layerRover"></span></label>
+        <div class="src"><span data-i18n="srcRover"></span> <a class="src-link" href="https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints.json" target="_blank" rel="noopener" data-i18n="srcMmgis"></a></div>
         <label class="opacity"><span data-i18n="opacity">Opacity</span> <input type="range" id="opacity" min="0.1" max="1" step="0.05" value="0.55"></label>
+        <button id="srcBtn" class="btn ghost src-btn" data-i18n="srcShow">Show data sources</button>
       </section>
 
       <!-- Route planner -->
@@ -132,10 +139,10 @@
 
   <script src="vendor/leaflet/leaflet.js"></script>
   <script src="js/config.js?v=15"></script>
-  <script src="js/i18n.js?v=18"></script>
+  <script src="js/i18n.js?v=19"></script>
   <script src="js/route.js?v=15"></script>
   <script src="js/askdarb.js?v=16"></script>
-  <script src="js/app.js?v=21"></script>
+  <script src="js/app.js?v=22"></script>
   <!-- Guided demo for the pitch ("▶ Tour" button) -->
   <script src="js/tour.js?v=16"></script>
   <!-- Ask Darb test set: only runs when the address ends with ?eval -->
