@@ -54,10 +54,12 @@
 - Both labels EN + AR via `js/i18n.js`
 - Verified live: in-page `canvas.toBlob` captured a 1400×900 `image/png` (~103 KB); share copy + hash round-trip reproduced the same demo route with 0 console errors
 
-#### 8. **Add Compare Routes Mode**
-- **Why**: Two astronauts planning different options
-- **Action**: Allow drawing multiple routes, show which is safer/shorter
-- Side-by-side comparison on the map
+#### 8. ~~**Add Compare Routes Mode**~~ ✅ **DONE 2026-11-13**
+- "Save as A" / "Save as B" buttons snapshot the current route (cells, stats, endpoints) and draw it as a dashed overlay: A blue `#59b7ff`, B orange `#ff9a3d`
+- Comparison card below the route card: side-by-side table (safety, distance, one-way time, round trip, max slope, loose sand, rough ground, radiation dose) with the clearly better cell highlighted green
+- Plain-language verdict line: "same safety level · Route A is 0.06 km shorter · Route A is 0 h 04 min faster" (ties say "same", each slot has a × to clear just it)
+- Saving routes survives "Clear"; re-planning never changes what is saved
+- All labels EN + AR via `js/i18n.js`; verified live in the browser: save A, save B, winners highlighted, × clears one slot, Arabic flip rebuilds the whole card in RTL with `<bdi>`, 0 console errors
 
 #### 9. ~~**Enhance Error Handling for Offline AI**~~ ✅ **DONE 2026-11-13**
 - Auto-reconnect with exponential backoff (30 s → 60 s → 120 s cap) lives inside Ask Darb's checker; UI listens to status changes (no 15 s poll)
@@ -79,10 +81,11 @@
 #### 12. ~~**Add Dark/Light Theme Toggle**~~ ✅ **DONE 2026-11-13**
 - Theme switch in the top bar: dark → light → high contrast (with item 5); choice remembered between visits
 
-#### 13. **Add Route Comparison Mode**
+#### 13. ~~**Add Route Comparison Mode**~~ ✅ **DONE 2026-11-13**
 - **Why**: Two options to choose from
 - **Action**: Allow saving 2 routes, overlay with comparison panel
 - Show both paths' stats side-by-side
+- Implemented together with item 8: "Save as A" / "Save as B" snapshot each route, dashed overlays (A blue, B orange), side-by-side stats table with the better cell highlighted, plain-language verdict, per-slot × to clear one — all EN + AR
 
 ### 🥉 LOW IMPACT (Nice-to-have polish)
 
