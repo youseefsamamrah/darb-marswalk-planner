@@ -16,7 +16,7 @@
   var Darb = window.Darb = {
     grid: null, env: null, wp: null, crism: null,
     map: null, layers: {}, start: null, goal: null, route: null, stats: null,
-    costCache: {}, crismPixels: {}, sim: null, aiLog: []
+    costCache: {}, crismPixels: {}, sim: null, aiLog: [], aiHistory: []
   };
 
   // ------------------------------------------------------------------ loading
@@ -719,7 +719,17 @@
     addBubble("user", q);
     if (!AskDarb.state.online) await AskDarb.checkStatus();
     renderAIStatus();
-    if (!AskDarb.state.online) { addBubble("ai", T("askOffline")); return; }
+    if (!AskDarb.state.online) {
+      addBubble("ai", T("askOffline"));
+      // Cached recent answers from this session: useful even without Ollama
+      if (Darb.aiHistory.length) {
+        var recent = Darb.aiHistory.slice(0, 3).map(function (h) {
+          return "“" + h.q + "” — " + (h.text.length > 120 ? h.text.slice(0, 117) + "…" : h.text);
+        }).join("\n");
+        addBubble("ai", T("askRecent") + "\n" + recent, T("askRecentMeta"));
+      }
+      return;
+    }
     // Attach a rover photo if the question is about a photo/image of a waypoint number
     var image = null, m = q.match(/(?:waypoint|stop|محطة|المحطة)\s*#?\s*(\d+)/i);
     if (m && /photo|image|picture|rock|صورة|صخ/i.test(q)) {
@@ -739,19 +749,36 @@
       var ms = document.createElement("span"); ms.className = "meta"; ms.textContent = meta; bubble.appendChild(ms);
       Darb.aiLog.push({ question: q, model: res.model, seconds: +res.seconds.toFixed(2), firstToken: res.firstTokenSeconds, image: res.usedImage });
       console.table(Darb.aiLog);
+      // Keep the 5 most recent answers on-device: the offline fallback shows them
+      Darb.aiHistory.unshift({ q: q, text: res.text || "…" });
+      if (Darb.aiHistory.length > 5) Darb.aiHistory.length = 5;
     } catch (e) {
       // "offline" = Ollama not running; TypeError = the connection broke in the middle of an answer
       var lost = e.message === "offline" || e instanceof TypeError;
       finishBubble((partial ? partial + "\n\n" : "") + (lost ? T("askLost") : T("askError") + " " + e.message));
-      AskDarb.state.online = false; renderAIStatus();
+      AskDarb.markOffline();
     }
   }
 
+  var aiTick = null;
   function renderAIStatus() {
     var st = AskDarb.state;
+    if (aiTick) { clearInterval(aiTick); aiTick = null; }
     $("aiDot").className = "dot " + (st.online ? "on" : "off");
-    $("aiStatus").dataset.i18n = st.online ? "askOnline" : "askOffline";
-    $("aiStatus").textContent = T($("aiStatus").dataset.i18n);
+    var label = $("aiStatus");
+    // Offline + retry scheduled: show a live countdown to the reconnect attempt
+    if (!st.online && st.retryAt > 0) {
+      aiTick = setInterval(function () {
+        var left = Math.max(0, Math.ceil((st.retryAt - Date.now()) / 1000));
+        label.dataset.i18n = "askRetrying";
+        label.textContent = T("askRetrying").replace("{in}", String(left));
+      }, 1000);
+      label.dataset.i18n = "askRetrying";
+      label.textContent = T("askRetrying").replace("{in}", String(Math.max(0, Math.ceil((st.retryAt - Date.now()) / 1000))));
+    } else {
+      label.dataset.i18n = st.online ? "askOnline" : "askOffline";
+      label.textContent = T(label.dataset.i18n);
+    }
     var sel = $("aiModel");
     sel.classList.toggle("hidden", !st.online);
     if (st.online && sel.options.length !== st.models.length) {
@@ -764,8 +791,9 @@
   }
 
   function pollAI() {
+    // The checker schedules its own reconnect attempts; the UI just listens
+    AskDarb.onStatusChange(renderAIStatus);
     AskDarb.checkStatus().then(renderAIStatus);
-    setInterval(function () { AskDarb.checkStatus().then(renderAIStatus); }, 15000);
   }
 
   // ------------------------------------------------------------------ wiring buttons

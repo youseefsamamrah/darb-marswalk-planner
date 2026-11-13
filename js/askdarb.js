@@ -12,7 +12,9 @@
  */
 var AskDarb = (function () {
   "use strict";
-  var state = { online: false, model: null, models: [] };
+  var state = { online: false, model: null, models: [], retryAt: 0, retryStep: 0 };
+  var RETRY_STEPS = [30000, 60000, 120000];    // backoff: 30 s → 60 s → 120 s, then every 120 s
+  var retryTimer = null, listeners = [];
 
   var SYSTEM_PROMPT =
     "You are Darb, the offline safety assistant inside a spacesuit EVA planner on MARS " +
@@ -25,8 +27,42 @@ var AskDarb = (function () {
     "use simple words, and name which data layer each fact comes from (HiRISE DEM, THEMIS, CRISM, REMS, RAD, Curiosity). " +
     "Reply in the same language as the question.";
 
+  function fireStatus() {
+    listeners.forEach(function (cb) { try { cb(state.online); } catch (e) { /* UI listener must not break the AI check */ } });
+  }
+
+  // Schedule the next reconnect attempt (exponential backoff, capped at 120 s).
+  function scheduleRetry() {
+    if (retryTimer || state.online) return;
+    var delay = RETRY_STEPS[Math.min(state.retryStep, RETRY_STEPS.length - 1)];
+    state.retryStep++;
+    state.retryAt = Date.now() + delay;
+    retryTimer = setTimeout(function () {
+      retryTimer = null;
+      state.retryAt = 0;
+      checkStatus();
+    }, delay);
+  }
+
+  function cancelRetry() {
+    if (retryTimer) clearTimeout(retryTimer);
+    retryTimer = null;
+    state.retryAt = 0;
+  }
+
+  function onStatusChange(cb) { if (listeners.indexOf(cb) < 0) listeners.push(cb); }
+
+  // Call when a connection that WAS working drops mid-answer (e.g. Ollama crashed).
+  function markOffline() {
+    if (!state.online) return;
+    state.online = false;
+    fireStatus();
+    scheduleRetry();
+  }
+
   // Check if Ollama is running and which models are installed.
   async function checkStatus() {
+    var wasOnline = state.online;
     try {
       var ctrl = new AbortController();
       var timer = setTimeout(function () { ctrl.abort(); }, 2500);
@@ -43,8 +79,13 @@ var AskDarb = (function () {
         state.model = pick || state.models[0].name;
       }
       state.online = true;
+      state.retryStep = 0;
+      cancelRetry();
+      if (!wasOnline) fireStatus();
     } catch (e) {
       state.online = false;
+      scheduleRetry();
+      if (wasOnline) fireStatus();
     }
     return state;
   }
@@ -133,5 +174,5 @@ var AskDarb = (function () {
     };
   }
 
-  return { state: state, checkStatus: checkStatus, ask: ask, modelHasVision: modelHasVision };
+  return { state: state, checkStatus: checkStatus, ask: ask, modelHasVision: modelHasVision, onStatusChange: onStatusChange, markOffline: markOffline };
 })();
