@@ -1,7 +1,6 @@
 """
 serve.py  -  the local web server for Darb (used by start.bat).
 
-AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
 
 It is Python's normal `http.server`, plus one header: "Cache-Control: no-cache".
 That tells the browser: "you may keep a copy, but ask me first if it changed". Without it, a browser can

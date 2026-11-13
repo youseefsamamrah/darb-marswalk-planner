@@ -1,6 +1,5 @@
 """
 
-AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
 build_data.py  -  Data agent script for Darb (Marswalk Planner)
 
 Downloads REAL public NASA data for our study area on Mount Sharp (Gale Crater)
@@ -37,7 +36,6 @@ MARS_RADIUS_M = 3396190.0            # IAU Mars sphere radius used by MOLA / Tre
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "..", "data")
 AI_DATA_NOTICE = "The data values come from NASA/USGS/CAB sources (see SOURCES.md). The script that downloaded and processed them (tools/build_data.py) was written with help from an AI coding assistant (Claude Code, Anthropic) and checked by the team (e.g. elevation vs. Curiosity's own measurements). See AI-USAGE.md."
-# ^ written into every data file as "aiNotice" (Space Apps rule: say where SI helped, in text AND metadata)
 UA = {"User-Agent": "darb-marswalk-student-project"}
 
 

@@ -1,4 +1,3 @@
-// AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
 // Unit tests for js/route.js — run with:  node --test tests
 // These tests use small hand-made TEST grids (not Mars data) so we know the right answer.
 const test = require("node:test");

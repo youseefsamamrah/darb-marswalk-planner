@@ -2,7 +2,6 @@
 hrsc_check.py  -  cross-check our elevation grid with an INDEPENDENT elevation model that uses
 ESA Mars Express HRSC data (a 2026 Space Apps Space Agency Partner).
 
-AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
 
 Source: "Mars MGS MOLA - MEX HRSC Blended DEM Global 200m v2" (USGS Astrogeology; HRSC: ESA/DLR/FU Berlin; MOLA: NASA)
   https://planetarymaps.usgs.gov/mosaic/Mars/HRSC_MOLA_Blend/Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif

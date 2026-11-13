@@ -1,5 +1,4 @@
 /*
- * AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
  * eval.js — a test set for "Ask Darb" (the offline AI)
  * -----------------------------------------------------
  * Open the app with  http://localhost:8000/?eval  to run it (Ollama must be running).

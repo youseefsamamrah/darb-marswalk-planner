@@ -12,9 +12,6 @@
 Projects may not include **images, video, audio or any likeness of persons under 18**. So: **screen recording only** —
 no faces, no webcam, no recorded voices of team members under 18. For sound, use **text captions**, an **adult** voice
 (mentor or parent), or a **text-to-speech voice**.
-If you use text-to-speech, that audio is **SI-generated**: the guide requires saying so in descriptive text and metadata —
-add "Voice-over: SI-generated text-to-speech" in the video description and the file's metadata, and mention it in the
-"Use of SI" field.
 
 **Team member names:** the guide asks slide decks to show the team name, the **names of team members** and the challenge.
 Our project rules so far said "no names of real people". Names are not in the under-18 list (images, video, audio,

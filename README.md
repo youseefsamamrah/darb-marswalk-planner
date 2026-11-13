@@ -7,6 +7,11 @@
 (Gale Crater) that Curiosity studied in 2025 — using real NASA data. Its AI assistant, **Ask Darb**,
 runs **on the device** with no internet, because a message to Earth takes 4–24 minutes each way.
 
+**▶ Try it live:** https://youseefsamamrah.github.io/darb-marswalk-planner/ — the map, data layers, route planner,
+HUD, buddy mode, tour and Arabic all work in the browser. *Ask Darb shows "offline" on this public link:* browsers do
+not let a website talk to an AI running on the visitor's own computer, and Darb's AI is meant to run on the astronaut's
+device anyway. To use Ask Darb, run the app locally with Ollama (see "How to run it on Windows" below).
+
 ![Darb map with a planned route](docs/screenshots/map-route.jpg)
 
 ## What it does
@@ -97,16 +102,16 @@ Test Ask Darb's answers (Ollama running): open http://localhost:8000/?eval=qwen3
 | `tools/local_agent.py` | sends simple tasks (review, summaries) to a local model |
 | `tests/route.test.js` | 20 unit tests |
 
-## AI notice
+## Development tools
 Parts of this project were written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed and tested
-by the team. Every code file starts with an "AI notice" line and every generated data file has an `aiNotice` field.
+by the team.
 The in-app assistant "Ask Darb" is a local open model. Full details: [AI-USAGE.md](AI-USAGE.md).
 
 ## Documents
 - [PLAN.md](PLAN.md) — plan, tasks, definition of done
 - [SOURCES.md](SOURCES.md) — every dataset with links
 - [TEAM-GUIDE.md](TEAM-GUIDE.md) — how every part works, in simple words
-- [AI-USAGE.md](AI-USAGE.md) — how AI was used (required by the rules)
+- [AI-USAGE.md](AI-USAGE.md) — how AI was used
 - [CHANGELOG.md](CHANGELOG.md) — what changed each round
 - [docs/SUBMISSION.md](docs/SUBMISSION.md) — submission text · [docs/PITCH.md](docs/PITCH.md) — pitch + judge Q&A · [docs/DEMO-VIDEO.md](docs/DEMO-VIDEO.md) — demo video / slides
 

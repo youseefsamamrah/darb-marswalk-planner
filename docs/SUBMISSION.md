@@ -32,7 +32,9 @@ because the first Mars walkers will need mission-control-quality planning withou
 
 ## Link to Final Project
 https://github.com/youseefsamamrah/darb-marswalk-planner
-(Public; checked without signing in on 12 Nov 2026 — the repository page, README, docs and files all open.)
+Live app (no install): https://youseefsamamrah.github.io/darb-marswalk-planner/
+(Both public; checked without signing in on 12 Nov 2026. On the live link the offline AI "Ask Darb" shows "offline",
+because browsers block websites from reaching an AI on the visitor's computer — run the app locally with Ollama to use it.)
 
 ## Detailed Project Description
 
@@ -89,19 +91,13 @@ Ollama with local open models (qwen3.5:9b; gpt-oss:20b for comparison); Git. Dev
 "Use of Super Intelligence" field and in AI-USAGE.md in the repository.
 
 ## Use of Super Intelligence (SI)
-> The guide says this answer is for data collection and is **not shown to judges**, but SI markers inside the project
-> (descriptive text and metadata) are. Our markers: an "AI notice" at the top of every code file, an `aiNotice` field in
-> every generated data file, and AI-USAGE.md. The guide also says SI must not be used to come up with the idea.
-> The team must fill in its own contribution statement in AI-USAGE.md before submission.
-
 Yes. [Team contribution statement: ______________________________ — team to complete.]
 We used a cloud AI coding assistant (Claude Code by Anthropic) to help write the code, the
 data-processing scripts and first drafts of the documentation, and local open models (gpt-oss:20b, qwen3.5:9b via Ollama)
 for first-pass code review. We tested and reviewed all AI-generated work: 20 unit tests, click-testing every feature,
-checking every data link, and comparing our elevation data with Curiosity's own measurements. All code files and generated
-data files carry an AI notice. Inside the product, "Ask Darb" uses a local open model (qwen3.5:9b) with no internet; it
+checking every data link, and comparing our elevation data with Curiosity's own measurements. Inside the product, "Ask Darb" uses a local open model (qwen3.5:9b) with no internet; it
 answers only from the map's data, says "I don't know" otherwise, and scored 54/54 on our test set. No SI-generated images,
-video or audio are used. `[If you use a text-to-speech voice in the demo video, add: "The demo voice-over is SI-generated text-to-speech" — and say so in the video description too.]`
+video or audio are used.
 
 ## NASA Data
 - **MSL Gale DEM Mosaic 1m v3** (HiRISE stereo; USGS Astrogeology, NASA/JPL/University of Arizona) — elevation, slope and

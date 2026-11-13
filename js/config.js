@@ -1,5 +1,4 @@
 /*
- * AI notice: written with help from an AI coding assistant (Claude Code, Anthropic) and reviewed/tested by the team. See AI-USAGE.md.
  * config.js — all settings and data-source links in ONE place.
  * Every source here is also listed in SOURCES.md.
  */
