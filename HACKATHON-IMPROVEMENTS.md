@@ -43,13 +43,10 @@
 
 ### 🥈 MEDIUM IMPACT (Show depth and polish)
 
-#### 6. **Add Loading States / Skeleton Screens**
-- **Why**: Improves UX when switching layers or asking AI questions
-- **Action**: Add subtle loading spinner while:
-  - Route is being calculated
-  - Ask Darb is "thinking"
-  - CRISM images are loading
-- Already has "Thinking locally…" — extend to layer switches
+#### 6. ~~**Add Loading States / Skeleton Screens**~~ ✅ **DONE 2026-11-13**
+- Spinner + "Planning route locally — running A*…" (EN + AR) shown in the route card while A* computes
+- Ask Darb thinking bubble gets a pulsing dot until the model starts answering
+- A stale-plan guard (`Darb.planSeq`) drops results from plans that were cleared or replaced mid-compute
 
 #### 7. **Add Export/Share Routes Feature**
 - **Why**: Users want to share their routes with team members
