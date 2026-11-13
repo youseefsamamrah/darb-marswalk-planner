@@ -48,10 +48,11 @@
 - Ask Darb thinking bubble gets a pulsing dot until the model starts answering
 - A stale-plan guard (`Darb.planSeq`) drops results from plans that were cleared or replaced mid-compute
 
-#### 7. **Add Export/Share Routes Feature**
-- **Why**: Users want to share their routes with team members
-- **Action**: Add "Export Route as Image" button using html2canvas or screenshot canvas
-- File would be PNG with route name, timestamp, stats
+#### 7. ~~**Add Export/Share Routes Feature**~~ ✅ **DONE 2026-11-13**
+- "Export route image" button hand-draws a 1400×900 PNG on a `<canvas>` (no html2canvas dependency): equirectangular map of the data box, dashed data box, rover traverse + waypoints, route in its safety colour, START/GOAL pins, stats panel and the data-source line; saved as `darb-route-<ISO>.png`
+- "Copy share link" copies the current URL with `#s=lat,lon&g=lat,lon`; opening such a link auto-sets both pins and re-plans the identical route on load (clipboard API with `execCommand` fallback)
+- Both labels EN + AR via `js/i18n.js`
+- Verified live: in-page `canvas.toBlob` captured a 1400×900 `image/png` (~103 KB); share copy + hash round-trip reproduced the same demo route with 0 console errors
 
 #### 8. **Add Compare Routes Mode**
 - **Why**: Two astronauts planning different options
