@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 30-second demo video (2026-11-13)
+- Recorded the running tour of the real app (browser screencast, 169 frames in 7 scenes, `tools/record_demo.cjs`),
+  generated a 7-line English voice-over on-device (Piper TTS), burned captions into the app's own caption bar,
+  and assembled `docs/video/darb-demo.mp4` with ffmpeg (`docs/video/work/assemble.cjs`).
+- Final: 27.74 s, 1920×1080 H.264 + AAC, hosted in the repo, public no-login link added to README and
+  SUBMISSION.md ("Link to Project Demo"). Voice lines match the screen; Ask Darb's answer is the real
+  on-device answer streamed during recording (10.5° slope, 3 h 05 min, 2.4 s on qwen3.5:9b).
+
 ## QA verification follow-up (2026-11-12)
 - Isolated each hour/minute pair and the whole duration, including the HUD, so Arabic unit letters cannot reorder
   the time components. Tour durations with Latin units also use `<bdi dir="ltr">`.

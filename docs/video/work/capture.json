@@ -1,0 +1,737 @@
+{
+  "takes": [
+    {
+      "scene": 1,
+      "start": 1794598986.829,
+      "end": 1794598990.795,
+      "duration": 3.955193,
+      "frames": [
+        {
+          "file": "frames/frame-00000.jpg",
+          "time": 1794598986.860259
+        },
+        {
+          "file": "frames/frame-00001.jpg",
+          "time": 1794598986.876925
+        },
+        {
+          "file": "frames/frame-00002.jpg",
+          "time": 1794598986.910257
+        },
+        {
+          "file": "frames/frame-00003.jpg",
+          "time": 1794598986.926923
+        },
+        {
+          "file": "frames/frame-00004.jpg",
+          "time": 1794598986.943589
+        },
+        {
+          "file": "frames/frame-00005.jpg",
+          "time": 1794598986.960255
+        },
+        {
+          "file": "frames/frame-00006.jpg",
+          "time": 1794598986.976921
+        }
+      ]
+    },
+    {
+      "scene": 2,
+      "start": 1794598991.46,
+      "end": 1794598995.176,
+      "duration": 3.707483,
+      "frames": [
+        {
+          "file": "frames/frame-00007.jpg",
+          "time": 1794598991.46049
+        }
+      ]
+    },
+    {
+      "scene": 3,
+      "start": 1794598995.842,
+      "end": 1794599001.605,
+      "duration": 5.716009,
+      "frames": [
+        {
+          "file": "frames/frame-00008.jpg",
+          "time": 1794598995.842414
+        },
+        {
+          "file": "frames/frame-00009.jpg",
+          "time": 1794598997.793155
+        },
+        {
+          "file": "frames/frame-00010.jpg",
+          "time": 1794598997.809821
+        },
+        {
+          "file": "frames/frame-00011.jpg",
+          "time": 1794598997.843153
+        },
+        {
+          "file": "frames/frame-00012.jpg",
+          "time": 1794598997.876485
+        },
+        {
+          "file": "frames/frame-00013.jpg",
+          "time": 1794598997.909816
+        },
+        {
+          "file": "frames/frame-00014.jpg",
+          "time": 1794598997.959815
+        },
+        {
+          "file": "frames/frame-00015.jpg",
+          "time": 1794598997.993147
+        },
+        {
+          "file": "frames/frame-00016.jpg",
+          "time": 1794598998.026479
+        },
+        {
+          "file": "frames/frame-00017.jpg",
+          "time": 1794598998.059811
+        },
+        {
+          "file": "frames/frame-00018.jpg",
+          "time": 1794598998.109809
+        },
+        {
+          "file": "frames/frame-00019.jpg",
+          "time": 1794598998.143141
+        },
+        {
+          "file": "frames/frame-00020.jpg",
+          "time": 1794598999.693079
+        },
+        {
+          "file": "frames/frame-00021.jpg",
+          "time": 1794598999.726411
+        },
+        {
+          "file": "frames/frame-00022.jpg",
+          "time": 1794598999.759743
+        },
+        {
+          "file": "frames/frame-00023.jpg",
+          "time": 1794598999.793075
+        },
+        {
+          "file": "frames/frame-00024.jpg",
+          "time": 1794598999.809741
+        },
+        {
+          "file": "frames/frame-00025.jpg",
+          "time": 1794598999.843073
+        },
+        {
+          "file": "frames/frame-00026.jpg",
+          "time": 1794598999.876405
+        },
+        {
+          "file": "frames/frame-00027.jpg",
+          "time": 1794598999.893071
+        },
+        {
+          "file": "frames/frame-00028.jpg",
+          "time": 1794598999.926402
+        },
+        {
+          "file": "frames/frame-00029.jpg",
+          "time": 1794598999.943069
+        },
+        {
+          "file": "frames/frame-00030.jpg",
+          "time": 1794598999.976401
+        },
+        {
+          "file": "frames/frame-00031.jpg",
+          "time": 1794599000.009733
+        },
+        {
+          "file": "frames/frame-00032.jpg",
+          "time": 1794599000.026399
+        },
+        {
+          "file": "frames/frame-00033.jpg",
+          "time": 1794599000.059731
+        },
+        {
+          "file": "frames/frame-00034.jpg",
+          "time": 1794599000.093063
+        },
+        {
+          "file": "frames/frame-00035.jpg",
+          "time": 1794599000.109729
+        },
+        {
+          "file": "frames/frame-00036.jpg",
+          "time": 1794599000.143061
+        },
+        {
+          "file": "frames/frame-00037.jpg",
+          "time": 1794599000.159727
+        },
+        {
+          "file": "frames/frame-00038.jpg",
+          "time": 1794599000.193059
+        },
+        {
+          "file": "frames/frame-00039.jpg",
+          "time": 1794599000.209725
+        }
+      ]
+    },
+    {
+      "scene": 4,
+      "start": 1794599002.27,
+      "end": 1794599006.47,
+      "duration": 4.199002,
+      "frames": [
+        {
+          "file": "frames/frame-00040.jpg",
+          "time": 1794599002.270706
+        },
+        {
+          "file": "frames/frame-00041.jpg",
+          "time": 1794599003.309601
+        }
+      ]
+    },
+    {
+      "scene": 5,
+      "start": 1794599007.135,
+      "end": 1794599010.453,
+      "duration": 3.301134,
+      "frames": [
+        {
+          "file": "frames/frame-00042.jpg",
+          "time": 1794599007.13599
+        }
+      ]
+    },
+    {
+      "scene": 6,
+      "start": 1794599011.118,
+      "end": 1794599012.778,
+      "duration": 1.652517,
+      "frames": [
+        {
+          "file": "frames/frame-00043.jpg",
+          "time": 1794599011.159287
+        },
+        {
+          "file": "frames/frame-00044.jpg",
+          "time": 1794599011.192619
+        },
+        {
+          "file": "frames/frame-00045.jpg",
+          "time": 1794599011.225951
+        },
+        {
+          "file": "frames/frame-00046.jpg",
+          "time": 1794599011.259283
+        },
+        {
+          "file": "frames/frame-00047.jpg",
+          "time": 1794599011.292615
+        },
+        {
+          "file": "frames/frame-00048.jpg",
+          "time": 1794599011.325947
+        },
+        {
+          "file": "frames/frame-00049.jpg",
+          "time": 1794599011.375945
+        },
+        {
+          "file": "frames/frame-00050.jpg",
+          "time": 1794599011.409277
+        },
+        {
+          "file": "frames/frame-00051.jpg",
+          "time": 1794599011.442609
+        },
+        {
+          "file": "frames/frame-00052.jpg",
+          "time": 1794599011.475941
+        },
+        {
+          "file": "frames/frame-00053.jpg",
+          "time": 1794599011.509273
+        },
+        {
+          "file": "frames/frame-00054.jpg",
+          "time": 1794599011.542605
+        },
+        {
+          "file": "frames/frame-00055.jpg",
+          "time": 1794599011.575937
+        },
+        {
+          "file": "frames/frame-00056.jpg",
+          "time": 1794599011.609268
+        },
+        {
+          "file": "frames/frame-00057.jpg",
+          "time": 1794599011.642601
+        },
+        {
+          "file": "frames/frame-00058.jpg",
+          "time": 1794599011.675933
+        },
+        {
+          "file": "frames/frame-00059.jpg",
+          "time": 1794599011.725931
+        },
+        {
+          "file": "frames/frame-00060.jpg",
+          "time": 1794599011.759263
+        },
+        {
+          "file": "frames/frame-00061.jpg",
+          "time": 1794599011.792595
+        },
+        {
+          "file": "frames/frame-00062.jpg",
+          "time": 1794599011.825927
+        },
+        {
+          "file": "frames/frame-00063.jpg",
+          "time": 1794599011.859259
+        },
+        {
+          "file": "frames/frame-00064.jpg",
+          "time": 1794599011.892591
+        },
+        {
+          "file": "frames/frame-00065.jpg",
+          "time": 1794599011.925923
+        },
+        {
+          "file": "frames/frame-00066.jpg",
+          "time": 1794599011.975921
+        },
+        {
+          "file": "frames/frame-00067.jpg",
+          "time": 1794599012.009253
+        },
+        {
+          "file": "frames/frame-00068.jpg",
+          "time": 1794599012.042585
+        },
+        {
+          "file": "frames/frame-00069.jpg",
+          "time": 1794599012.075917
+        },
+        {
+          "file": "frames/frame-00070.jpg",
+          "time": 1794599012.109249
+        },
+        {
+          "file": "frames/frame-00071.jpg",
+          "time": 1794599012.142581
+        },
+        {
+          "file": "frames/frame-00072.jpg",
+          "time": 1794599012.175913
+        },
+        {
+          "file": "frames/frame-00073.jpg",
+          "time": 1794599012.209245
+        },
+        {
+          "file": "frames/frame-00074.jpg",
+          "time": 1794599012.242577
+        },
+        {
+          "file": "frames/frame-00075.jpg",
+          "time": 1794599012.292575
+        },
+        {
+          "file": "frames/frame-00076.jpg",
+          "time": 1794599012.325907
+        },
+        {
+          "file": "frames/frame-00077.jpg",
+          "time": 1794599012.359239
+        },
+        {
+          "file": "frames/frame-00078.jpg",
+          "time": 1794599012.392571
+        },
+        {
+          "file": "frames/frame-00079.jpg",
+          "time": 1794599012.409237
+        },
+        {
+          "file": "frames/frame-00080.jpg",
+          "time": 1794599012.442569
+        },
+        {
+          "file": "frames/frame-00081.jpg",
+          "time": 1794599012.475901
+        },
+        {
+          "file": "frames/frame-00082.jpg",
+          "time": 1794599012.509233
+        },
+        {
+          "file": "frames/frame-00083.jpg",
+          "time": 1794599012.542565
+        },
+        {
+          "file": "frames/frame-00084.jpg",
+          "time": 1794599012.575897
+        },
+        {
+          "file": "frames/frame-00085.jpg",
+          "time": 1794599012.625895
+        },
+        {
+          "file": "frames/frame-00086.jpg",
+          "time": 1794599012.659227
+        },
+        {
+          "file": "frames/frame-00087.jpg",
+          "time": 1794599012.692559
+        }
+      ]
+    },
+    {
+      "scene": 7,
+      "start": 1794599012.839,
+      "end": 1794599018.017,
+      "duration": 5.16263,
+      "frames": [
+        {
+          "file": "frames/frame-00088.jpg",
+          "time": 1794599012.902446
+        },
+        {
+          "file": "frames/frame-00089.jpg",
+          "time": 1794599012.909217
+        },
+        {
+          "file": "frames/frame-00090.jpg",
+          "time": 1794599012.942549
+        },
+        {
+          "file": "frames/frame-00091.jpg",
+          "time": 1794599012.975881
+        },
+        {
+          "file": "frames/frame-00092.jpg",
+          "time": 1794599013.009213
+        },
+        {
+          "file": "frames/frame-00093.jpg",
+          "time": 1794599013.042545
+        },
+        {
+          "file": "frames/frame-00094.jpg",
+          "time": 1794599013.075877
+        },
+        {
+          "file": "frames/frame-00095.jpg",
+          "time": 1794599013.109209
+        },
+        {
+          "file": "frames/frame-00096.jpg",
+          "time": 1794599013.125875
+        },
+        {
+          "file": "frames/frame-00097.jpg",
+          "time": 1794599013.159207
+        },
+        {
+          "file": "frames/frame-00098.jpg",
+          "time": 1794599013.192539
+        },
+        {
+          "file": "frames/frame-00099.jpg",
+          "time": 1794599013.242537
+        },
+        {
+          "file": "frames/frame-00100.jpg",
+          "time": 1794599013.275869
+        },
+        {
+          "file": "frames/frame-00101.jpg",
+          "time": 1794599013.309201
+        },
+        {
+          "file": "frames/frame-00102.jpg",
+          "time": 1794599013.325867
+        },
+        {
+          "file": "frames/frame-00103.jpg",
+          "time": 1794599013.359199
+        },
+        {
+          "file": "frames/frame-00104.jpg",
+          "time": 1794599013.392531
+        },
+        {
+          "file": "frames/frame-00105.jpg",
+          "time": 1794599013.425863
+        },
+        {
+          "file": "frames/frame-00106.jpg",
+          "time": 1794599013.442529
+        },
+        {
+          "file": "frames/frame-00107.jpg",
+          "time": 1794599013.475861
+        },
+        {
+          "file": "frames/frame-00108.jpg",
+          "time": 1794599013.509193
+        },
+        {
+          "file": "frames/frame-00109.jpg",
+          "time": 1794599013.525859
+        },
+        {
+          "file": "frames/frame-00110.jpg",
+          "time": 1794599013.559191
+        },
+        {
+          "file": "frames/frame-00111.jpg",
+          "time": 1794599013.592523
+        },
+        {
+          "file": "frames/frame-00112.jpg",
+          "time": 1794599013.625855
+        },
+        {
+          "file": "frames/frame-00113.jpg",
+          "time": 1794599013.642521
+        },
+        {
+          "file": "frames/frame-00114.jpg",
+          "time": 1794599013.675853
+        },
+        {
+          "file": "frames/frame-00115.jpg",
+          "time": 1794599013.709185
+        },
+        {
+          "file": "frames/frame-00116.jpg",
+          "time": 1794599013.742517
+        },
+        {
+          "file": "frames/frame-00117.jpg",
+          "time": 1794599013.759183
+        },
+        {
+          "file": "frames/frame-00118.jpg",
+          "time": 1794599013.792515
+        },
+        {
+          "file": "frames/frame-00119.jpg",
+          "time": 1794599013.825847
+        },
+        {
+          "file": "frames/frame-00120.jpg",
+          "time": 1794599013.859179
+        },
+        {
+          "file": "frames/frame-00121.jpg",
+          "time": 1794599013.875845
+        },
+        {
+          "file": "frames/frame-00122.jpg",
+          "time": 1794599013.909177
+        },
+        {
+          "file": "frames/frame-00123.jpg",
+          "time": 1794599013.942509
+        },
+        {
+          "file": "frames/frame-00124.jpg",
+          "time": 1794599013.975841
+        },
+        {
+          "file": "frames/frame-00125.jpg",
+          "time": 1794599014.009173
+        },
+        {
+          "file": "frames/frame-00126.jpg",
+          "time": 1794599014.025839
+        },
+        {
+          "file": "frames/frame-00127.jpg",
+          "time": 1794599014.059171
+        },
+        {
+          "file": "frames/frame-00128.jpg",
+          "time": 1794599014.092503
+        },
+        {
+          "file": "frames/frame-00129.jpg",
+          "time": 1794599014.109169
+        },
+        {
+          "file": "frames/frame-00130.jpg",
+          "time": 1794599014.142501
+        },
+        {
+          "file": "frames/frame-00131.jpg",
+          "time": 1794599014.175833
+        },
+        {
+          "file": "frames/frame-00132.jpg",
+          "time": 1794599014.209165
+        },
+        {
+          "file": "frames/frame-00133.jpg",
+          "time": 1794599014.225831
+        },
+        {
+          "file": "frames/frame-00134.jpg",
+          "time": 1794599014.259163
+        },
+        {
+          "file": "frames/frame-00135.jpg",
+          "time": 1794599014.292495
+        },
+        {
+          "file": "frames/frame-00136.jpg",
+          "time": 1794599014.309161
+        },
+        {
+          "file": "frames/frame-00137.jpg",
+          "time": 1794599014.342493
+        },
+        {
+          "file": "frames/frame-00138.jpg",
+          "time": 1794599014.375825
+        },
+        {
+          "file": "frames/frame-00139.jpg",
+          "time": 1794599014.409157
+        },
+        {
+          "file": "frames/frame-00140.jpg",
+          "time": 1794599014.425823
+        },
+        {
+          "file": "frames/frame-00141.jpg",
+          "time": 1794599014.459155
+        },
+        {
+          "file": "frames/frame-00142.jpg",
+          "time": 1794599014.492487
+        },
+        {
+          "file": "frames/frame-00143.jpg",
+          "time": 1794599014.525819
+        },
+        {
+          "file": "frames/frame-00144.jpg",
+          "time": 1794599014.542485
+        },
+        {
+          "file": "frames/frame-00145.jpg",
+          "time": 1794599014.575817
+        },
+        {
+          "file": "frames/frame-00146.jpg",
+          "time": 1794599014.609149
+        },
+        {
+          "file": "frames/frame-00147.jpg",
+          "time": 1794599014.625815
+        },
+        {
+          "file": "frames/frame-00148.jpg",
+          "time": 1794599014.659147
+        },
+        {
+          "file": "frames/frame-00149.jpg",
+          "time": 1794599014.692479
+        },
+        {
+          "file": "frames/frame-00150.jpg",
+          "time": 1794599014.725811
+        },
+        {
+          "file": "frames/frame-00151.jpg",
+          "time": 1794599014.742477
+        },
+        {
+          "file": "frames/frame-00152.jpg",
+          "time": 1794599014.775809
+        },
+        {
+          "file": "frames/frame-00153.jpg",
+          "time": 1794599014.809141
+        },
+        {
+          "file": "frames/frame-00154.jpg",
+          "time": 1794599014.842473
+        },
+        {
+          "file": "frames/frame-00155.jpg",
+          "time": 1794599014.859139
+        },
+        {
+          "file": "frames/frame-00156.jpg",
+          "time": 1794599014.892471
+        },
+        {
+          "file": "frames/frame-00157.jpg",
+          "time": 1794599014.925803
+        },
+        {
+          "file": "frames/frame-00158.jpg",
+          "time": 1794599014.959135
+        },
+        {
+          "file": "frames/frame-00159.jpg",
+          "time": 1794599014.975801
+        },
+        {
+          "file": "frames/frame-00160.jpg",
+          "time": 1794599015.009133
+        },
+        {
+          "file": "frames/frame-00161.jpg",
+          "time": 1794599015.042465
+        },
+        {
+          "file": "frames/frame-00162.jpg",
+          "time": 1794599015.075797
+        },
+        {
+          "file": "frames/frame-00163.jpg",
+          "time": 1794599015.092463
+        },
+        {
+          "file": "frames/frame-00164.jpg",
+          "time": 1794599015.125795
+        },
+        {
+          "file": "frames/frame-00165.jpg",
+          "time": 1794599015.159127
+        },
+        {
+          "file": "frames/frame-00166.jpg",
+          "time": 1794599015.192459
+        },
+        {
+          "file": "frames/frame-00167.jpg",
+          "time": 1794599015.225791
+        },
+        {
+          "file": "frames/frame-00168.jpg",
+          "time": 1794599015.242457
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

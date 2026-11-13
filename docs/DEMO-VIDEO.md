@@ -19,23 +19,32 @@ likeness), so **the team decides**: put names on slide 1, or only the team name.
 
 ---
 
-## Option A — video, 30 seconds or less
-Record the browser at 1920×1080 (Windows: Win + G Game Bar, or OBS). Use the **▶ Tour** button (→ key for each step):
-every take is the same and the tour captions can stay on screen as on-screen text.
-The guide's suggested order is: who you are → the challenge → project name/tagline → how it works with NASA data →
-the future. Our version (no faces or voices of minors):
+## Option A — video, 30 seconds or less ✅ **DONE (13 Nov 2026)**
+
+**Final video: 27.74 s, 1080p, H.264 + AAC.**
+Direct link (works in any browser, no login):
+<https://github.com/youseefsamamrah/darb-marswalk-planner/raw/main/docs/video/darb-demo.mp4>
+
+How it was made (all in this repo, no third-party service): the app's **▶ Tour** ran for real on
+http://localhost:8000, its screen was captured with the browser's native screencast
+(`tools/record_demo.cjs`), the 7 lines of the voice-over were generated on this machine by the
+Piper TTS model (`tools/video/generate-voice.py` — a synthetic voice, so the under-18 audio
+rule was never an issue), captions were burned into the app's own caption bar, and the scenes
+were assembled with `ffmpeg` (`docs/video/work/assemble.cjs`). Scene lengths are exactly the
+recorded voice lengths (`docs/video/work/timing.json`), total 27.74 s. The voice was checked
+line by line against the app's screens; nothing visible was altered to make the AI answer.
 
 | Time | Screen (tour step) | Caption / voice-over |
 |---|---|---|
-| 0–3 s | Title card | "Team `[TEAM NAME]` · Interplanetary Survival Guide: Martian Map" |
-| 3–6 s | Step 1: map of Mount Sharp | "On Mars, a message to Earth takes up to 24 minutes. Darb plans your walk right here." |
-| 6–11 s | Steps 2–4: slope → rough ground → minerals | "Real NASA data: 1-metre HiRISE elevation, THEMIS heat, CRISM minerals." |
-| 11–17 s | Step 5: route + card | "A-star finds the safest path: 2.7 km, 61 % oxygen left after the return." |
-| 17–21 s | Step 6: rover photo popup | "See what you'll find, in real Curiosity photos." |
-| 21–25 s | Step 8: HUD walk | "A helmet HUD with compass, oxygen timer and warnings." |
-| 25–30 s | Step 9: Ask Darb answers | "Ask Darb — AI that works with no link to Earth. Darb: the path." |
+| 0–4 s | Title card | "Team Darb, from Ramallah. Challenge: the Martian Map." |
+| 4–7.7 s | Step 1: map of Mount Sharp | "On Mars, a message to Earth takes up to twenty-four minutes." |
+| 7.7–13.4 s | Steps 2–4: slope → rough ground → minerals | "Darb layers real NASA data: HiRISE terrain, THEMIS heat and CRISM minerals." |
+| 13.4–17.6 s | Step 5: route + card | "Pick a goal. Darb finds the safest path and tracks your oxygen." |
+| 17.6–20.9 s | Step 6: rover photo popup | "See real Curiosity photos before you arrive." |
+| 20.9–22.5 s | Step 8: HUD walk | "Walk with a helmet display." |
+| 22.5–27.7 s | Step 9: Ask Darb answers | "And ask Darb anything — AI that needs no Earth. Darb: the path." |
 
-Captions: white text on a dark bar, large font. Keep the final file **under 30.0 s** — check the length before uploading.
+
 
 ---
 

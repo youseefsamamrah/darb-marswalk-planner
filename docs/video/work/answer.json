@@ -1,0 +1,26 @@
+{
+  "log": [
+    {
+      "question": "Is this route safe?",
+      "model": "qwen3.5:9b",
+      "seconds": 9.01,
+      "firstToken": 6.5681000000000935,
+      "image": false
+    },
+    {
+      "question": "Is this route safe?",
+      "model": "qwen3.5:9b",
+      "seconds": 2.78,
+      "firstToken": 0.0550999999998603,
+      "image": false
+    },
+    {
+      "question": "Is this route safe?",
+      "model": "qwen3.5:9b",
+      "seconds": 2.4,
+      "firstToken": 0.07420000000018627,
+      "image": false
+    }
+  ],
+  "answer": "Is this route safe?\nThe route is rated CAUTION because the max slope is 10.5°, which falls in the 10-15° range (HiRISE DEM). The round trip takes 3 h 05 min, staying within the 8 h life support budget (REMS). However, slopes under 25 m cells may miss hazards like boulders (RULES OF THIS APP). Radiation is about 0.64 mSv per day (RAD), and weather is Sunny with air -71 to -5 °C (REMS). Ferric iron is strong at all points (CRISM). Proceed with caution due to slope limits and potential missed small hazards.\nqwen3.5:9b · 2.4 s (first words 0.1 s) · on-device, no internet"
+}

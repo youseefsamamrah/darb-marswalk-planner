@@ -5,3 +5,10 @@ Thumbs.db
 node_modules/
 .claude/settings.local.json
 raw/
+# Demo-video intermediates (regenerable from tools/record_demo.cjs + docs/video/work/*.json)
+docs/video/work/frames/
+docs/video/work/*.mp4
+docs/video/work/*.mp4.orig
+docs/video/work/*.orig
+docs/video/work/sanity-*.jpg
+docs/video/work/concat-*.txt

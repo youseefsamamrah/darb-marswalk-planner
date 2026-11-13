@@ -28,7 +28,10 @@ with no internet, answers only from the map's data and says "I don't know" other
 because the first Mars walkers will need mission-control-quality planning without mission control.
 
 ## Link to Project Demo
-`[PASTE: public link to the 30-second-or-less video OR the up-to-7-slide deck — see docs/DEMO-VIDEO.md. Test it in a private browser window: no login, no permission request.]`
+https://github.com/youseefsamamrah/darb-marswalk-planner/raw/main/docs/video/darb-demo.mp4
+(27.74 s, 1080p; English voice-over is a synthetic text-to-speech voice with on-screen captions;
+hosted in our own public GitHub repository; tested 13 Nov 2026 in an incognito window — no login,
+no permission request.)
 
 ## Link to Final Project
 https://github.com/youseefsamamrah/darb-marswalk-planner

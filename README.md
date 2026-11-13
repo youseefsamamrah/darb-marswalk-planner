@@ -7,6 +7,8 @@
 (Gale Crater) that Curiosity studied in 2025 — using real NASA data. Its AI assistant, **Ask Darb**,
 runs **on the device** with no internet, because a message to Earth takes 4–24 minutes each way.
 
+**🎬 30-second demo (no login, opens in any browser):** <https://github.com/youseefsamamrah/darb-marswalk-planner/raw/main/docs/video/darb-demo.mp4> · source frames, captions and voice script in [`docs/video/`](docs/video/)
+
 **▶ Try it live:** https://youseefsamamrah.github.io/darb-marswalk-planner/ — the map, data layers, route planner,
 HUD, buddy mode, tour and Arabic all work in the browser. *Ask Darb shows "offline" on this public link:* browsers do
 not let a website talk to an AI running on the visitor's own computer, and Darb's AI is meant to run on the astronaut's

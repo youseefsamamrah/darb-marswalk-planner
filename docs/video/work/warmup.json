@@ -1,0 +1,19 @@
+{
+  "log": [
+    {
+      "question": "Is this route safe?",
+      "model": "qwen3.5:9b",
+      "seconds": 9.01,
+      "firstToken": 6.5681000000000935,
+      "image": false
+    },
+    {
+      "question": "Is this route safe?",
+      "model": "qwen3.5:9b",
+      "seconds": 2.78,
+      "firstToken": 0.0550999999998603,
+      "image": false
+    }
+  ],
+  "chat": "Is this route safe?\nThe route safety score is CAUTION because the max slope is 10.5°, which exceeds the easy limit of 10° [HiRISE DEM]. The round trip takes 3 h 05 min, fitting within the 8 h life support budget [REMS]. However, the HiRISE elevation model has a typical difference of 12.1 m compared to ESA data and misses features smaller than 25 m [HRSC/ESA, HiRISE DEM]. This means small boulders or ridges could be missed, creating hidden risks. The ground is rocky/hard with no loose sand [THEMIS]. While the route is technically passable, the slope caution and potential for unseen hazards mean it requires careful movement.\nqwen3.5:9b · 9.0 s (first words 6.6 s) · on-device, no internet\nIs this route safe?\nThe route is rated CAUTION because the max slope is 10.5°, which exceeds the easy limit of 10° [HiRISE DEM]. The round trip takes 3 h 05 min, leaving 61% O2 reserve after return within the 8 h budget [Current Route]. However, the HiRISE elevation model has a typical difference of 12.1 m compared to ESA data and misses features smaller than 25 m [HiRISE DEM/ESA]. The steepest point is at 10.5° slope, located 2694 m from start [HiRISE DEM]. Ground is rocky/hard or mixed with no loose sand [THEMIS]. Ferric iron signal is strong along the route [CRISM]. Proceed with caution due to slope and model uncertainty.\nqwen3.5:9b · 2.8 s (first words 0.1 s) · on-device, no internet"
+}
