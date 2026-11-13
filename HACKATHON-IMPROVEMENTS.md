@@ -24,15 +24,12 @@
 - 27.74 s, 1080p, TTS voice + captions; in-GitHub public link in README + SUBMISSION.md
 - Frames recorded from the real live app (CDP screencast); assembled via `ffmpeg` (see `docs/video/`)
 
-#### 2. **Add "Use of SI" Statement**
-- **Why**: Submission guide requires explicit declaration
-- **Action**: Add at top of README: "✅ Use of SI (System International): All units in meters, kilograms, seconds, degrees Celsius"
-- **Place it in**: `SOURCES.md`, `README.md`
+#### 2. ~~**Add "Use of SI" Statement**~~ ✅ **DONE 2026-11-13** (SI = Super Intelligence, Space Apps' built-in AI)
+- Team contribution statement added in `docs/SUBMISSION.md` §"Use of Super Intelligence (SI)"
+- Matching one-line note added to `README.md` and `SOURCES.md` — no AI-generated images/video/audio used
 
-#### 3. **Complete Team-GUIDE Author Names**
-- **Why**: Judging criterion requires team member roles
-- **Action**: Fill in [TEAM-GUIDE.md](TEAM-GUIDE.md) section 11 "Who explains what"
-- **Format**: Name + brief role description
+#### 3. ~~**Complete Team-GUIDE Author Names**~~ ✅ **DONE 2026-11-13**
+- TEAM-GUIDE.md section 11 "Who explains what" filled with the 5 members' topics (from AI-USAGE.md §1)
 
 #### 4. **Test Mobile Usability**
 - **Why**: Implicit judging criterion (usability/accessibility)
