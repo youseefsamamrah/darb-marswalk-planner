@@ -31,24 +31,15 @@
 #### 3. ~~**Complete Team-GUIDE Author Names**~~ ✅ **DONE 2026-11-13**
 - TEAM-GUIDE.md section 11 "Who explains what" filled with the 5 members' topics (from AI-USAGE.md §1)
 
-#### 4. **Test Mobile Usability**
-- **Why**: Implicit judging criterion (usability/accessibility)
-- **Action**: 
-  - Open in Chrome DevTools → Toggle device toolbar
-  - Test on iPhone SE (375×667), Pixel 5 (393×851)
-  - Verify all buttons clickable, popups scrollable
-  - Document any issues and fixes
+#### 4. ~~**Test Mobile Usability**~~ ✅ **DONE 2026-11-13**
+- Scripted check (`tools/mobile_check.cjs`, headless emulated iPhone SE 375×667 + Pixel 5 393×851, touch input)
+- Results (`docs/video/work/mobile/result.json`): no horizontal overflow, all main-flow buttons ≥ 32 px touch size,
+  demo route taps and fills the route card, waypoint popups stay on-screen, Arabic RTL flips, Ask Darb card reachable by scroll
+- Screenshots: `docs/video/work/mobile/*.png`
 
-#### 5. **Add Accessibility Features**
-- **Why**: NASA cares about inclusive design
-- **Actions**:
-  ```html
-  <!-- Add to index.html -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="css/high-contrast.css">  /* For visually impaired */
-  ```
-- Add keyboard navigation (Tab works on all buttons)
-- Add screen reader labels (`aria-label` for complex UI elements)
+#### 5. ~~**Add Accessibility Features**~~ ✅ **DONE 2026-11-13**
+- Viewport meta already present; added `aria-label` to the map and a keyboard `:focus-visible` outline on all controls
+- `css/themes.css`: light theme + high-contrast theme, cycled by a "🌙/☀️/◐" button in the top bar (English + Arabic labels), persisted in localStorage
 
 ### 🥈 MEDIUM IMPACT (Show depth and polish)
 
@@ -89,10 +80,8 @@
 - For each layer: "Slope from HiRISE DEM" → expand to full citation
 - Link to PDS labels, NASA.gov pages
 
-#### 12. **Add Dark/Light Theme Toggle**
-- **Why**: Some astronauts prefer different viewing conditions (eye strain on long missions)
-- **Action**: Theme switch in top bar
-- Light theme: brighter colors for extended visibility
+#### 12. ~~**Add Dark/Light Theme Toggle**~~ ✅ **DONE 2026-11-13**
+- Theme switch in the top bar: dark → light → high contrast (with item 5); choice remembered between visits
 
 #### 13. **Add Route Comparison Mode**
 - **Why**: Two options to choose from
