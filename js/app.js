@@ -311,6 +311,7 @@
     ["start", "goal"].forEach(function (k) { if (Darb[k + "Marker"]) Darb.map.removeLayer(Darb[k + "Marker"]); Darb[k] = null; Darb[k + "Marker"] = null; });
     if (Darb.routeLayer) Darb.map.removeLayer(Darb.routeLayer);
     Darb.route = Darb.stats = Darb.routeLayer = null;
+    Darb.planSeq = (Darb.planSeq || 0) + 1;            // invalidate any planning in flight
     $("routeCard").classList.add("hidden");
     $("routeMsg").textContent = "";
   }
@@ -321,7 +322,13 @@
     return o;
   }
 
-  function planRoute() {
+  async function planRoute() {
+    // Show the spinner BEFORE the (synchronous) A* work, and let the browser paint it
+    Darb.planSeq = (Darb.planSeq || 0) + 1;
+    var token = Darb.planSeq;
+    $("routeMsg").innerHTML = '<span class="spinner" aria-hidden="true"></span> ' + esc(T("routePlanning"));
+    await new Promise(function (r) { setTimeout(r, 30); });
+    if (token !== Darb.planSeq) return;                // map cleared or re-planned while working
     var g = Darb.grid, o = routeOptions();
     var key = "b" + o.buddyMeters;               // cost grid is cached per buddy setting
     if (!Darb.costCache[key]) Darb.costCache[key] = DarbRoute.buildCostGrid(g, o);
@@ -330,7 +337,7 @@
     var a = DarbRoute.latLonToCell(g, Darb.start.lat, Darb.start.lng);
     var b = DarbRoute.latLonToCell(g, Darb.goal.lat, Darb.goal.lng);
     var t0 = performance.now();
-    var res = DarbRoute.findPath(g, a, b, o);
+    var res = await DarbRoute.findPath(g, a, b, o);   // await keeps a sync result working too
     var ms = performance.now() - t0;
     if (Darb.routeLayer) { Darb.map.removeLayer(Darb.routeLayer); Darb.routeLayer = null; }
     if (!res.ok) {
@@ -721,9 +728,11 @@
       if (loc) image = loc.local;
     }
     var bubble = addBubble("ai", T("askThinking")), partial = "";
+    bubble.classList.add("thinking");                 // pulsing dot until the model starts answering
+    function finishBubble(txt) { bubble.classList.remove("thinking"); bubble.textContent = txt; }
     try {
-      var res = await AskDarb.ask(q, buildContext(), image, function (txt) { partial = txt; bubble.textContent = txt; });
-      bubble.textContent = res.text || "(empty answer)";
+      var res = await AskDarb.ask(q, buildContext(), image, function (txt) { partial = txt; finishBubble(txt); });
+      finishBubble(res.text || "(empty answer)");
       var meta = res.model + " · " + res.seconds.toFixed(1) + " s" +
         (res.firstTokenSeconds ? " (first words " + res.firstTokenSeconds.toFixed(1) + " s)" : "") +
         (res.usedImage ? " · looked at photo" : "") + " · on-device, no internet";
@@ -733,7 +742,7 @@
     } catch (e) {
       // "offline" = Ollama not running; TypeError = the connection broke in the middle of an answer
       var lost = e.message === "offline" || e instanceof TypeError;
-      bubble.textContent = (partial ? partial + "\n\n" : "") + (lost ? T("askLost") : T("askError") + " " + e.message);
+      finishBubble((partial ? partial + "\n\n" : "") + (lost ? T("askLost") : T("askError") + " " + e.message));
       AskDarb.state.online = false; renderAIStatus();
     }
   }

@@ -63,6 +63,14 @@ a { color: var(--blue); }
 .btn.ghost { background: transparent; }
 
 .msg { margin-top: 8px; font-size: 13px; color: var(--caution); min-height: 1em; }
+.spinner { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -2px;
+  border: 2px solid var(--line); border-top-color: var(--safe); border-radius: 50%;
+  animation: darb-spin .8s linear infinite; }
+[dir="rtl"] .spinner { margin-right: 0; margin-left: 6px; }
+@keyframes darb-spin { to { transform: rotate(360deg); } }
+.bubble.ai.thinking::after { content: " ●"; color: var(--muted); font-weight: bold;
+  animation: darb-pulse 1s ease-in-out infinite; }
+@keyframes darb-pulse { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
 .route-card { margin-top: 10px; }
 .safety { font-size: 18px; font-weight: 700; padding: 8px 10px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); }
 .safety.safe { border-color: var(--safe); }
