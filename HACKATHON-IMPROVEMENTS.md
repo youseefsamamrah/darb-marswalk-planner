@@ -70,11 +70,10 @@
 - Targets: Route planning <50ms, layer toggle <200ms
 - Optimize: Bundle minification, lazy load AI model
 
-#### 11. **Add "Show Data Sources" Toggle**
-- **Why**: Transparency builds trust (judging criterion "validity")
-- **Action**: Add button to show/hide attribution text
-- For each layer: "Slope from HiRISE DEM" → expand to full citation
-- Link to PDS labels, NASA.gov pages
+#### 11. ~~**Add "Show Data Sources" Toggle**~~ ✅ **DONE 2026-11-13**
+- One "Show data sources" button in the layers card expands a citation line under every layer (EN + AR)
+- Citations with links: USGS HiRISE Gale DEM 1 m (slope), Mars Trek (THEMIS thermal + MOLA shading), PDS CRISM browse FRT0000B6F1 (minerals), PDS MGS MOLA MEGDR 128 px/deg (elevation gaps, URL fixed to mgsl_300x), NASA MSL MMGIS waypoints (rover); roughness says it is our own calculation from the HiRISE DEM
+- Verified live: button expands/collapses all six citations, links open the real source pages, Arabic flip updates every label
 
 #### 12. ~~**Add Dark/Light Theme Toggle**~~ ✅ **DONE 2026-11-13**
 - Theme switch in the top bar: dark → light → high contrast (with item 5); choice remembered between visits
