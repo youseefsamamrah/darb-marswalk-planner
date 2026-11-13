@@ -18,6 +18,7 @@
     map: null, layers: {}, start: null, goal: null, route: null, stats: null,
     saved: { A: null, B: null }, savedLayers: {},
     costCache: {}, crismPixels: {}, sim: null, aiLog: [], aiHistory: [],
+    layerHistory: [],          // recent layer toggles: { key, wasOn, at } — undo restores "wasOn"
     perf: { planMs: null, lastLayer: null }   // live numbers for the performance budget lines
   };
 
@@ -496,6 +497,49 @@
       el.classList.remove("show");
       setTimeout(function () { el.remove(); }, 400);   // fade out, then drop from the DOM
     }, 4000);
+  }
+
+  // ------------------------------------------------ layer history / undo
+  // Every layer toggle is recorded (which layer, and its state BEFORE the toggle),
+  // so the user can pick one from the dropdown and restore the previous state.
+  var HIST_IDS = { slope: "lySlope", rough: "lyRough", thermal: "lyThermal", minerals: "lyMinerals", mola: "lyMola", rover: "lyRover" };
+
+  function layerName(key) { return T("layer" + key.charAt(0).toUpperCase() + key.slice(1)); }
+
+  function recordHist(key, wasOn) {
+    Darb.layerHistory.push({ key: key, wasOn: wasOn, at: Date.now() });
+    if (Darb.layerHistory.length > 10) Darb.layerHistory.shift();   // keep the 10 most recent
+    renderHist();
+  }
+
+  function renderHist() {
+    var sel = $("histSelect");
+    sel.innerHTML = "";
+    var empty = document.createElement("option");
+    empty.value = ""; empty.disabled = true; empty.textContent = T("histEmpty");
+    sel.appendChild(empty);
+    // newest first (dropdown read top-down = most recent at the top)
+    Darb.layerHistory.slice().reverse().forEach(function (rec, i) {
+      var o = document.createElement("option");
+      o.value = String(Darb.layerHistory.length - 1 - i);     // index into Darb.layerHistory
+      o.textContent = layerName(rec.key) + (rec.wasOn ? " " + T("histWasOn") : " " + T("histWasOff"));
+      sel.appendChild(o);
+    });
+    sel.disabled = Darb.layerHistory.length === 0;
+  }
+
+  function restoreHistory(idx) {
+    var rec = Darb.layerHistory[idx];
+    if (!rec) return;
+    var t0 = performance.now();
+    var cb = $(HIST_IDS[rec.key]);
+    cb.checked = rec.wasOn;
+    if (rec.wasOn) Darb.layers[rec.key].addTo(Darb.map); else Darb.map.removeLayer(Darb.layers[rec.key]);
+    Darb.perf.lastLayer = { key: rec.key, ms: performance.now() - t0 };   // restore timing shows in the perf line
+    renderPerfLayer();
+    Darb.layerHistory.splice(idx, 1);                 // this change is undone, keep the rest
+    renderHist();
+    showToast(T("toastRestored").replace("{layer}", layerName(rec.key)));
   }
 
   // ------------------------------------------------ performance budget lines
@@ -1098,6 +1142,7 @@
     var map = Darb.map;
     function toggleLayer(id, key) {
       $(id).addEventListener("change", function () {
+        recordHist(key, !this.checked);            // record the state BEFORE this toggle, for undo
         var t0 = performance.now();
         if (this.checked) Darb.layers[key].addTo(map); else map.removeLayer(Darb.layers[key]);
         Darb.perf.lastLayer = { key: key, ms: performance.now() - t0 };
@@ -1107,6 +1152,13 @@
     }
     toggleLayer("lySlope", "slope"); toggleLayer("lyRough", "rough"); toggleLayer("lyThermal", "thermal"); toggleLayer("lyMinerals", "minerals");
     toggleLayer("lyMola", "mola"); toggleLayer("lyRover", "rover");
+    // Picking a recent change from the dropdown restores that layer's previous state
+    $("histSelect").addEventListener("change", function () {
+      var idx = +this.value;
+      if (!Darb.layerHistory[idx]) return;
+      restoreHistory(idx);
+      this.value = "";
+    });
     $("crismSelect").addEventListener("change", function () {
       var on = map.hasLayer(Darb.layers.minerals);
       if (on) map.removeLayer(Darb.layers.minerals);
@@ -1153,6 +1205,7 @@
       if (Darb.start && Darb.goal) planRoute(); else renderRouteCard();
       renderCompare();                                      // comparison card text and verdict follow the language too
       renderPerfLayer();                                    // last layer-timing line follows the language too
+      renderHist();                                         // history dropdown follows the language too
       if (window.DarbTour) DarbTour.refresh();          // tour captions follow the language too
     });
     $("aiModel").addEventListener("change", function () { AskDarb.state.model = this.value; });

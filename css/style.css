@@ -187,6 +187,9 @@ body.hud-on .hover { display: none; }
 .cmp-x:hover { border-color: var(--danger); color: var(--danger); }
 .cmp-wait { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
 .cmp-verdict { font-size: 13px; margin: 8px 0 0; line-height: 1.5; }
+.hist-row { display: flex; align-items: center; gap: 8px; margin: 4px 0 2px; }
+.hist-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.hist-select { flex: 1; margin: 0; }
 
 @media (max-width: 800px) {
   .map-sources { max-width: calc(100vw - 70px); }
