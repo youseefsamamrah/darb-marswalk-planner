@@ -19,20 +19,19 @@ likeness), so **the team decides**: put names on slide 1, or only the team name.
 
 ---
 
-## Option A — video, 30 seconds or less ✅ **DONE (13 Nov 2026)**
+## Option A — video, 30 seconds or less
+> ✅ **Made (13 Nov 2026):** `docs/video/darb-demo.mp4`, 27.9 s, with English captions, an AI narrator voice (ElevenLabs, stock voice "George") and the
+> label "AI-assisted video · AI voice (TTS)". Description to paste: `docs/video/DESCRIPTION.txt`. How it was made and
+> checked: `docs/video/PRODUCTION.md`. The final narration is shorter than the first plan in the table below, and the
+> team is shown as "Team Darb · Ramallah" (no member names). A team member listened to it and approved the narration
+> voice (13 Nov 2026).
+> Direct link (works in any browser, no login):
+> <https://github.com/youseefsamamrah/darb-marswalk-planner/raw/main/docs/video/darb-demo.mp4>
 
-**Final video: 27.74 s, 1080p, H.264 + AAC.**
-Direct link (works in any browser, no login):
-<https://github.com/youseefsamamrah/darb-marswalk-planner/raw/main/docs/video/darb-demo.mp4>
-
-How it was made (all in this repo, no third-party service): the app's **▶ Tour** ran for real on
-http://localhost:8000, its screen was captured with the browser's native screencast
-(`tools/record_demo.cjs`), the 7 lines of the voice-over were generated on this machine by the
-Piper TTS model (`tools/video/generate-voice.py` — a synthetic voice, so the under-18 audio
-rule was never an issue), captions were burned into the app's own caption bar, and the scenes
-were assembled with `ffmpeg` (`docs/video/work/assemble.cjs`). Scene lengths are exactly the
-recorded voice lengths (`docs/video/work/timing.json`), total 27.74 s. The voice was checked
-line by line against the app's screens; nothing visible was altered to make the AI answer.
+Record the browser at 1920×1080 (Windows: Win + G Game Bar, or OBS). Use the **▶ Tour** button (→ key for each step):
+every take is the same and the tour captions can stay on screen as on-screen text.
+The guide's suggested order is: who you are → the challenge → project name/tagline → how it works with NASA data →
+the future. Our version (no faces or voices of minors):
 
 | Time | Screen (tour step) | Caption / voice-over |
 |---|---|---|

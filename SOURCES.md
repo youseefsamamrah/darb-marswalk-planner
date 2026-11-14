@@ -44,6 +44,22 @@ Tile URL pattern: `https://trek.nasa.gov/tiles/Mars/EQ/{layer}/1.0.0/default/def
 - AI coding assistant (Claude Code, Anthropic) used in development only — all output reviewed and tested by the team;
   no AI-generated images, video or audio are used in the project.
 
+## Demo video (`docs/video/darb-demo.mp4`) — tools and voice
+The video is genuine screen footage of the app, assembled with AI assistance and narrated by an AI voice
+(details and checks: `docs/video/PRODUCTION.md`). No music and no sound effects are used.
+| What | Source | Licence |
+|---|---|---|
+| Text-to-speech engine | **ElevenLabs** text-to-speech (cloud service), used through its web app on 13 Nov 2026, model **Eleven Multilingual v2**: https://elevenlabs.io | ElevenLabs Terms of Use (https://elevenlabs.io/terms-of-use, version of 9 Oct 2026): accounts used free of charge may use the service for **non-commercial purposes only**; the user keeps the rights in the output. This hackathon video is non-commercial. |
+| Narration voice (stock AI voice) | **"George - Warm, Captivating Storyteller"**, one of ElevenLabs' ready-made ("premade") voices, voice ID `JBFqnCBsd6RMkjVDRZzb`. Default settings (speed 1.0, stability 50 %, similarity 75 %, style 0). The generated file is kept as `docs/video/narration-elevenlabs-george.mp3`. | Same ElevenLabs terms. A stock voice of the service: we did not clone or imitate anyone's voice. |
+| Screen recording | Google Chrome 157 in headless mode (records the app page only) | Proprietary freeware, used as a tool |
+| Editing and encoding | FFmpeg 9.0.2 (gyan.dev "full" build) with libx264 and its AAC encoder: https://ffmpeg.org | GPL-3.0 build, used as a tool (not distributed with the project) |
+| Font of captions and titles | Segoe UI (Windows system font, the same font the app uses) | Licensed with Windows |
+| Scripts | `tools/video/` (written with Claude Code) | Part of this project |
+
+Imagery and data seen in the video are the app's own layers, listed above: MRO CTX and Viking mosaics (NASA Mars
+Trek), slope and roughness from the HiRISE 1 m DEM, THEMIS night IR, CRISM FRT0000B6F1, Curiosity waypoints and the
+Navcam photo of sol 4609 (credit: NASA/JPL-Caltech).
+
 ## Our own assumptions (NOT NASA data — explained in TEAM-GUIDE.md)
 - Slope limits: < 10° easy, 10–15° caution, 15–20° danger, > 20° blocked.
 - Walking speed 2 km/h on flat ground in a suit, slower on slopes (Tobler-style hiking formula).

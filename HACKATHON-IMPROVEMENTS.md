@@ -21,7 +21,7 @@
 ### 🥇 HIGH IMPACT (Will directly affect judging criteria)
 
 #### 1. ~~**Run & Share Demo Video**~~ ✅ **DONE 2026-11-13**
-- 27.74 s, 1080p, TTS voice + captions; in-GitHub public link in README + SUBMISSION.md
+- 27.9 s, 1080p, AI TTS voice (ElevenLabs "George") + captions; in-GitHub public link in README + SUBMISSION.md
 - Frames recorded from the real live app (CDP screencast); assembled via `ffmpeg` (see `docs/video/`)
 
 #### 2. ~~**Add "Use of SI" Statement**~~ ✅ **DONE 2026-11-13** (SI = Super Intelligence, Space Apps' built-in AI)
