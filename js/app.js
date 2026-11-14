@@ -594,9 +594,9 @@
   }
 
   // ------------------------------------------------ export & share
-  // Draw the current route on a canvas ourselves (no screenshot library) and save it as a PNG
-  function exportRouteImage() {
-    if (!Darb.route || !Darb.stats) { $("routeMsg").textContent = T("needRoute"); return; }
+  // Draw the current route on a canvas ourselves (no screenshot library).
+  // Shared by the PNG export and the PDF report — returns the finished canvas.
+  function drawRouteCanvas() {
     var s = Darb.stats, W = 1400, H = 900;
     var cv = document.createElement("canvas"); cv.width = W; cv.height = H;
     var ctx = cv.getContext("2d");
@@ -684,6 +684,13 @@
       return out ? out + " " + w : w;
     }, "");
     ctx.fillText("darb · Space Apps 2026", px0, 812);
+    return cv;
+  }
+
+  // Draw the current route on a canvas (no screenshot library) and save it as a PNG
+  function exportRouteImage() {
+    if (!Darb.route || !Darb.stats) { $("routeMsg").textContent = T("needRoute"); return; }
+    var cv = drawRouteCanvas();
     // Save as PNG
     var name = "darb-route-" + new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19) + ".png";
     cv.toBlob(function (blob) {
@@ -694,6 +701,43 @@
       $("routeMsg").textContent = T("exportSaved");
       showToast(T("toastExported"));
     }, "image/png");
+  }
+
+  // "data:image/jpeg;base64,...." -> raw JPEG bytes (the PDF needs bytes, not a URL)
+  function dataUrlToBytes(dataUrl) {
+    var base64 = dataUrl.slice(dataUrl.indexOf("base64,") + 7), out = new Uint8Array(base64.length * 3 / 4);
+    var len = atob(base64).length;
+    for (var i = 0; i < len; i++) out[i] = atob(base64).charCodeAt(i);
+    return out;
+  }
+
+  // Build the route's PNG-ish report as a real PDF: JPEG image + English stats, then download it.
+  // Text inside the PDF is English by design (offline PDFs can only use built-in fonts);
+  // the rest of the app stays EN + AR. See js/report.js for details.
+  function downloadPdfReport() {
+    if (!Darb.route || !Darb.stats) { $("routeMsg").textContent = T("needRoute"); return; }
+    var cv = drawRouteCanvas();
+    var dataUrl = cv.toDataURL("image/jpeg", 0.85);
+    var jpeg = dataUrlToBytes(dataUrl);
+    var size = DarbReport.jpegSize(jpeg);
+    var s = Darb.stats;
+    var lines = DarbReport.buildLines(s, {
+      start: { lat: Darb.start.lat, lng: Darb.start.lng },
+      goal: { lat: Darb.goal.lat, lng: Darb.goal.lng },
+      evaHours: DARB_CONFIG.routeOptions.evaBudgetHours,
+      generated: new Date().toISOString(),
+      doseMsv: (Darb.env.rad.surfaceDoseEquivalent_mSv_per_day * s.hoursRoundTrip / 24).toFixed(3)
+    });
+    var bytes = DarbReport.buildPdf(lines, jpeg, size.w, size.h);
+    var blob = new Blob([bytes], { type: "application/pdf" });
+    DarbReport.lastBlob = blob;                      // kept so tests / the page can inspect it
+    var name = "darb-report-" + new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19) + ".pdf";
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+    $("routeMsg").textContent = T("reportSaved");
+    showToast(T("toastReport"));
   }
 
   // A short link that re-plans the same route when opened: #s=lat,lon&g=lat,lon
@@ -1212,6 +1256,7 @@
       this.textContent = T(open ? "srcHide" : "srcShow");
     });
     $("exportBtn").addEventListener("click", exportRouteImage);
+    $("reportBtn").addEventListener("click", downloadPdfReport);
     $("shareBtn").addEventListener("click", copyShareLink);
     $("demoBtn").addEventListener("click", demoRoute);
     $("clearBtn").addEventListener("click", function () {
