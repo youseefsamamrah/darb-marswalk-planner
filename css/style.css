@@ -25,7 +25,7 @@ a { color: var(--blue); }
 .brand { display: flex; align-items: center; gap: 12px; }
 .logo { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-size: 22px;
   background: radial-gradient(circle at 35% 35%, #ff7a50, var(--mars) 60%, #7a1d0c); color: #fff;
-  box-shadow: 0 0 14px rgba(217, 72, 43, .6); }
+  box-shadow: 0 0 14px rgba(217, 72, 43, .6); border: 0; padding: 0; cursor: pointer; }
 .brand h1 { margin: 0; font-size: 20px; letter-spacing: .5px; }
 .brand p { margin: 0; color: var(--muted); font-size: 12px; }
 .top-actions { display: flex; align-items: center; gap: 8px; }
@@ -190,6 +190,31 @@ body.hud-on .hover { display: none; }
 .hist-row { display: flex; align-items: center; gap: 8px; margin: 4px 0 2px; }
 .hist-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
 .hist-select { flex: 1; margin: 0; }
+
+/* Easter eggs: Curiosity's wave + logo wobble (item 16) */
+.egg-wave { display: none; }
+.rover-row:hover .egg-wave {
+  display: inline-block;
+  margin-inline-start: 6px;
+  animation: eggwave 1s ease-in-out infinite;
+  transform-origin: 70% 80%;
+}
+.logo { display: inline-block; }
+.logo.wobble { animation: logowobble 0.8s ease-in-out; }
+@keyframes eggwave {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(22deg); }
+  50%  { transform: rotate(-12deg); }
+  75%  { transform: rotate(16deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes logowobble {
+  0%   { transform: translateX(0); }
+  25%  { transform: translateX(-5px) rotate(-8deg); }
+  50%  { transform: translateX(5px) rotate(8deg); }
+  75%  { transform: translateX(-3px) rotate(-4deg); }
+  100% { transform: translateX(0); }
+}
 
 @media (max-width: 800px) {
   .map-sources { max-width: calc(100vw - 70px); }

@@ -64,6 +64,9 @@
     pollAI();
     applyShareLink();
     showToast(T("toastWeather").replace("{sol}", String(Darb.env.rems.recentSols[0].sol)));
+    var milestone = solMilestone(Darb.env.rems.recentSols[0].sol);  // easter egg: milestone sol
+    if (milestone) showToast(T("eggSol").replace("{sol}", String(milestone)));
+    refreshEggTip();
   }
 
   // ------------------------------------------------------------------ map
@@ -498,6 +501,36 @@
       setTimeout(function () { el.remove(); }, 400);   // fade out, then drop from the DOM
     }, 4000);
   }
+
+  // ------------------------------------------------ easter eggs
+  // Three small delights (all text in EN + AR): Curiosity waves at you when you
+  // hover her layer row, a sol-milestone toast when REMS reports a quarter-sol
+  // round number (2500, 5000, …), and a hidden rocket when you tap the "د" logo
+  // five times fast.
+  function solMilestone(sol) {
+    return (typeof sol === "number" && sol > 0 && sol % 2500 === 0) ? sol : null;
+  }
+  Darb.solMilestone = solMilestone;   // inspectable/testable from the console
+
+  function refreshEggTip() {
+    var row = document.querySelector(".rover-row");
+    if (row) row.title = T("eggWaveTip");
+  }
+
+  // Rocket: five rapid taps of the logo (window = 2.5 s)
+  var rocketClicks = [];
+  document.querySelector(".logo").addEventListener("click", function () {
+    var now = Date.now();
+    rocketClicks.push(now);
+    rocketClicks = rocketClicks.filter(function (t) { return now - t < 2500; });
+    if (rocketClicks.length === 5) {
+      rocketClicks = [];
+      this.classList.add("wobble");
+      var self = this;
+      setTimeout(function () { self.classList.remove("wobble"); }, 900);
+      showToast(T("eggRocket"));
+    }
+  });
 
   // ------------------------------------------------ layer history / undo
   // Every layer toggle is recorded (which layer, and its state BEFORE the toggle),
@@ -1206,6 +1239,7 @@
       renderCompare();                                      // comparison card text and verdict follow the language too
       renderPerfLayer();                                    // last layer-timing line follows the language too
       renderHist();                                         // history dropdown follows the language too
+      refreshEggTip();                                      // Curiosity's wave tip follows the language too
       if (window.DarbTour) DarbTour.refresh();          // tour captions follow the language too
     });
     $("aiModel").addEventListener("change", function () { AskDarb.state.model = this.value; });
