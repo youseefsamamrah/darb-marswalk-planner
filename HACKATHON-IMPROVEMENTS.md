@@ -104,12 +104,13 @@
 - Every toggle of any of the six layers is recorded (layer + its state before the toggle, last 10 changes); a dropdown in the layers card lists them newest-first and picking one restores the previous state — checkbox flips back, layer added/removed on the map, "Restored …" toast, and the performance-budget line shows the restore timing with its own measurement
 - Dropdown and options follow the active language (EN + AR); verified live in the browser (Slope off → "Terrain slope … was on", Rough on → second entry, pick Slope → restored checkbox + layer + toast, Arabic flip renders Arabic options), 20/20 tests green
 
-#### 16. **Add Easter Egg / Fun Elements**
+#### 16. ~~**Add Easter Egg / Fun Elements**~~ ✅ **DONE 2026-11-13**
 - **Why**: Shows personality and attention to detail
-- **Ideas**:
-  - Mars sound effects (distant thunder, wind)
-  - Curiosity rover waving emoji on hover
-  - "Happy sol 5072!" message on anniversary
+- Three eggs wired in EN + AR (no audio dependencies, all CSS/JS):
+  - **Curiosity waves**: hovering the rover layer row makes a 👋 wave with a looping CSS animation and a localized tooltip ("Curiosity waves at you — have a good sol" / "فضول تلوّح نحوك — سولًا سعيدًا")
+  - **Sol milestones**: `Darb.solMilestone(sol)` (exposed in the `Darb` console object) returns a sol when it is a multiple of 2500 (2500, 5000, …); if REMS reports one on load, a "🎉 Happy Sol {sol}!" toast fires next to the weather toast — Sol 5000 lands ~Nov 19 2026, so this will be live for the judges
+  - **Rocket**: tapping the "د" logo five times within 2.5 s (the logo is now a keyboard-accessible button) wobbles it and fires the "🚀 Darb to Mars — not the Moon!" toast (EN + AR)
+- Verified live: `solMilestone(4995)=null`, `(2500)=2500`, `(5000)=5000`; real-pointer hover shows the wave (display `block`, animation `eggwave`); five rapid logo taps show the rocket toast + `wobble` class; Arabic flip updates the wave tooltip; 0 console errors; 20/20 tests green
 
 #### 17. **Add Download Report Feature**
 - **Why**: Teams may want to print route analysis for presentations
