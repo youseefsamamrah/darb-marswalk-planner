@@ -112,13 +112,17 @@
   - **Rocket**: tapping the "د" logo five times within 2.5 s (the logo is now a keyboard-accessible button) wobbles it and fires the "🚀 Darb to Mars — not the Moon!" toast (EN + AR)
 - Verified live: `solMilestone(4995)=null`, `(2500)=2500`, `(5000)=5000`; real-pointer hover shows the wave (display `block`, animation `eggwave`); five rapid logo taps show the rocket toast + `wobble` class; Arabic flip updates the wave tooltip; 0 console errors; 20/20 tests green
 
-#### 17. **Add Download Report Feature**
+#### 17. ~~**Add Download Report Feature**~~ ✅ **DONE 2026-11-13**
 - **Why**: Teams may want to print route analysis for presentations
 - **Action**: Button generates PDF with:
   - Route on map (screenshot)
   - Stats table
   - Data sources cited
   - Timestamp and team name field
+- "Download PDF report" button (EN + AR) builds a real A4 PDF by hand (`js/report.js`, zero dependencies): route image as a `/DCTDecode` JPEG XObject from the 1400×900 export canvas, stats table and data sources in built-in Helvetica, ISO timestamp and "Team: Darb — NASA Space Apps 2026" footer
+- Text inside the PDF is English by design (offline PDFs can only use built-in fonts); the rest of the app stays EN + AR
+- Saved as `darb-report-<ISO>.pdf` with a toast; `DarbReport.lastBlob` keeps the Blob for inspection
+- Verified: `node --test` 24/24 (route 20/20 + report 4/4: xref offsets, `%%EOF`, `/DCTDecode`, SOF parse); browser — 75,533 B `application/pdf` blob, `%PDF-1.4` … `%%EOF`, embedded JPEG SOF, toast shown, 0 console errors
 
 #### 18. **Add "What If" Simulator**
 - **Why**: Educational value, shows system understanding
